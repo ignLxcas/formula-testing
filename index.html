@@ -7,13 +7,17 @@
     <style>
         :root {
             --bg-primary: #0a0a1a;
+            --bg-secondary: #1a1a3e;
             --bg-card: #16213e;
             --accent: #ff6b35;
+            --accent2: #f7c948;
             --gold: #ffd700;
             --success: #00ff88;
             --danger: #ff4444;
             --text-primary: #ffffff;
+            --text-secondary: #b0b0c0;
             --border: #2a2a4e;
+            --shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -36,36 +40,52 @@
             justify-content: center;
             min-height: 100vh;
             padding: 20px;
+            position: relative;
         }
 
         .game-title {
-            font-size: 2.5rem;
+            font-size: 3rem;
             font-weight: bold;
-            margin-bottom: 30px;
-            background: linear-gradient(45deg, #ff6b35, #f7c948);
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ff6b35, #f7c948, #ff6b35);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            text-align: center;
+            text-shadow: 0 0 30px rgba(255,107,53,0.3);
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+            font-size: 1.1rem;
         }
 
         .connection-options {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 20px;
             width: 100%;
-            max-width: 400px;
+            max-width: 420px;
         }
 
         .option-card {
-            background: var(--bg-card);
+            background: linear-gradient(145deg, #16213e, #1a1a3e);
             border: 2px solid var(--border);
             border-radius: 20px;
-            padding: 20px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+        }
+
+        .option-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-5px);
         }
 
         .option-title {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             font-weight: bold;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             text-align: center;
             color: var(--accent);
         }
@@ -78,44 +98,59 @@
             font-weight: 600;
             cursor: pointer;
             width: 100%;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .btn:active { transform: scale(0.95); }
-        .btn-primary { background: linear-gradient(45deg, #ff6b35, #f7c948); color: #0a0a1a; }
-        .btn-secondary { background: var(--bg-primary); color: var(--text-primary); border: 2px solid var(--border); }
+        .btn-primary {
+            background: linear-gradient(45deg, #ff6b35, #f7c948);
+            color: #0a0a1a;
+            box-shadow: 0 5px 20px rgba(255,107,53,0.3);
+        }
+        .btn-secondary {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border: 2px solid var(--border);
+        }
 
         input {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             border: 2px solid var(--border);
             border-radius: 10px;
             background: var(--bg-primary);
             color: var(--text-primary);
             font-size: 1rem;
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
+            transition: all 0.3s;
         }
+        input:focus { outline: none; border-color: var(--accent); }
 
         .code-display {
             background: var(--bg-primary);
             border: 2px dashed var(--gold);
-            border-radius: 10px;
-            padding: 15px;
+            border-radius: 15px;
+            padding: 20px;
             text-align: center;
-            margin: 10px 0;
+            margin: 15px 0;
         }
 
         .code-text {
-            font-size: 2rem;
+            font-size: 2.5rem;
             font-weight: bold;
             color: var(--gold);
-            letter-spacing: 3px;
+            letter-spacing: 5px;
+            text-shadow: 0 0 20px rgba(255,215,0,0.5);
         }
 
         .game-screen {
             display: none;
             flex-direction: column;
             height: 100vh;
+            background: radial-gradient(circle at center, #1a1a3e 0%, #0a0a1a 100%);
         }
         .game-screen.active { display: flex; }
 
@@ -123,16 +158,63 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 15px;
-            background: var(--bg-card);
+            padding: 15px 20px;
+            background: linear-gradient(145deg, #16213e, #1a1a3e);
+            border-bottom: 2px solid var(--border);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            z-index: 10;
         }
 
-        .player-score { font-size: 2rem; color: var(--gold); font-weight: bold; }
-        .timer-text { font-size: 1.5rem; font-weight: bold; color: var(--gold); }
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            background: var(--bg-primary);
+            border: 3px solid var(--border);
+        }
+        .avatar.you { border-color: var(--success); box-shadow: 0 0 15px rgba(0,255,136,0.3); }
+        .avatar.opp { border-color: var(--danger); box-shadow: 0 0 15px rgba(255,68,68,0.3); }
+
+        .player-score {
+            font-size: 2rem;
+            color: var(--gold);
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255,215,0,0.5);
+        }
+
+        .timer-display {
+            background: var(--bg-primary);
+            border: 2px solid var(--border);
+            border-radius: 15px;
+            padding: 10px 25px;
+            text-align: center;
+        }
+        .timer-text {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--gold);
+        }
+        .timer-label {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
 
         .game-canvas-container {
             flex: 1;
             position: relative;
+            overflow: hidden;
         }
 
         canvas {
@@ -154,20 +236,30 @@
             align-items: center;
             justify-content: center;
             z-index: 2000;
+            backdrop-filter: blur(5px);
         }
         .modal.active { display: flex; }
 
         .modal-content {
-            background: var(--bg-card);
-            padding: 30px;
-            border-radius: 20px;
+            background: linear-gradient(145deg, #16213e, #1a1a3e);
+            border: 2px solid var(--gold);
+            padding: 40px;
+            border-radius: 25px;
             text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            animation: modalIn 0.3s ease;
+        }
+
+        @keyframes modalIn {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
         }
     </style>
 </head>
 <body>
     <div class="connection-screen" id="connectionScreen">
         <h1 class="game-title">⚽ Ball Rush</h1>
+        <p class="subtitle">¡Compite en tiempo real!</p>
         
         <div class="connection-options">
             <div class="option-card">
@@ -176,16 +268,17 @@
                 <button class="btn btn-primary" onclick="createGame()">Crear Sala</button>
                 <div id="createdCode" style="display: none;">
                     <div class="code-display">
+                        <p style="color:var(--text-secondary);font-size:0.8rem;margin-bottom:10px;">CÓDIGO DE PARTIDA</p>
                         <div class="code-text" id="gameCodeText"></div>
                     </div>
-                    <p style="text-align:center;">Esperando oponente...</p>
+                    <p style="text-align:center;color:var(--text-secondary);">Esperando oponente...</p>
                 </div>
             </div>
             
             <div class="option-card">
                 <div class="option-title">🔗 Unirse</div>
                 <input type="text" id="playerNameJoin" placeholder="Tu nombre" maxlength="15">
-                <input type="text" id="gameCode" placeholder="Código" maxlength="6" oninput="this.value=this.value.toUpperCase()">
+                <input type="text" id="gameCode" placeholder="CÓDIGO" maxlength="6" oninput="this.value=this.value.toUpperCase()">
                 <button class="btn btn-secondary" onclick="joinGame()">Unirse</button>
             </div>
         </div>
@@ -193,20 +286,23 @@
 
     <div class="game-screen" id="gameScreen">
         <div class="game-header">
-            <div style="display:flex;align-items:center;gap:10px;">
-                <span style="font-size:1.5rem;">😊</span>
+            <div class="player-info">
+                <div class="avatar you">😊</div>
                 <div>
-                    <div id="yourName" style="font-size:0.8rem;">Tú</div>
+                    <div id="yourName" style="font-size:0.9rem;font-weight:bold;">Tú</div>
                     <div class="player-score" id="yourScore">0</div>
                 </div>
             </div>
-            <div class="timer-text" id="timerText">60</div>
-            <div style="display:flex;align-items:center;gap:10px;text-align:right;">
+            <div class="timer-display">
+                <div class="timer-text" id="timerText">60</div>
+                <div class="timer-label">Segundos</div>
+            </div>
+            <div class="player-info" style="text-align:right;">
                 <div>
-                    <div id="opponentName" style="font-size:0.8rem;">Oponente</div>
+                    <div id="opponentName" style="font-size:0.9rem;font-weight:bold;">Oponente</div>
                     <div class="player-score" id="opponentScore">0</div>
                 </div>
-                <span style="font-size:1.5rem;">😎</span>
+                <div class="avatar opp">😎</div>
             </div>
         </div>
         <div class="game-canvas-container"><canvas id="canvas"></canvas></div>
@@ -214,8 +310,8 @@
 
     <div class="modal" id="resultModal">
         <div class="modal-content">
-            <h2 id="resultTitle" style="margin-bottom:15px;"></h2>
-            <div id="resultDetails" style="margin-bottom:20px;"></div>
+            <h2 id="resultTitle" style="margin-bottom:15px;font-size:2rem;"></h2>
+            <div id="resultDetails" style="margin-bottom:25px;font-size:1.2rem;"></div>
             <button class="btn btn-primary" onclick="location.reload()">Jugar de Nuevo</button>
         </div>
     </div>
@@ -240,11 +336,12 @@
         const BALL_R = 12;
         const PLAYER_R = 25;
         const GOAL_H = 40;
-        const COLLISION_DIST = BALL_R + PLAYER_R; // Distancia exacta de colisión
+        const COLLISION_DIST = BALL_R + PLAYER_R;
         
         let canvas, ctx, W, H;
         let gameRef, gameCode, myKey, isHost;
         let gameActive = false;
+        let timeLeft = 60;
         
         const my = { x: 0, y: 0, score: 0, name: '' };
         const opp = { x: 0, y: 0, score: 0, name: '' };
@@ -265,10 +362,10 @@
                 host: { name: my.name, x: 0.5, y: 0.75, score: 0 },
                 opponent: { name: '', x: 0.5, y: 0.25, score: 0, connected: false },
                 ball: { x: 0.5, y: 0.5, vx: 5, vy: 3 },
-                active: true
+                active: true,
+                timeLeft: 60
             });
             
-            // Escuchar oponente - SCORE ESPECÍFICO
             gameRef.child('opponent/score').on('value', snap => {
                 const val = snap.val();
                 if (val !== null && val !== undefined) {
@@ -278,28 +375,24 @@
             });
             
             gameRef.child('opponent/name').on('value', snap => {
-                const val = snap.val();
-                if (val) {
-                    opp.name = val;
-                    document.getElementById('opponentName').textContent = val;
+                if (snap.val()) {
+                    opp.name = snap.val();
+                    document.getElementById('opponentName').textContent = opp.name;
                 }
             });
             
             gameRef.child('opponent/x').on('value', snap => {
-                const val = snap.val();
-                if (val !== null) opp.x = val * W;
+                if (snap.val() !== null) opp.x = snap.val() * W;
             });
             
             gameRef.child('opponent/y').on('value', snap => {
-                const val = snap.val();
-                if (val !== null) opp.y = val * H;
+                if (snap.val() !== null) opp.y = snap.val() * H;
             });
             
             gameRef.child('opponent/connected').on('value', snap => {
                 if (snap.val() === true && !gameActive) startGame();
             });
             
-            // Escuchar pelota
             gameRef.child('ball').on('value', snap => {
                 const d = snap.val();
                 if (d && gameActive) {
@@ -331,7 +424,6 @@
                     name: my.name, x: 0.5, y: 0.25, score: 0, connected: true
                 });
                 
-                // Escuchar score del HOST
                 gameRef.child('host/score').on('value', snap => {
                     const val = snap.val();
                     if (val !== null && val !== undefined) {
@@ -341,24 +433,20 @@
                 });
                 
                 gameRef.child('host/name').on('value', snap => {
-                    const val = snap.val();
-                    if (val) {
-                        opp.name = val;
-                        document.getElementById('opponentName').textContent = val;
+                    if (snap.val()) {
+                        opp.name = snap.val();
+                        document.getElementById('opponentName').textContent = opp.name;
                     }
                 });
                 
                 gameRef.child('host/x').on('value', snap => {
-                    const val = snap.val();
-                    if (val !== null) opp.x = val * W;
+                    if (snap.val() !== null) opp.x = snap.val() * W;
                 });
                 
                 gameRef.child('host/y').on('value', snap => {
-                    const val = snap.val();
-                    if (val !== null) opp.y = val * H;
+                    if (snap.val() !== null) opp.y = snap.val() * H;
                 });
                 
-                // Escuchar pelota
                 gameRef.child('ball').on('value', snap => {
                     const d = snap.val();
                     if (d && gameActive) {
@@ -369,7 +457,16 @@
                     }
                 });
                 
-                // Escuchar inicio
+                // Escuchar timer
+                gameRef.child('timeLeft').on('value', snap => {
+                    const val = snap.val();
+                    if (val !== null && val !== undefined) {
+                        timeLeft = val;
+                        document.getElementById('timerText').textContent = val;
+                        if (val <= 0) endGame();
+                    }
+                });
+                
                 gameRef.child('active').on('value', snap => {
                     if (snap.val() === true && !gameActive) startGame();
                 });
@@ -396,24 +493,28 @@
                 ball.vx = 7;
                 ball.vy = 5;
                 
-                gameRef.update({ active: true, ball: { x: 0.5, y: 0.5, vx: 7, vy: 5 } });
+                gameRef.update({ active: true, timeLeft: 60, ball: { x: 0.5, y: 0.5, vx: 7, vy: 5 } });
                 
-                let time = 60;
+                // Timer SOLO en host
                 const timer = setInterval(() => {
                     if (!gameActive) { clearInterval(timer); return; }
-                    time--;
-                    document.getElementById('timerText').textContent = time;
-                    if (time <= 0) { clearInterval(timer); endGame(); }
+                    timeLeft--;
+                    document.getElementById('timerText').textContent = timeLeft;
+                    gameRef.child('timeLeft').set(timeLeft);
+                    
+                    if (timeLeft <= 0) {
+                        clearInterval(timer);
+                        endGame();
+                    }
                 }, 1000);
                 
-                // Física de la pelota
+                // Física SOLO en host
                 setInterval(() => {
                     if (!gameActive) return;
                     
                     ball.x += ball.vx;
                     ball.y += ball.vy;
                     
-                    // Rebote en paredes
                     if (ball.x < BALL_R) { ball.x = BALL_R; ball.vx = Math.abs(ball.vx); }
                     if (ball.x > W - BALL_R) { ball.x = W - BALL_R; ball.vx = -Math.abs(ball.vx); }
                     
@@ -433,7 +534,6 @@
                         resetBall();
                     }
                     
-                    // Enviar pelota
                     gameRef.child('ball').update({
                         x: ball.x / W,
                         y: ball.y / H,
@@ -457,33 +557,29 @@
             ball.y = H / 2;
             ball.vx = (Math.random() > 0.5 ? 1 : -1) * 7;
             ball.vy = (Math.random() > 0.5 ? 1 : -1) * 5;
-            gameRef.child('ball').set({
-                x: 0.5, y: 0.5,
-                vx: ball.vx, vy: ball.vy
-            });
+            gameRef.child('ball').set({ x: 0.5, y: 0.5, vx: ball.vx, vy: ball.vy });
         }
         
         function checkCollision() {
-            // Verificar colisión SOLO con mi jugador
             const dx = my.x - ball.x;
             const dy = my.y - ball.y;
             const dist = Math.sqrt(dx*dx + dy*dy);
             
             if (dist < COLLISION_DIST) {
-                // Calcular ángulo de rebote
                 const angle = Math.atan2(dy, dx);
-                
-                // Velocidad constante tipo tenis
                 const speed = 10;
+                
                 ball.vx = Math.cos(angle) * speed;
                 ball.vy = Math.sin(angle) * speed;
                 
-                // Separar la pelota FUERA del jugador
+                // Asegurar que la pelota va hacia el oponente
+                if (isHost && ball.vy > 0) ball.vy = -ball.vy; // Host siempre pega hacia arriba
+                if (!isHost && ball.vy < 0) ball.vy = -ball.vy; // Oponente siempre pega hacia abajo
+                
                 const overlap = COLLISION_DIST - dist + 10;
                 ball.x += Math.cos(angle) * overlap;
                 ball.y += Math.sin(angle) * overlap;
                 
-                // Enviar inmediatamente
                 gameRef.child('ball').set({
                     x: ball.x / W,
                     y: ball.y / H,
@@ -491,37 +587,11 @@
                     vy: ball.vy
                 });
             }
-            
-            // Verificar colisión con oponente (solo host)
-            if (isHost) {
-                const dx2 = opp.x - ball.x;
-                const dy2 = opp.y - ball.y;
-                const dist2 = Math.sqrt(dx2*dx2 + dy2*dy2);
-                
-                if (dist2 < COLLISION_DIST) {
-                    const angle = Math.atan2(dy2, dx2);
-                    const speed = 10;
-                    ball.vx = Math.cos(angle) * speed;
-                    ball.vy = Math.sin(angle) * speed;
-                    
-                    const overlap = COLLISION_DIST - dist2 + 10;
-                    ball.x += Math.cos(angle) * overlap;
-                    ball.y += Math.sin(angle) * overlap;
-                    
-                    gameRef.child('ball').set({
-                        x: ball.x / W,
-                        y: ball.y / H,
-                        vx: ball.vx,
-                        vy: ball.vy
-                    });
-                }
-            }
         }
         
         function gameLoop() {
             if (!gameActive) return;
             
-            // Enviar mi posición
             gameRef.child(myKey + '/x').set(my.x / W);
             gameRef.child(myKey + '/y').set(my.y / H);
             
@@ -532,27 +602,42 @@
         
         function render() {
             ctx.clearRect(0, 0, W, H);
-            ctx.fillStyle = '#1a1a3e';
+            
+            // Fondo con gradiente
+            const bgGrad = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, W/2);
+            bgGrad.addColorStop(0, '#1a1a3e');
+            bgGrad.addColorStop(1, '#0a0a1a');
+            ctx.fillStyle = bgGrad;
             ctx.fillRect(0, 0, W, H);
             
             // Línea central
             ctx.strokeStyle = '#2a2a4e';
             ctx.lineWidth = 2;
+            ctx.setLineDash([10, 10]);
             ctx.beginPath();
             ctx.moveTo(0, H/2);
             ctx.lineTo(W, H/2);
             ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Círculo central
+            ctx.beginPath();
+            ctx.arc(W/2, H/2, 60, 0, Math.PI*2);
+            ctx.stroke();
             
             // Porterías
-            ctx.fillStyle = 'rgba(255,68,68,0.5)';
+            ctx.fillStyle = 'rgba(255,68,68,0.6)';
             ctx.fillRect(0, 0, W, GOAL_H);
-            ctx.fillStyle = 'rgba(0,255,136,0.5)';
+            ctx.fillStyle = 'rgba(0,255,136,0.6)';
             ctx.fillRect(0, H-GOAL_H, W, GOAL_H);
             
-            // Pelota
-            ctx.fillStyle = '#ffd700';
+            // Pelota con gradiente
+            const ballGrad = ctx.createRadialGradient(ball.x-3, ball.y-3, 0, ball.x, ball.y, BALL_R);
+            ballGrad.addColorStop(0, '#ffffff');
+            ballGrad.addColorStop(1, '#ffd700');
+            ctx.fillStyle = ballGrad;
             ctx.shadowColor = '#ffd700';
-            ctx.shadowBlur = 15;
+            ctx.shadowBlur = 20;
             ctx.beginPath();
             ctx.arc(ball.x, ball.y, BALL_R, 0, Math.PI*2);
             ctx.fill();
@@ -561,7 +646,7 @@
             // Mi jugador
             ctx.fillStyle = '#00ff88';
             ctx.shadowColor = '#00ff88';
-            ctx.shadowBlur = 15;
+            ctx.shadowBlur = 20;
             ctx.beginPath();
             ctx.arc(my.x, my.y, PLAYER_R, 0, Math.PI*2);
             ctx.fill();
@@ -570,7 +655,7 @@
             // Oponente
             ctx.fillStyle = '#ff4444';
             ctx.shadowColor = '#ff4444';
-            ctx.shadowBlur = 15;
+            ctx.shadowBlur = 20;
             ctx.beginPath();
             ctx.arc(opp.x, opp.y, PLAYER_R, 0, Math.PI*2);
             ctx.fill();
