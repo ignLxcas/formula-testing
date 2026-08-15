@@ -237,10 +237,10 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         
-        const BALL_R = 15;
-        const PLAYER_R = 30;
-        const GOAL_H = 50;
-        const BALL_SPEED = 10; // Velocidad fija tipo tenis
+        const BALL_R = 12;
+        const PLAYER_R = 25;
+        const GOAL_H = 40;
+        const COLLISION_DIST = BALL_R + PLAYER_R; // Distancia exacta de colisión
         
         let canvas, ctx, W, H;
         let gameRef, gameCode, myKey, isHost;
@@ -268,21 +268,35 @@
                 active: true
             });
             
-            // Escuchar oponente COMPLETO
-            gameRef.child('opponent').on('value', snap => {
-                const d = snap.val();
-                if (d) {
-                    opp.name = d.name || 'Oponente';
-                    opp.x = (d.x || 0.5) * W;
-                    opp.y = (d.y || 0.25) * H;
-                    if (d.score !== undefined && d.score !== null) {
-                        opp.score = d.score;
-                        document.getElementById('opponentScore').textContent = opp.score;
-                    }
-                    document.getElementById('opponentName').textContent = opp.name;
-                    
-                    if (d.connected && !gameActive) startGame();
+            // Escuchar oponente - SCORE ESPECÍFICO
+            gameRef.child('opponent/score').on('value', snap => {
+                const val = snap.val();
+                if (val !== null && val !== undefined) {
+                    opp.score = val;
+                    document.getElementById('opponentScore').textContent = val;
                 }
+            });
+            
+            gameRef.child('opponent/name').on('value', snap => {
+                const val = snap.val();
+                if (val) {
+                    opp.name = val;
+                    document.getElementById('opponentName').textContent = val;
+                }
+            });
+            
+            gameRef.child('opponent/x').on('value', snap => {
+                const val = snap.val();
+                if (val !== null) opp.x = val * W;
+            });
+            
+            gameRef.child('opponent/y').on('value', snap => {
+                const val = snap.val();
+                if (val !== null) opp.y = val * H;
+            });
+            
+            gameRef.child('opponent/connected').on('value', snap => {
+                if (snap.val() === true && !gameActive) startGame();
             });
             
             // Escuchar pelota
@@ -317,19 +331,31 @@
                     name: my.name, x: 0.5, y: 0.25, score: 0, connected: true
                 });
                 
-                // Escuchar host COMPLETO
-                gameRef.child('host').on('value', snap => {
-                    const d = snap.val();
-                    if (d) {
-                        opp.name = d.name || 'Oponente';
-                        opp.x = (d.x || 0.5) * W;
-                        opp.y = (d.y || 0.75) * H;
-                        if (d.score !== undefined && d.score !== null) {
-                            opp.score = d.score;
-                            document.getElementById('opponentScore').textContent = opp.score;
-                        }
-                        document.getElementById('opponentName').textContent = opp.name;
+                // Escuchar score del HOST
+                gameRef.child('host/score').on('value', snap => {
+                    const val = snap.val();
+                    if (val !== null && val !== undefined) {
+                        opp.score = val;
+                        document.getElementById('opponentScore').textContent = val;
                     }
+                });
+                
+                gameRef.child('host/name').on('value', snap => {
+                    const val = snap.val();
+                    if (val) {
+                        opp.name = val;
+                        document.getElementById('opponentName').textContent = val;
+                    }
+                });
+                
+                gameRef.child('host/x').on('value', snap => {
+                    const val = snap.val();
+                    if (val !== null) opp.x = val * W;
+                });
+                
+                gameRef.child('host/y').on('value', snap => {
+                    const val = snap.val();
+                    if (val !== null) opp.y = val * H;
                 });
                 
                 // Escuchar pelota
@@ -367,11 +393,10 @@
                 opp.x = W / 2;
                 opp.y = H * 0.25;
                 
-                // Velocidad inicial tipo tenis
-                ball.vx = (Math.random() > 0.5 ? 1 : -1) * 7;
-                ball.vy = (Math.random() > 0.5 ? 1 : -1) * 7;
+                ball.vx = 7;
+                ball.vy = 5;
                 
-                gameRef.update({ active: true });
+                gameRef.update({ active: true, ball: { x: 0.5, y: 0.5, vx: 7, vy: 5 } });
                 
                 let time = 60;
                 const timer = setInterval(() => {
@@ -381,25 +406,18 @@
                     if (time <= 0) { clearInterval(timer); endGame(); }
                 }, 1000);
                 
-                // Física de la pelota (solo host)
+                // Física de la pelota
                 setInterval(() => {
                     if (!gameActive) return;
                     
-                    // Mover pelota a velocidad constante
                     ball.x += ball.vx;
                     ball.y += ball.vy;
                     
-                    // Rebote en paredes laterales
-                    if (ball.x < BALL_R) {
-                        ball.x = BALL_R;
-                        ball.vx = Math.abs(ball.vx);
-                    }
-                    if (ball.x > W - BALL_R) {
-                        ball.x = W - BALL_R;
-                        ball.vx = -Math.abs(ball.vx);
-                    }
+                    // Rebote en paredes
+                    if (ball.x < BALL_R) { ball.x = BALL_R; ball.vx = Math.abs(ball.vx); }
+                    if (ball.x > W - BALL_R) { ball.x = W - BALL_R; ball.vx = -Math.abs(ball.vx); }
                     
-                    // Gol para host (pelota sale por arriba)
+                    // Gol para host (arriba)
                     if (ball.y < BALL_R) {
                         my.score++;
                         document.getElementById('yourScore').textContent = my.score;
@@ -407,7 +425,7 @@
                         resetBall();
                     }
                     
-                    // Gol para oponente (pelota sale por abajo)
+                    // Gol para oponente (abajo)
                     if (ball.y > H - BALL_R) {
                         opp.score++;
                         document.getElementById('opponentScore').textContent = opp.score;
@@ -415,7 +433,7 @@
                         resetBall();
                     }
                     
-                    // Enviar pelota a Firebase
+                    // Enviar pelota
                     gameRef.child('ball').update({
                         x: ball.x / W,
                         y: ball.y / H,
@@ -438,7 +456,7 @@
             ball.x = W / 2;
             ball.y = H / 2;
             ball.vx = (Math.random() > 0.5 ? 1 : -1) * 7;
-            ball.vy = (Math.random() > 0.5 ? 1 : -1) * 7;
+            ball.vy = (Math.random() > 0.5 ? 1 : -1) * 5;
             gameRef.child('ball').set({
                 x: 0.5, y: 0.5,
                 vx: ball.vx, vy: ball.vy
@@ -446,23 +464,22 @@
         }
         
         function checkCollision() {
+            // Verificar colisión SOLO con mi jugador
             const dx = my.x - ball.x;
             const dy = my.y - ball.y;
             const dist = Math.sqrt(dx*dx + dy*dy);
             
-            if (dist < PLAYER_R + BALL_R) {
-                // Rebote tipo tenis - velocidad constante
+            if (dist < COLLISION_DIST) {
+                // Calcular ángulo de rebote
                 const angle = Math.atan2(dy, dx);
-                const speed = Math.sqrt(ball.vx*ball.vx + ball.vy*ball.vy) || 10;
                 
-                // Asegurar velocidad mínima
-                const newSpeed = Math.max(speed, 10);
+                // Velocidad constante tipo tenis
+                const speed = 10;
+                ball.vx = Math.cos(angle) * speed;
+                ball.vy = Math.sin(angle) * speed;
                 
-                ball.vx = Math.cos(angle) * newSpeed;
-                ball.vy = Math.sin(angle) * newSpeed;
-                
-                // Separar la pelota inmediatamente
-                const overlap = PLAYER_R + BALL_R - dist + 5;
+                // Separar la pelota FUERA del jugador
+                const overlap = COLLISION_DIST - dist + 10;
                 ball.x += Math.cos(angle) * overlap;
                 ball.y += Math.sin(angle) * overlap;
                 
@@ -474,12 +491,40 @@
                     vy: ball.vy
                 });
             }
+            
+            // Verificar colisión con oponente (solo host)
+            if (isHost) {
+                const dx2 = opp.x - ball.x;
+                const dy2 = opp.y - ball.y;
+                const dist2 = Math.sqrt(dx2*dx2 + dy2*dy2);
+                
+                if (dist2 < COLLISION_DIST) {
+                    const angle = Math.atan2(dy2, dx2);
+                    const speed = 10;
+                    ball.vx = Math.cos(angle) * speed;
+                    ball.vy = Math.sin(angle) * speed;
+                    
+                    const overlap = COLLISION_DIST - dist2 + 10;
+                    ball.x += Math.cos(angle) * overlap;
+                    ball.y += Math.sin(angle) * overlap;
+                    
+                    gameRef.child('ball').set({
+                        x: ball.x / W,
+                        y: ball.y / H,
+                        vx: ball.vx,
+                        vy: ball.vy
+                    });
+                }
+            }
         }
         
         function gameLoop() {
             if (!gameActive) return;
             
-            gameRef.child(myKey).update({ x: my.x / W, y: my.y / H });
+            // Enviar mi posición
+            gameRef.child(myKey + '/x').set(my.x / W);
+            gameRef.child(myKey + '/y').set(my.y / H);
+            
             checkCollision();
             render();
             requestAnimationFrame(gameLoop);
@@ -515,15 +560,21 @@
             
             // Mi jugador
             ctx.fillStyle = '#00ff88';
+            ctx.shadowColor = '#00ff88';
+            ctx.shadowBlur = 15;
             ctx.beginPath();
             ctx.arc(my.x, my.y, PLAYER_R, 0, Math.PI*2);
             ctx.fill();
+            ctx.shadowBlur = 0;
             
             // Oponente
             ctx.fillStyle = '#ff4444';
+            ctx.shadowColor = '#ff4444';
+            ctx.shadowBlur = 15;
             ctx.beginPath();
             ctx.arc(opp.x, opp.y, PLAYER_R, 0, Math.PI*2);
             ctx.fill();
+            ctx.shadowBlur = 0;
         }
         
         function resizeCanvas() {
@@ -554,9 +605,9 @@
                 x = Math.max(PLAYER_R, Math.min(W - PLAYER_R, x));
                 
                 if (isHost) {
-                    y = Math.max(H/2, Math.min(H - GOAL_H - PLAYER_R, y));
+                    y = Math.max(H/2 + PLAYER_R, Math.min(H - GOAL_H - PLAYER_R, y));
                 } else {
-                    y = Math.max(GOAL_H + PLAYER_R, Math.min(H/2, y));
+                    y = Math.max(GOAL_H + PLAYER_R, Math.min(H/2 - PLAYER_R, y));
                 }
                 
                 my.x = x;
