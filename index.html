@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Highlights - API</title>
+    <style>
+        /* Estilos similares a la opción anterior */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📸 Instagram Highlights</h1>
+        <div id="highlightsContainer"></div>
+    </div>
+
+    <script>
+        // Configuración de RapidAPI
+        const RAPIDAPI_KEY = 'tu_clave_de_rapidapi';
+        const RAPIDAPI_HOST = 'instagram-scraper-api2.p.rapidapi.com';
+        
+        const highlightIds = [
+            '18299348608198590',
+            '17952049419030602'
+        ];
+
+        async function fetchHighlight(highlightId) {
+            const options = {
+                method: 'GET',
+                headers: {
+                    'X-RapidAPI-Key': RAPIDAPI_KEY,
+                    'X-RapidAPI-Host': RAPIDAPI_HOST
+                }
+            };
+
+            try {
+                const response = await fetch(
+                    `https://${RAPIDAPI_HOST}/v1/highlight_stories?highlight_id=${highlightId}`,
+                    options
+                );
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error:', error);
+                return null;
+            }
+        }
+
+        async function displayHighlights() {
+            const container = document.getElementById('highlightsContainer');
+            
+            for (const id of highlightIds) {
+                const data = await fetchHighlight(id);
+                
+                if (data && data.data && data.data.items) {
+                    const storiesHtml = data.data.items.map(story => {
+                        const imageUrl = story.image_versions2?.candidates?.[0]?.url || 
+                                       story.image_versions?.candidates?.[0]?.url || '';
+                        
+                        return `
+                            <div class="story-card">
+                                <img src="${imageUrl}" alt="Story" loading="lazy">
+                                ${story.video_versions ? '<span class="video-badge">🎥 Video</span>' : ''}
+                            </div>
+                        `;
+                    }).join('');
+                    
+                    container.innerHTML += `
+                        <div class="highlight-section">
+                            <h2>${data.data.title || 'Highlight'}</h2>
+                            <div class="stories-grid">${storiesHtml}</div>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        displayHighlights();
+    </script>
+</body>
+</html>
