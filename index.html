@@ -17,7 +17,6 @@
             --text-primary: #ffffff;
             --text-secondary: #b0b0c0;
             --border: #2a2a4e;
-            --shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -40,7 +39,6 @@
             justify-content: center;
             min-height: 100vh;
             padding: 20px;
-            position: relative;
         }
 
         .game-title {
@@ -53,18 +51,13 @@
             text-align: center;
         }
 
-        .subtitle {
-            color: var(--text-secondary);
-            margin-bottom: 30px;
-            font-size: 1.1rem;
-        }
-
         .connection-options {
             display: flex;
             flex-direction: column;
             gap: 20px;
             width: 100%;
             max-width: 420px;
+            margin-top: 30px;
         }
 
         .option-card {
@@ -72,7 +65,6 @@
             border: 2px solid var(--border);
             border-radius: 20px;
             padding: 25px;
-            box-shadow: var(--shadow);
         }
 
         .option-title {
@@ -91,22 +83,11 @@
             font-weight: 600;
             cursor: pointer;
             width: 100%;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
         .btn:active { transform: scale(0.95); }
-        .btn-primary {
-            background: linear-gradient(45deg, #ff6b35, #f7c948);
-            color: #0a0a1a;
-            box-shadow: 0 5px 20px rgba(255,107,53,0.3);
-        }
-        .btn-secondary {
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            border: 2px solid var(--border);
-        }
+        .btn-primary { background: linear-gradient(45deg, #ff6b35, #f7c948); color: #0a0a1a; }
+        .btn-secondary { background: var(--bg-primary); color: var(--text-primary); border: 2px solid var(--border); }
 
         input {
             width: 100%;
@@ -119,7 +100,6 @@
             text-align: center;
             margin-bottom: 12px;
         }
-        input:focus { outline: none; border-color: var(--accent); }
 
         .code-display {
             background: var(--bg-primary);
@@ -154,39 +134,12 @@
             z-index: 10;
         }
 
-        .player-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .avatar {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            background: var(--bg-primary);
-            border: 3px solid var(--border);
-        }
-        .avatar.you { border-color: var(--success); }
-        .avatar.opp { border-color: var(--danger); }
-
         .player-score {
             font-size: 2rem;
             color: var(--gold);
             font-weight: bold;
         }
 
-        .timer-display {
-            background: var(--bg-primary);
-            border: 2px solid var(--border);
-            border-radius: 15px;
-            padding: 10px 25px;
-            text-align: center;
-        }
         .timer-text {
             font-size: 2rem;
             font-weight: bold;
@@ -205,39 +158,6 @@
             position: absolute;
             top: 0;
             left: 0;
-        }
-
-        /* Botón de patada para móvil */
-        .kick-button {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: linear-gradient(45deg, #ff6b35, #f7c948);
-            border: 3px solid var(--gold);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            cursor: pointer;
-            box-shadow: 0 10px 30px rgba(255,107,53,0.5);
-            z-index: 100;
-            transition: all 0.2s;
-        }
-        .kick-button:active {
-            transform: scale(0.9);
-            box-shadow: 0 5px 15px rgba(255,107,53,0.3);
-        }
-        .kick-button.cooldown {
-            opacity: 0.5;
-            pointer-events: none;
-        }
-
-        @media (max-width: 768px) {
-            .kick-button { display: flex; }
-            .game-title { font-size: 2rem; }
         }
 
         .modal {
@@ -266,7 +186,6 @@
 <body>
     <div class="connection-screen" id="connectionScreen">
         <h1 class="game-title">⚽ Ball Rush</h1>
-        <p class="subtitle">¡Compite en tiempo real!</p>
         
         <div class="connection-options">
             <div class="option-card">
@@ -292,29 +211,24 @@
 
     <div class="game-screen" id="gameScreen">
         <div class="game-header">
-            <div class="player-info">
-                <div class="avatar you">😊</div>
+            <div style="display:flex;align-items:center;gap:10px;">
+                <span style="font-size:1.5rem;">😊</span>
                 <div>
-                    <div id="yourName" style="font-size:0.9rem;font-weight:bold;">Tú</div>
+                    <div id="yourName" style="font-size:0.8rem;">Tú</div>
                     <div class="player-score" id="yourScore">0</div>
                 </div>
             </div>
-            <div class="timer-display">
-                <div class="timer-text" id="timerText">60</div>
-            </div>
-            <div class="player-info" style="text-align:right;">
+            <div class="timer-text" id="timerText">60</div>
+            <div style="display:flex;align-items:center;gap:10px;text-align:right;">
                 <div>
-                    <div id="opponentName" style="font-size:0.9rem;font-weight:bold;">Oponente</div>
+                    <div id="opponentName" style="font-size:0.8rem;">Oponente</div>
                     <div class="player-score" id="opponentScore">0</div>
                 </div>
-                <div class="avatar opp">😎</div>
+                <span style="font-size:1.5rem;">😎</span>
             </div>
         </div>
         <div class="game-canvas-container"><canvas id="canvas"></canvas></div>
     </div>
-
-    <!-- Botón de patada -->
-    <div class="kick-button" id="kickButton">⚽</div>
 
     <div class="modal" id="resultModal">
         <div class="modal-content">
@@ -341,18 +255,17 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         
-        const BALL_R = 12;
-        const PLAYER_R = 25;
+        const BALL_R = 15;
+        const PLAYER_R = 30;
         const GOAL_H = 40;
-        const COLLISION_DIST = BALL_R + PLAYER_R + 5;
-        const KICK_COOLDOWN = 500; // ms entre patadas
+        const COLLISION_DIST = BALL_R + PLAYER_R;
+        const KICK_SPEED = 12;
+        const COOLDOWN = 300;
         
         let canvas, ctx, W, H;
         let gameRef, gameCode, myKey, isHost;
         let gameActive = false;
-        let timeLeft = 60;
         let lastKickTime = 0;
-        let canKick = true;
         
         const my = { x: 0, y: 0, score: 0, name: '' };
         const opp = { x: 0, y: 0, score: 0, name: '' };
@@ -377,31 +290,22 @@
                 timeLeft: 60
             });
             
-            gameRef.child('opponent/score').on('value', snap => {
-                const val = snap.val();
-                if (val !== null && val !== undefined) {
-                    opp.score = val;
-                    document.getElementById('opponentScore').textContent = val;
+            // Escuchar TODO del oponente
+            gameRef.child('opponent').on('value', snap => {
+                const d = snap.val();
+                if (d) {
+                    if (d.name) {
+                        opp.name = d.name;
+                        document.getElementById('opponentName').textContent = d.name;
+                    }
+                    if (d.x !== undefined && d.x !== null) opp.x = d.x * W;
+                    if (d.y !== undefined && d.y !== null) opp.y = d.y * H;
+                    if (d.score !== undefined && d.score !== null) {
+                        opp.score = d.score;
+                        document.getElementById('opponentScore').textContent = d.score;
+                    }
+                    if (d.connected && !gameActive) startGame();
                 }
-            });
-            
-            gameRef.child('opponent/name').on('value', snap => {
-                if (snap.val()) {
-                    opp.name = snap.val();
-                    document.getElementById('opponentName').textContent = opp.name;
-                }
-            });
-            
-            gameRef.child('opponent/x').on('value', snap => {
-                if (snap.val() !== null) opp.x = snap.val() * W;
-            });
-            
-            gameRef.child('opponent/y').on('value', snap => {
-                if (snap.val() !== null) opp.y = snap.val() * H;
-            });
-            
-            gameRef.child('opponent/connected').on('value', snap => {
-                if (snap.val() === true && !gameActive) startGame();
             });
             
             gameRef.child('ball').on('value', snap => {
@@ -409,8 +313,8 @@
                 if (d && gameActive) {
                     ball.x = d.x * W;
                     ball.y = d.y * H;
-                    ball.vx = d.vx;
-                    ball.vy = d.vy;
+                    ball.vx = d.vx || 0;
+                    ball.vy = d.vy || 0;
                 }
             });
         }
@@ -435,27 +339,21 @@
                     name: my.name, x: 0.5, y: 0.25, score: 0, connected: true
                 });
                 
-                gameRef.child('host/score').on('value', snap => {
-                    const val = snap.val();
-                    if (val !== null && val !== undefined) {
-                        opp.score = val;
-                        document.getElementById('opponentScore').textContent = val;
+                // Escuchar TODO del host
+                gameRef.child('host').on('value', snap => {
+                    const d = snap.val();
+                    if (d) {
+                        if (d.name) {
+                            opp.name = d.name;
+                            document.getElementById('opponentName').textContent = d.name;
+                        }
+                        if (d.x !== undefined && d.x !== null) opp.x = d.x * W;
+                        if (d.y !== undefined && d.y !== null) opp.y = d.y * H;
+                        if (d.score !== undefined && d.score !== null) {
+                            opp.score = d.score;
+                            document.getElementById('opponentScore').textContent = d.score;
+                        }
                     }
-                });
-                
-                gameRef.child('host/name').on('value', snap => {
-                    if (snap.val()) {
-                        opp.name = snap.val();
-                        document.getElementById('opponentName').textContent = opp.name;
-                    }
-                });
-                
-                gameRef.child('host/x').on('value', snap => {
-                    if (snap.val() !== null) opp.x = snap.val() * W;
-                });
-                
-                gameRef.child('host/y').on('value', snap => {
-                    if (snap.val() !== null) opp.y = snap.val() * H;
                 });
                 
                 gameRef.child('ball').on('value', snap => {
@@ -463,15 +361,14 @@
                     if (d && gameActive) {
                         ball.x = d.x * W;
                         ball.y = d.y * H;
-                        ball.vx = d.vx;
-                        ball.vy = d.vy;
+                        ball.vx = d.vx || 0;
+                        ball.vy = d.vy || 0;
                     }
                 });
                 
                 gameRef.child('timeLeft').on('value', snap => {
                     const val = snap.val();
                     if (val !== null && val !== undefined) {
-                        timeLeft = val;
                         document.getElementById('timerText').textContent = val;
                         if (val <= 0) endGame();
                     }
@@ -497,13 +394,10 @@
             if (isHost) {
                 my.x = W / 2;
                 my.y = H * 0.75;
-                opp.x = W / 2;
-                opp.y = H * 0.25;
+                ball.vx = 6;
+                ball.vy = 4;
                 
-                ball.vx = 7;
-                ball.vy = 5;
-                
-                gameRef.update({ active: true, timeLeft: 60, ball: { x: 0.5, y: 0.5, vx: 7, vy: 5 } });
+                gameRef.update({ active: true, timeLeft: 60, ball: { x: 0.5, y: 0.5, vx: 6, vy: 4 } });
                 
                 const timer = setInterval(() => {
                     if (!gameActive) { clearInterval(timer); return; }
@@ -513,6 +407,7 @@
                     if (timeLeft <= 0) { clearInterval(timer); endGame(); }
                 }, 1000);
                 
+                // Física
                 setInterval(() => {
                     if (!gameActive) return;
                     
@@ -546,8 +441,6 @@
             } else {
                 my.x = W / 2;
                 my.y = H * 0.25;
-                opp.x = W / 2;
-                opp.y = H * 0.75;
             }
             
             gameActive = true;
@@ -557,14 +450,14 @@
         function resetBall() {
             ball.x = W / 2;
             ball.y = H / 2;
-            ball.vx = (Math.random() > 0.5 ? 1 : -1) * 7;
-            ball.vy = (Math.random() > 0.5 ? 1 : -1) * 5;
+            ball.vx = (Math.random() > 0.5 ? 1 : -1) * 6;
+            ball.vy = (Math.random() > 0.5 ? 1 : -1) * 4;
             gameRef.child('ball').set({ x: 0.5, y: 0.5, vx: ball.vx, vy: ball.vy });
         }
         
-        function tryKick() {
+        function checkAutoKick() {
             const now = Date.now();
-            if (now - lastKickTime < KICK_COOLDOWN) return;
+            if (now - lastKickTime < COOLDOWN) return;
             
             const dx = my.x - ball.x;
             const dy = my.y - ball.y;
@@ -573,39 +466,45 @@
             if (dist < COLLISION_DIST) {
                 lastKickTime = now;
                 
+                // Calcular ángulo de rebote
                 const angle = Math.atan2(dy, dx);
-                const speed = 12;
                 
+                // Velocidad constante
+                const speed = KICK_SPEED;
                 ball.vx = Math.cos(angle) * speed;
                 ball.vy = Math.sin(angle) * speed;
                 
-                // Asegurar dirección correcta
-                if (isHost && ball.vy > 0) ball.vy = -ball.vy;
-                if (!isHost && ball.vy < 0) ball.vy = -ball.vy;
+                // Forzar dirección hacia el oponente
+                if (isHost) {
+                    ball.vy = -Math.abs(ball.vy);
+                } else {
+                    ball.vy = Math.abs(ball.vy);
+                }
                 
-                const overlap = COLLISION_DIST - dist + 15;
+                // Separar la pelota
+                const overlap = COLLISION_DIST - dist + 20;
                 ball.x += Math.cos(angle) * overlap;
                 ball.y += Math.sin(angle) * overlap;
                 
+                // Enviar a Firebase
                 gameRef.child('ball').set({
                     x: ball.x / W,
                     y: ball.y / H,
                     vx: ball.vx,
                     vy: ball.vy
                 });
-                
-                // Mostrar cooldown en botón
-                const kickBtn = document.getElementById('kickButton');
-                kickBtn.classList.add('cooldown');
-                setTimeout(() => kickBtn.classList.remove('cooldown'), KICK_COOLDOWN);
             }
         }
         
         function gameLoop() {
             if (!gameActive) return;
             
+            // Enviar posición
             gameRef.child(myKey + '/x').set(my.x / W);
             gameRef.child(myKey + '/y').set(my.y / H);
+            
+            // Auto-patada al contacto
+            checkAutoKick();
             
             render();
             requestAnimationFrame(gameLoop);
@@ -685,60 +584,42 @@
         
         function setupControls() {
             const canvas = document.getElementById('canvas');
-            const kickBtn = document.getElementById('kickButton');
             
-            // Mouse - mover jugador
-            canvas.addEventListener('mousemove', e => {
+            function move(clientX, clientY) {
                 const rect = canvas.getBoundingClientRect();
-                movePlayer(e.clientX - rect.left, e.clientY - rect.top);
-            });
+                let x = clientX - rect.left;
+                let y = clientY - rect.top;
+                
+                x = Math.max(PLAYER_R, Math.min(W - PLAYER_R, x));
+                
+                if (isHost) {
+                    y = Math.max(H/2 + PLAYER_R, Math.min(H - GOAL_H - PLAYER_R, y));
+                } else {
+                    y = Math.max(GOAL_H + PLAYER_R, Math.min(H/2 - PLAYER_R, y));
+                }
+                
+                my.x = x;
+                my.y = y;
+            }
             
-            // Mouse - click para patear
-            canvas.addEventListener('click', () => tryKick());
+            // Mouse
+            canvas.addEventListener('mousemove', e => move(e.clientX, e.clientY));
+            canvas.addEventListener('mousedown', e => move(e.clientX, e.clientY));
             
-            // Touch - mover jugador
+            // Touch - mover directamente
             canvas.addEventListener('touchmove', e => {
                 e.preventDefault();
                 const rect = canvas.getBoundingClientRect();
                 const touch = e.touches[0];
-                movePlayer(touch.clientX - rect.left, touch.clientY - rect.top);
+                move(touch.clientX, touch.clientY);
             }, { passive: false });
             
             canvas.addEventListener('touchstart', e => {
                 e.preventDefault();
                 const rect = canvas.getBoundingClientRect();
                 const touch = e.touches[0];
-                movePlayer(touch.clientX - rect.left, touch.clientY - rect.top);
+                move(touch.clientX, touch.clientY);
             }, { passive: false });
-            
-            // Botón de patada (móvil)
-            kickBtn.addEventListener('touchstart', e => {
-                e.preventDefault();
-                tryKick();
-            });
-            kickBtn.addEventListener('click', () => tryKick());
-        }
-        
-        function movePlayer(x, y) {
-            x = Math.max(PLAYER_R, Math.min(W - PLAYER_R, x));
-            
-            if (isHost) {
-                y = Math.max(H/2 + PLAYER_R, Math.min(H - GOAL_H - PLAYER_R, y));
-            } else {
-                y = Math.max(GOAL_H + PLAYER_R, Math.min(H/2 - PLAYER_R, y));
-            }
-            
-            my.x = x;
-            my.y = y;
-            
-            // Intentar patear automáticamente al acercarse
-            const dx = my.x - ball.x;
-            const dy = my.y - ball.y;
-            const dist = Math.sqrt(dx*dx + dy*dy);
-            
-            if (dist < COLLISION_DIST) {
-                tryKick();
-            }
         }
         
         document.addEventListener('DOMContentLoaded', () => {
