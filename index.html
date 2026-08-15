@@ -424,7 +424,7 @@
         // ============ AUDIO SYSTEM ============
         function playEndSound() {
             try {
-                const audio = new Audio('/assets/audio/beta-end.mp3');
+                const audio = new Audio('beta-end.mp3');
                 audio.volume = 0.7;
                 audio.play().catch(err => {
                     console.log('Audio no disponible:', err.message);
@@ -810,7 +810,7 @@
                 <p>⭐ Reputación: ${gameState.reputation}</p>
             `;
             showScreen('end');
-            playEndSound(); // 🔊 Reproducir sonido al terminar
+            playEndSound(); // 🔊 Reproducir sonido
         }
 
         // ============ ECONOMY ============
