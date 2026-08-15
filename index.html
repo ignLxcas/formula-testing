@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego Multijugador - Atrapa el Cuadrado</title>
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-card: #1a1a2e;
+            --accent: #e1306c;
+            --accent2: #833ab4;
+            --gold: #ffd700;
+            --success: #00ff88;
+            --danger: #ff4444;
+            --info: #4488ff;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0c0;
+            --border: #2a2a3e;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 20px;
+        }
+
+        /* Pantalla de conexión */
+        .connection-screen {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .connection-screen h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .connection-screen p {
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 10px;
+            min-width: 200px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--accent), var(--accent2));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(225, 48, 108, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border: 2px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--info);
+        }
+
+        .input-group {
+            margin: 20px 0;
+        }
+
+        .input-group input {
+            width: 100%;
+            max-width: 300px;
+            padding: 15px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        /* Pantalla de juego */
+        .game-screen {
+            display: none;
+        }
+
+        .game-screen.active {
+            display: block;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: var(--bg-card);
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .player-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .player-dot.you { background: var(--success); }
+        .player-dot.opponent { background: var(--danger); }
+
+        .score-display {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--gold);
+        }
+
+        .game-canvas {
+            width: 100%;
+            height: 500px;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            cursor: crosshair;
+        }
+
+        .game-canvas canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Notificaciones */
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 15px 25px;
+            z-index: 1000;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { transform: translate(-50%, -100%); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
+
+        .notification.success { border-color: var(--success); color: var(--success); }
+        .notification.error { border-color: var(--danger); color: var(--danger); }
+        .notification.info { border-color: var(--info); color: var(--info); }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .game-canvas { height: 400px; }
+            .connection-screen h1 { font-size: 1.8rem; }
+            .btn { min-width: 150px; font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- Pantalla de Conexión -->
+        <div class="connection-screen" id="connectionScreen">
+            <h1>🎮 Atrapa el Cuadrado</h1>
+            <p>Juego multijugador en tiempo real</p>
+            
+            <div class="input-group">
+                <input type="text" id="playerName" placeholder="Tu nombre" maxlength="20">
+            </div>
+            
+            <button class="btn btn-primary" onclick="createGame()">
+                🎯 Crear Partida
+            </button>
+            
+            <div style="margin: 20px 0; color: var(--text-secondary);">o</div>
+            
+            <div class="input-group">
+                <input type="text" id="gameCode" placeholder="Código de partida" maxlength="10">
+            </div>
+            
+            <button class="btn btn-secondary" onclick="joinGame()">
+                🔗 Unirse a Partida
+            </button>
+            
+            <div id="connectionStatus" style="margin-top: 20px; color: var(--text-secondary);"></div>
+        </div>
+
+        <!-- Pantalla de Juego -->
+        <div class="game-screen" id="gameScreen">
+            <div class="game-header">
+                <div class="player-info">
+                    <span class="player-dot you"></span>
+                    <span id="yourName">Tú</span>
+                </div>
+                <div class="score-display">
+                    <span id="yourScore">0</span> - <span id="opponentScore">0</span>
+                </div>
+                <div class="player-info">
+                    <span class="player-dot opponent"></span>
+                    <span id="opponentName">Oponente</span>
+                </div>
+            </div>
+            
+            <div class="game-canvas" id="gameCanvas">
+                <canvas id="canvas"></canvas>
+            </div>
+            
+            <div style="text-align: center; margin-top: 15px; color: var(--text-secondary);">
+                <span id="gameCodeDisplay"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- PeerJS desde CDN -->
+    <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
+    
+    <script>
+        // ============ CONFIGURACIÓN ============
+        const GAME_WIDTH = 800;
+        const GAME_HEIGHT = 500;
+        const PLAYER_SIZE = 30;
+        const TARGET_SIZE = 25;
+        const GAME_DURATION = 60; // segundos
+
+        // ============ ESTADO DEL JUEGO ============
+        let peer = null;
+        let connection = null;
+        let isHost = false;
+        let gameStarted = false;
+        let gameInterval = null;
+        
+        // Jugadores
+        const players = {
+            you: {
+                x: GAME_WIDTH / 4,
+                y: GAME_HEIGHT / 2,
+                score: 0,
+                name: 'Tú'
+            },
+            opponent: {
+                x: (GAME_WIDTH / 4) * 3,
+                y: GAME_HEIGHT / 2,
+                score: 0,
+                name: 'Oponente'
+            }
+        };
+        
+        // Objetivo
+        const target = {
+            x: GAME_WIDTH / 2,
+            y: GAME_HEIGHT / 2,
+            active: true
+        };
+        
+        let timeLeft = GAME_DURATION;
+        let myPlayerId = 'you';
+
+        // ============ FUNCIONES DE CONEXIÓN ============
+        function createGame() {
+            const name = document.getElementById('playerName').value || 'Jugador 1';
+            players.you.name = name;
+            isHost = true;
+            
+            const gameCode = generateGameCode();
+            
+            initializePeer(gameCode);
+            showNotification(`Partida creada: ${gameCode}`, 'success');
+            document.getElementById('gameCodeDisplay').textContent = `Código: ${gameCode}`;
+        }
+
+        function joinGame() {
+            const name = document.getElementById('playerName').value || 'Jugador 2';
+            const gameCode = document.getElementById('gameCode').value.trim();
+            
+            if (!gameCode) {
+                showNotification('Ingresa un código de partida', 'error');
+                return;
+            }
+            
+            players.you.name = name;
+            isHost = false;
+            
+            initializePeer(gameCode);
+            document.getElementById('gameCodeDisplay').textContent = `Código: ${gameCode}`;
+        }
+
+        function generateGameCode() {
+            return Math.random().toString(36).substring(2, 8).toUpperCase();
+        }
+
+        function initializePeer(gameCode) {
+            const peerId = `game-${gameCode}-${isHost ? 'host' : 'player'}`;
+            
+            peer = new Peer(peerId);
+            
+            peer.on('open', (id) => {
+                document.getElementById('connectionStatus').textContent = 
+                    isHost ? 'Esperando jugador...' : 'Conectando...';
+                
+                if (!isHost) {
+                    connectToHost(gameCode);
+                }
+            });
+            
+            peer.on('connection', (conn) => {
+                connection = conn;
+                setupConnection();
+                showNotification('¡Jugador conectado!', 'success');
+                startGame();
+            });
+            
+            peer.on('error', (error) => {
+                console.error('Error PeerJS:', error);
+                showNotification('Error de conexión: ' + error.type, 'error');
+            });
+        }
+
+        function connectToHost(gameCode) {
+            const hostId = `game-${gameCode}-host`;
+            connection = peer.connect(hostId, { reliable: true });
+            setupConnection();
+        }
+
+        function setupConnection() {
+            connection.on('open', () => {
+                document.getElementById('connectionStatus').textContent = '¡Conectado!';
+                showNotification('¡Conectado al oponente!', 'success');
+                
+                if (!isHost) {
+                    startGame();
+                }
+            });
+            
+            connection.on('data', (data) => {
+                handleOpponentData(data);
+            });
+            
+            connection.on('close', () => {
+                showNotification('Oponente desconectado', 'error');
+                endGame();
+            });
+            
+            connection.on('error', (error) => {
+                console.error('Error de conexión:', error);
+            });
+        }
+
+        function handleOpponentData(data) {
+            switch(data.type) {
+                case 'position':
+                    players.opponent.x = data.x;
+                    players.opponent.y = data.y;
+                    break;
+                    
+                case 'score':
+                    players.opponent.score = data.score;
+                    updateScoreDisplay();
+                    break;
+                    
+                case 'target':
+                    target.x = data.x;
+                    target.y = data.y;
+                    target.active = true;
+                    break;
+                    
+                case 'gameStart':
+                    gameStarted = true;
+                    showNotification('¡Juego iniciado!', 'info');
+                    break;
+                    
+                case 'gameEnd':
+                    endGame();
+                    break;
+            }
+        }
+
+        function sendData(data) {
+            if (connection && connection.open) {
+                connection.send(data);
+            }
+        }
+
+        // ============ FUNCIONES DEL JUEGO ============
+        function startGame() {
+            document.getElementById('connectionScreen').style.display = 'none';
+            document.getElementById('gameScreen').classList.add('active');
+            
+            document.getElementById('yourName').textContent = players.you.name;
+            document.getElementById('opponentName').textContent = players.opponent.name;
+            
+            gameStarted = true;
+            timeLeft = GAME_DURATION;
+            
+            if (isHost) {
+                spawnTarget();
+                gameInterval = setInterval(updateTimer, 1000);
+            }
+            
+            sendData({ type: 'gameStart' });
+            
+            // Iniciar loop del juego
+            gameLoop();
+        }
+
+        function updateTimer() {
+            timeLeft--;
+            
+            if (timeLeft <= 0) {
+                clearInterval(gameInterval);
+                endGame();
+            }
+        }
+
+        function spawnTarget() {
+            target.x = Math.random() * (GAME_WIDTH - TARGET_SIZE * 2) + TARGET_SIZE;
+            target.y = Math.random() * (GAME_HEIGHT - TARGET_SIZE * 2) + TARGET_SIZE;
+            target.active = true;
+            
+            sendData({
+                type: 'target',
+                x: target.x,
+                y: target.y
+            });
+        }
+
+        function checkTargetCollision(playerX, playerY) {
+            const dx = playerX - target.x;
+            const dy = playerY - target.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            return distance < (PLAYER_SIZE / 2 + TARGET_SIZE / 2);
+        }
+
+        function gameLoop() {
+            if (!gameStarted) return;
+            
+            // Enviar posición al oponente
+            sendData({
+                type: 'position',
+                x: players.you.x,
+                y: players.you.y
+            });
+            
+            // Verificar colisión con el objetivo
+            if (target.active && checkTargetCollision(players.you.x, players.you.y)) {
+                players.you.score++;
+                updateScoreDisplay();
+                
+                sendData({
+                    type: 'score',
+                    score: players.you.score
+                });
+                
+                if (isHost) {
+                    spawnTarget();
+                }
+            }
+            
+            // Renderizar
+            render();
+            
+            requestAnimationFrame(gameLoop);
+        }
+
+        function updateScoreDisplay() {
+            document.getElementById('yourScore').textContent = players.you.score;
+            document.getElementById('opponentScore').textContent = players.opponent.score;
+        }
+
+        function endGame() {
+            gameStarted = false;
+            
+            if (gameInterval) {
+                clearInterval(gameInterval);
+            }
+            
+            const winner = players.you.score > players.opponent.score ? 
+                players.you.name : 
+                players.opponent.score > players.you.score ? 
+                players.opponent.name : 'Empate';
+            
+            showNotification(`🏆 Ganador: ${winner}`, 'success');
+            
+            setTimeout(() => {
+                location.reload();
+            }, 5000);
+        }
+
+        // ============ RENDERIZADO ============
+        function render() {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Ajustar tamaño del canvas
+            canvas.width = GAME_WIDTH;
+            canvas.height = GAME_HEIGHT;
+            
+            // Limpiar
+            ctx.fillStyle = '#1a1a2e';
+            ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+            
+            // Dibujar grid
+            ctx.strokeStyle = '#2a2a3e';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < GAME_WIDTH; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, GAME_HEIGHT);
+                ctx.stroke();
+            }
+            for (let i = 0; i < GAME_HEIGHT; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(GAME_WIDTH, i);
+                ctx.stroke();
+            }
+            
+            // Dibujar objetivo
+            if (target.active) {
+                ctx.fillStyle = '#ffd700';
+                ctx.shadowColor = '#ffd700';
+                ctx.shadowBlur = 20;
+                ctx.beginPath();
+                ctx.arc(target.x, target.y, TARGET_SIZE / 2, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+            
+            // Dibujar jugador local
+            ctx.fillStyle = '#00ff88';
+            ctx.shadowColor = '#00ff88';
+            ctx.shadowBlur = 15;
+            ctx.fillRect(
+                players.you.x - PLAYER_SIZE / 2,
+                players.you.y - PLAYER_SIZE / 2,
+                PLAYER_SIZE,
+                PLAYER_SIZE
+            );
+            
+            // Dibujar jugador oponente
+            ctx.fillStyle = '#ff4444';
+            ctx.shadowColor = '#ff4444';
+            ctx.shadowBlur = 15;
+            ctx.fillRect(
+                players.opponent.x - PLAYER_SIZE / 2,
+                players.opponent.y - PLAYER_SIZE / 2,
+                PLAYER_SIZE,
+                PLAYER_SIZE
+            );
+            
+            ctx.shadowBlur = 0;
+            
+            // Dibujar nombres
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(players.you.name, players.you.x, players.you.y - PLAYER_SIZE / 2 - 10);
+            ctx.fillText(players.opponent.name, players.opponent.x, players.opponent.y - PLAYER_SIZE / 2 - 10);
+            
+            // Dibujar tiempo restante
+            if (gameStarted) {
+                ctx.fillStyle = '#ffd700';
+                ctx.font = '20px Arial';
+                ctx.fillText(`Tiempo: ${timeLeft}s`, GAME_WIDTH / 2, 30);
+            }
+        }
+
+        // ============ CONTROLES ============
+        document.addEventListener('DOMContentLoaded', () => {
+            const canvas = document.getElementById('canvas');
+            
+            // Control táctil
+            canvas.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                const rect = canvas.getBoundingClientRect();
+                const touch = e.touches[0];
+                
+                players.you.x = (touch.clientX - rect.left) * (GAME_WIDTH / rect.width);
+                players.you.y = (touch.clientY - rect.top) * (GAME_HEIGHT / rect.height);
+            });
+            
+            canvas.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                const rect = canvas.getBoundingClientRect();
+                const touch = e.touches[0];
+                
+                players.you.x = (touch.clientX - rect.left) * (GAME_WIDTH / rect.width);
+                players.you.y = (touch.clientY - rect.top) * (GAME_HEIGHT / rect.height);
+            });
+            
+            // Control con mouse
+            canvas.addEventListener('mousemove', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                
+                players.you.x = (e.clientX - rect.left) * (GAME_WIDTH / rect.width);
+                players.you.y = (e.clientY - rect.top) * (GAME_HEIGHT / rect.height);
+            });
+        });
+
+        // ============ UTILIDADES ============
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
