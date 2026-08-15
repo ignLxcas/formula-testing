@@ -299,6 +299,7 @@
     </div>
 
     <script>
+        // ============ DATA ============
         const teams = {
             williams: { name: 'Williams', engine: 'Mercedes', perf: 62, maint: 2, emoji: '🔵' },
             alphatauri: { name: 'AlphaTauri', engine: 'Honda RBPT', perf: 58, maint: 2.5, emoji: '⚪' },
@@ -357,6 +358,7 @@
             'alemania': '🇩🇪 Alemania', 'japon': '🇯🇵 Japón', 'brasil': '🇧🇷 Brasil'
         };
 
+        // ============ GAME STATE ============
         let gameState = {
             pilotName: 'Carlos Mendoza',
             nationality: 'argentina',
@@ -407,6 +409,7 @@
         }
         initRivalData();
 
+        // ============ HELPERS ============
         function calcGRL(skills) {
             return Math.round(
                 skills.speed * 0.25 + skills.consistency * 0.20 + skills.overtaking * 0.15 +
@@ -418,6 +421,20 @@
             return Math.round(amount * 10) / 10;
         }
 
+        // ============ AUDIO SYSTEM ============
+        function playEndSound() {
+            try {
+                const audio = new Audio('/assets/audio/beta-end.mp3');
+                audio.volume = 0.7;
+                audio.play().catch(err => {
+                    console.log('Audio no disponible:', err.message);
+                });
+            } catch(e) {
+                console.log('Error reproduciendo audio:', e.message);
+            }
+        }
+
+        // ============ NAVIGATION ============
         let navLocked = false;
 
         function lockNavigation() {
@@ -456,6 +473,7 @@
             localStorage.setItem('f1_2023_beta_final_v3', JSON.stringify(gameState));
         }
 
+        // ============ DASHBOARD ============
         function updateDashboard() {
             const team = teams[gameState.team];
             const grl = calcGRL(gameState.skills);
@@ -482,6 +500,7 @@
             document.getElementById('dashCircuit').textContent = race.circuit + ' — ÚLTIMA CARRERA';
         }
 
+        // ============ RACE ============
         let raceState = {};
         let miniBonusTotal = 0;
 
@@ -716,6 +735,7 @@
             `;
         }
 
+        // ============ STANDINGS ============
         function updateStandings() {
             document.getElementById('standingsRound').textContent = `Ronda ${gameState.round} de ${TOTAL_RACES}`;
             let standings = [];
@@ -740,6 +760,7 @@
             }).join('');
         }
 
+        // ============ CONTRACTS ============
         function updateContracts() {
             const grl = calcGRL(gameState.skills);
             const offers = [];
@@ -789,8 +810,10 @@
                 <p>⭐ Reputación: ${gameState.reputation}</p>
             `;
             showScreen('end');
+            playEndSound(); // 🔊 Reproducir sonido al terminar
         }
 
+        // ============ ECONOMY ============
         function updateEconomy() {
             const team = teams[gameState.team];
             document.getElementById('econSeason').textContent = `Temporada ${gameState.season}`;
@@ -833,6 +856,7 @@
             updateEconomy();
         }
 
+        // ============ TROPHIES ============
         function updateTrophies() {
             const grl = calcGRL(gameState.skills);
             const trophies = [
@@ -853,6 +877,7 @@
             `).join('');
         }
 
+        // ============ PILOT ============
         function updatePilot() {
             const grl = calcGRL(gameState.skills);
             document.getElementById('pilotNameDisplay').textContent = gameState.pilotName;
@@ -870,6 +895,7 @@
             document.getElementById('pPodiums').textContent = gameState.podiums;
         }
 
+        // ============ NAV ============
         document.querySelectorAll('.header-nav a').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -878,6 +904,7 @@
             });
         });
 
+        // ============ INIT ============
         updateDashboard();
         updateStandings();
     </script>
