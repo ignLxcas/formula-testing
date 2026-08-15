@@ -62,11 +62,13 @@
             background: linear-gradient(45deg, #ff6b35, #f7c948);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            text-align: center;
         }
 
         .game-subtitle {
             color: var(--text-secondary);
             margin-bottom: 30px;
+            text-align: center;
         }
 
         .connection-options {
@@ -101,11 +103,11 @@
             cursor: pointer;
             width: 100%;
             transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        .btn:active {
-            transform: scale(0.95);
-        }
+        .btn:active { transform: scale(0.95); }
 
         .btn-primary {
             background: linear-gradient(45deg, #ff6b35, #f7c948);
@@ -118,9 +120,7 @@
             border: 2px solid var(--border);
         }
 
-        .input-group {
-            margin: 10px 0;
-        }
+        .input-group { margin: 10px 0; }
 
         .input-group input {
             width: 100%;
@@ -131,6 +131,7 @@
             color: var(--text-primary);
             font-size: 1rem;
             text-align: center;
+            transition: all 0.3s;
         }
 
         .input-group input:focus {
@@ -167,9 +168,7 @@
             height: 100vh;
         }
 
-        .game-screen.active {
-            display: flex;
-        }
+        .game-screen.active { display: flex; }
 
         .game-header {
             display: flex;
@@ -188,9 +187,7 @@
             flex: 1;
         }
 
-        .player-info.opponent {
-            justify-content: flex-end;
-        }
+        .player-info.opponent { justify-content: flex-end; }
 
         .player-avatar {
             width: 35px;
@@ -207,27 +204,11 @@
         .player-avatar.you { border-color: var(--success); }
         .player-avatar.opponent { border-color: var(--danger); }
 
-        .player-name {
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
+        .player-name { font-size: 0.8rem; font-weight: bold; }
+        .player-score { font-size: 1.2rem; color: var(--gold); font-weight: bold; }
 
-        .player-score {
-            font-size: 1.2rem;
-            color: var(--gold);
-            font-weight: bold;
-        }
-
-        .timer-display {
-            text-align: center;
-            padding: 0 15px;
-        }
-
-        .timer-text {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--gold);
-        }
+        .timer-display { text-align: center; padding: 0 15px; }
+        .timer-text { font-size: 2rem; font-weight: bold; color: var(--gold); }
 
         .game-canvas-container {
             flex: 1;
@@ -276,9 +257,7 @@
             z-index: 2000;
         }
 
-        .modal.active {
-            display: flex;
-        }
+        .modal.active { display: flex; }
 
         .modal-content {
             background: var(--bg-card);
@@ -311,9 +290,7 @@
                 <div class="input-group">
                     <input type="text" id="playerName" placeholder="Tu nombre" maxlength="15">
                 </div>
-                <button class="btn btn-primary" onclick="createGame()">
-                    Crear Sala
-                </button>
+                <button class="btn btn-primary" onclick="createGame()">Crear Sala</button>
                 <div id="createdCode" style="display: none;">
                     <div class="code-display">
                         <p style="color: var(--text-secondary); font-size: 0.8rem;">Código:</p>
@@ -332,9 +309,7 @@
                     <input type="text" id="gameCode" placeholder="Código" maxlength="6" 
                            oninput="this.value = this.value.toUpperCase()">
                 </div>
-                <button class="btn btn-secondary" onclick="joinGame()">
-                    Unirse
-                </button>
+                <button class="btn btn-secondary" onclick="joinGame()">Unirse</button>
             </div>
         </div>
     </div>
@@ -371,87 +346,208 @@
         <div class="modal-content">
             <h2 id="resultTitle" style="font-size: 1.8rem; margin-bottom: 15px;"></h2>
             <div id="resultDetails" style="margin-bottom: 20px;"></div>
-            <button class="btn btn-primary" onclick="location.reload()">
-                Jugar de Nuevo
-            </button>
+            <button class="btn btn-primary" onclick="location.reload()">Jugar de Nuevo</button>
         </div>
     </div>
 
-    <!-- Usamos un servidor PeerJS público confiable -->
-    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <!-- Firebase SDK (compat) -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
     <script>
-        // ============ CONFIGURACIÓN ============
+        // ============ CONFIGURACIÓN DE FIREBASE ============
+        const firebaseConfig = {
+            apiKey: "AIzaSyC2z25XXN_rRSCjeDLK8nGIkq7pm5pt0ps",
+            authDomain: "prueba-be093.firebaseapp.com",
+            databaseURL: "https://prueba-be093-default-rtdb.firebaseio.com",
+            projectId: "prueba-be093",
+            storageBucket: "prueba-be093.firebasestorage.app",
+            messagingSenderId: "292144008043",
+            appId: "1:292144008043:web:b29b23b80b115204909a2e",
+            measurementId: "G-RJDBDKWJ2G"
+        };
+        
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        
+        console.log('✅ Firebase conectado correctamente');
+        console.log('📁 Base de datos:', firebaseConfig.databaseURL);
+        
+        // ============ CONFIGURACIÓN DEL JUEGO ============
         const GAME_DURATION = 60;
         const BALL_RADIUS = 15;
         const PLAYER_RADIUS = 25;
         const GOAL_HEIGHT = 40;
-        const BALL_SPEED = 5;
-        const MAX_SPEED = 15;
-        const FRICTION = 0.98;
-        const PUSH_FORCE = 8;
-
-        let peer = null;
-        let connection = null;
+        
+        let gameCode = null;
         let isHost = false;
+        let gameRef = null;
         let gameStarted = false;
-        let gameLoopId = null;
-        let timerInterval = null;
         let canvas, ctx;
         let gameWidth, gameHeight;
-        let myId = null;
-        let opponentId = null;
-        let connected = false;
-
+        let myPlayerKey = null;
+        
         const players = {
             you: { x: 0, y: 0, score: 0, name: 'Tú' },
             opponent: { x: 0, y: 0, score: 0, name: 'Oponente' }
         };
-
-        const ball = {
-            x: 0,
-            y: 0,
-            vx: 0,
-            vy: 0
-        };
-
+        
+        const ball = { x: 0, y: 0, vx: 0, vy: 0 };
         let timeLeft = GAME_DURATION;
-        let particles = [];
-
-        // ============ CONEXIÓN MEJORADA ============
+        
+        // ============ CONEXIÓN ============
         function createGame() {
             const name = document.getElementById('playerName').value || 'Jugador 1';
             players.you.name = name;
             isHost = true;
+            myPlayerKey = 'host';
+            gameCode = generateCode();
             
-            const gameCode = generateCode();
             document.getElementById('createdCode').style.display = 'block';
             document.getElementById('gameCodeText').textContent = gameCode;
+            document.getElementById('waitingText').textContent = 'Esperando oponente...';
             
-            // Usar un ID simple y único
-            myId = `ballrush-${gameCode}-host-${Date.now()}`;
+            gameRef = database.ref('games/' + gameCode);
             
-            initializePeer(myId);
+            gameRef.set({
+                host: {
+                    name: name,
+                    x: 400,
+                    y: 400,
+                    score: 0,
+                    connected: true
+                },
+                opponent: {
+                    name: '',
+                    x: 400,
+                    y: 100,
+                    score: 0,
+                    connected: false
+                },
+                ball: {
+                    x: 400,
+                    y: 300,
+                    vx: 2,
+                    vy: 1
+                },
+                started: false,
+                timeLeft: GAME_DURATION,
+                createdAt: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => {
+                console.log('✅ Sala creada:', gameCode);
+                showNotification('Sala creada', 'Código: ' + gameCode, 'success');
+            }).catch((error) => {
+                console.error('❌ Error creando sala:', error);
+                showNotification('Error', 'No se pudo crear la sala: ' + error.message, 'error');
+            });
+            
+            // Escuchar cuando el oponente se une
+            gameRef.child('opponent/connected').on('value', (snapshot) => {
+                if (snapshot.val() === true && !gameStarted) {
+                    gameRef.child('opponent/name').once('value', (nameSnapshot) => {
+                        players.opponent.name = nameSnapshot.val() || 'Oponente';
+                        showNotification('¡Oponente conectado!', '¡Que comience el juego!', 'success');
+                        startGame();
+                    });
+                }
+            });
+            
+            // Escuchar posición del oponente
+            gameRef.child('opponent').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data && gameStarted) {
+                    players.opponent.x = data.x || 400;
+                    players.opponent.y = data.y || 100;
+                    players.opponent.score = data.score || 0;
+                    updateUI();
+                }
+            });
+            
+            // Escuchar desconexión del oponente
+            gameRef.child('opponent/connected').on('value', (snapshot) => {
+                if (snapshot.val() === false && gameStarted) {
+                    showNotification('Oponente desconectado', 'Fin de la partida', 'error');
+                    endGame(true);
+                }
+            });
         }
-
+        
         function joinGame() {
             const name = document.getElementById('playerNameJoin').value || 'Jugador 2';
-            const gameCode = document.getElementById('gameCode').value.trim().toUpperCase();
+            const code = document.getElementById('gameCode').value.trim().toUpperCase();
             
-            if (!gameCode || gameCode.length !== 6) {
-                showNotification('Error', 'Ingresa un código válido', 'error');
+            if (!code || code.length !== 6) {
+                showNotification('Error', 'Ingresa un código válido de 6 caracteres', 'error');
                 return;
             }
             
             players.you.name = name;
             isHost = false;
+            myPlayerKey = 'opponent';
+            gameCode = code;
             
-            // Conectar al host
-            myId = `ballrush-${gameCode}-player-${Date.now()}`;
+            gameRef = database.ref('games/' + code);
             
-            initializePeer(myId, gameCode);
+            gameRef.once('value', (snapshot) => {
+                if (!snapshot.exists()) {
+                    showNotification('Error', 'No se encontró la partida con código: ' + code, 'error');
+                    return;
+                }
+                
+                console.log('✅ Unido a la sala:', code);
+                
+                gameRef.child('opponent').update({
+                    name: name,
+                    connected: true
+                }).then(() => {
+                    showNotification('¡Conectado!', 'Unido a la partida de ' + code, 'success');
+                }).catch((error) => {
+                    console.error('Error uniendo:', error);
+                    showNotification('Error', 'No se pudo unir: ' + error.message, 'error');
+                });
+                
+                // Escuchar al host
+                gameRef.child('host').on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        players.opponent.name = data.name;
+                        players.opponent.x = data.x || 400;
+                        players.opponent.y = data.y || 400;
+                        players.opponent.score = data.score || 0;
+                        updateUI();
+                    }
+                });
+                
+                // Escuchar la pelota
+                gameRef.child('ball').on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    if (data && gameStarted) {
+                        ball.x = data.x;
+                        ball.y = data.y;
+                        ball.vx = data.vx;
+                        ball.vy = data.vy;
+                    }
+                });
+                
+                // Escuchar inicio del juego
+                gameRef.child('started').on('value', (snapshot) => {
+                    if (snapshot.val() === true && !gameStarted) {
+                        startGame();
+                    }
+                });
+                
+                // Escuchar tiempo
+                gameRef.child('timeLeft').on('value', (snapshot) => {
+                    const time = snapshot.val();
+                    if (time !== null && gameStarted) {
+                        timeLeft = time;
+                        document.getElementById('timerText').textContent = time;
+                    }
+                });
+            });
         }
-
+        
         function generateCode() {
             const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
             let code = '';
@@ -460,161 +556,8 @@
             }
             return code;
         }
-
-        function initializePeer(id, gameCode = null) {
-            // Configurar PeerJS con servidor público
-            peer = new Peer(id, {
-                config: {
-                    'iceServers': [
-                        { urls: 'stun:stun.l.google.com:19302' },
-                        { urls: 'stun:stun1.l.google.com:19302' }
-                    ]
-                }
-            });
-            
-            peer.on('open', (peerId) => {
-                console.log('Peer conectado:', peerId);
-                
-                if (!isHost && gameCode) {
-                    // Buscar al host
-                    connectToHost(gameCode);
-                } else if (isHost) {
-                    document.getElementById('waitingText').textContent = 
-                        'Esperando oponente... Comparte el código';
-                }
-            });
-            
-            peer.on('connection', (conn) => {
-                console.log('Conexión entrante de:', conn.peer);
-                connection = conn;
-                setupConnection();
-                
-                if (isHost) {
-                    opponentId = conn.peer;
-                    showNotification('¡Conectado!', 'Oponente encontrado', 'success');
-                    startGame();
-                }
-            });
-            
-            peer.on('error', (error) => {
-                console.error('Error PeerJS:', error);
-                
-                if (error.type === 'peer-unavailable') {
-                    showNotification('Error', 'No se encontró la partida', 'error');
-                } else if (error.type === 'network') {
-                    showNotification('Error', 'Problema de red', 'error');
-                } else {
-                    showNotification('Error', error.type, 'error');
-                }
-            });
-        }
-
-        function connectToHost(gameCode) {
-            // Intentar diferentes IDs de host
-            const attempts = [
-                `ballrush-${gameCode}-host`,
-                `ballrush-${gameCode}-host-${Date.now()}`,
-                `ballrush-${gameCode}`
-            ];
-            
-            let attemptIndex = 0;
-            
-            function tryConnect() {
-                if (attemptIndex >= attempts.length) {
-                    showNotification('Error', 'No se pudo conectar', 'error');
-                    return;
-                }
-                
-                const hostId = attempts[attemptIndex];
-                console.log('Intentando conectar a:', hostId);
-                
-                const conn = peer.connect(hostId, { 
-                    reliable: true,
-                    metadata: { name: players.you.name }
-                });
-                
-                conn.on('open', () => {
-                    console.log('Conectado al host:', hostId);
-                    connection = conn;
-                    setupConnection();
-                    opponentId = hostId;
-                    showNotification('¡Conectado!', 'Unido a la partida', 'success');
-                    startGame();
-                });
-                
-                conn.on('error', (error) => {
-                    console.log('Error conectando a', hostId, error);
-                    attemptIndex++;
-                    setTimeout(tryConnect, 2000);
-                });
-            }
-            
-            tryConnect();
-        }
-
-        function setupConnection() {
-            connection.on('open', () => {
-                connected = true;
-                console.log('Canal de datos abierto');
-            });
-            
-            connection.on('data', (data) => {
-                handleData(data);
-            });
-            
-            connection.on('close', () => {
-                connected = false;
-                showNotification('Desconectado', 'Oponente se fue', 'error');
-                endGame(true);
-            });
-            
-            connection.on('error', (error) => {
-                console.error('Error en conexión:', error);
-            });
-        }
-
-        function handleData(data) {
-            if (!data || !data.type) return;
-            
-            switch(data.type) {
-                case 'position':
-                    players.opponent.x = data.x;
-                    players.opponent.y = data.y;
-                    break;
-                    
-                case 'ballUpdate':
-                    ball.x = data.x;
-                    ball.y = data.y;
-                    ball.vx = data.vx;
-                    ball.vy = data.vy;
-                    break;
-                    
-                case 'score':
-                    players.opponent.score = data.score;
-                    updateUI();
-                    break;
-                    
-                case 'goal':
-                    showNotification('¡GOL!', data.scorer + ' anotó', 'info');
-                    break;
-                    
-                case 'gameStart':
-                    gameStarted = true;
-                    break;
-            }
-        }
-
-        function sendData(data) {
-            if (connection && connection.open && connected) {
-                try {
-                    connection.send(data);
-                } catch (error) {
-                    console.error('Error enviando datos:', error);
-                }
-            }
-        }
-
-        // ============ FÍSICA DE LA PELOTA MEJORADA ============
+        
+        // ============ JUEGO ============
         function startGame() {
             document.getElementById('connectionScreen').style.display = 'none';
             document.getElementById('gameScreen').classList.add('active');
@@ -624,186 +567,130 @@
             
             resizeCanvas();
             
-            // Posiciones iniciales
-            players.you.x = gameWidth / 2;
-            players.you.y = gameHeight - 80;
-            players.opponent.x = gameWidth / 2;
-            players.opponent.y = 80;
-            
-            resetBall();
-            
-            gameStarted = true;
-            timeLeft = GAME_DURATION;
-            updateUI();
-            
             if (isHost) {
-                timerInterval = setInterval(() => {
+                players.you.x = gameWidth / 2;
+                players.you.y = gameHeight - GOAL_HEIGHT - PLAYER_RADIUS;
+                ball.x = gameWidth / 2;
+                ball.y = gameHeight / 2;
+                ball.vx = 3;
+                ball.vy = 2;
+                
+                gameRef.update({
+                    started: true,
+                    timeLeft: GAME_DURATION,
+                    ball: {
+                        x: ball.x,
+                        y: ball.y,
+                        vx: ball.vx,
+                        vy: ball.vy
+                    }
+                });
+                
+                const timerInterval = setInterval(() => {
+                    if (!gameStarted) {
+                        clearInterval(timerInterval);
+                        return;
+                    }
+                    
                     timeLeft--;
                     document.getElementById('timerText').textContent = timeLeft;
+                    gameRef.child('timeLeft').set(timeLeft);
                     
                     if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
                         endGame(false);
                     }
                 }, 1000);
-            }
-            
-            sendData({ type: 'gameStart' });
-            gameLoop();
-        }
-
-        function resetBall() {
-            ball.x = gameWidth / 2;
-            ball.y = gameHeight / 2;
-            ball.vx = (Math.random() - 0.5) * 4;
-            ball.vy = (Math.random() - 0.5) * 4;
-        }
-
-        function updateBall() {
-            // Aplicar fricción
-            ball.vx *= FRICTION;
-            ball.vy *= FRICTION;
-            
-            // Limitar velocidad máxima
-            const speed = Math.sqrt(ball.vx * ball.vx + ball.vy * ball.vy);
-            if (speed > MAX_SPEED) {
-                ball.vx = (ball.vx / speed) * MAX_SPEED;
-                ball.vy = (ball.vy / speed) * MAX_SPEED;
-            }
-            
-            // Actualizar posición
-            ball.x += ball.vx;
-            ball.y += ball.vy;
-            
-            // Rebote en paredes laterales
-            if (ball.x < BALL_RADIUS) {
-                ball.x = BALL_RADIUS;
-                ball.vx = Math.abs(ball.vx) * 0.8;
-            }
-            if (ball.x > gameWidth - BALL_RADIUS) {
-                ball.x = gameWidth - BALL_RADIUS;
-                ball.vx = -Math.abs(ball.vx) * 0.8;
-            }
-            
-            // Goles
-            if (ball.y - BALL_RADIUS < 0) {
-                // Gol para el jugador local (abajo)
-                if (isHost) {
-                    players.you.score++;
-                    updateUI();
-                    sendData({ type: 'score', score: players.you.score });
-                    sendData({ type: 'goal', scorer: players.you.name });
-                }
-                spawnParticles(ball.x, 30, '#00ff88');
-                resetBall();
-            }
-            
-            if (ball.y + BALL_RADIUS > gameHeight) {
-                // Gol para el oponente (arriba)
-                if (isHost) {
-                    players.opponent.score++;
-                    updateUI();
-                    sendData({ type: 'score', score: players.opponent.score });
-                    sendData({ type: 'goal', scorer: players.opponent.name });
-                }
-                spawnParticles(ball.x, gameHeight - 30, '#ff4444');
-                resetBall();
-            }
-            
-            // Enviar posición de la pelota
-            if (isHost) {
-                sendData({
-                    type: 'ballUpdate',
-                    x: ball.x,
-                    y: ball.y,
-                    vx: ball.vx,
-                    vy: ball.vy
-                });
-            }
-        }
-
-        function checkBallCollision() {
-            // Distancia entre jugador y pelota
-            const dx = players.you.x - ball.x;
-            const dy = players.you.y - ball.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            
-            if (distance < PLAYER_RADIUS + BALL_RADIUS) {
-                // Calcular dirección del empuje
-                const angle = Math.atan2(dy, dx);
                 
-                // Empujar la pelota
-                ball.vx += Math.cos(angle) * PUSH_FORCE;
-                ball.vy += Math.sin(angle) * PUSH_FORCE;
-                
-                // Separar la pelota del jugador
-                const overlap = PLAYER_RADIUS + BALL_RADIUS - distance;
-                ball.x += Math.cos(angle) * overlap;
-                ball.y += Math.sin(angle) * overlap;
-                
-                // Partículas
-                spawnParticles(ball.x, ball.y, '#ffd700');
-                
-                // Si no soy host, enviar actualización de pelota
-                if (!isHost) {
-                    sendData({
-                        type: 'ballUpdate',
+                const ballInterval = setInterval(() => {
+                    if (!gameStarted) {
+                        clearInterval(ballInterval);
+                        return;
+                    }
+                    updateBall();
+                    gameRef.child('ball').set({
                         x: ball.x,
                         y: ball.y,
                         vx: ball.vx,
                         vy: ball.vy
                     });
-                }
+                }, 16);
+            } else {
+                players.you.x = gameWidth / 2;
+                players.you.y = GOAL_HEIGHT + PLAYER_RADIUS;
+            }
+            
+            gameStarted = true;
+            timeLeft = GAME_DURATION;
+            updateUI();
+            gameLoop();
+        }
+        
+        function updateBall() {
+            ball.x += ball.vx;
+            ball.y += ball.vy;
+            
+            // Rebote en paredes laterales
+            if (ball.x < BALL_RADIUS || ball.x > gameWidth - BALL_RADIUS) {
+                ball.vx = -ball.vx;
+                ball.x = Math.max(BALL_RADIUS, Math.min(gameWidth - BALL_RADIUS, ball.x));
+            }
+            
+            // Gol para el host (abajo)
+            if (ball.y > gameHeight - BALL_RADIUS) {
+                players.you.score++;
+                gameRef.child('host/score').set(players.you.score);
+                updateUI();
+                showNotification('¡GOL!', players.you.name + ' anotó', 'success');
+                resetBall();
+            }
+            
+            // Gol para el oponente (arriba)
+            if (ball.y < BALL_RADIUS) {
+                players.opponent.score++;
+                gameRef.child('opponent/score').set(players.opponent.score);
+                updateUI();
+                showNotification('¡GOL!', players.opponent.name + ' anotó', 'info');
+                resetBall();
+            }
+            
+            checkBallCollision();
+        }
+        
+        function checkBallCollision() {
+            const dx = players.you.x - ball.x;
+            const dy = players.you.y - ball.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance < PLAYER_RADIUS + BALL_RADIUS) {
+                const angle = Math.atan2(dy, dx);
+                const force = 8;
+                ball.vx = Math.cos(angle) * force;
+                ball.vy = Math.sin(angle) * force;
             }
         }
-
-        function spawnParticles(x, y, color) {
-            for (let i = 0; i < 20; i++) {
-                particles.push({
-                    x: x,
-                    y: y,
-                    vx: (Math.random() - 0.5) * 10,
-                    vy: (Math.random() - 0.5) * 10,
-                    life: 1,
-                    color: color,
-                    size: Math.random() * 4 + 2
-                });
-            }
+        
+        function resetBall() {
+            ball.x = gameWidth / 2;
+            ball.y = gameHeight / 2;
+            ball.vx = (Math.random() - 0.5) * 6;
+            ball.vy = (Math.random() - 0.5) * 6;
         }
-
-        function updateParticles() {
-            particles.forEach(p => {
-                p.x += p.vx;
-                p.y += p.vy;
-                p.life -= 0.03;
-                p.vy += 0.2;
-            });
-            particles = particles.filter(p => p.life > 0);
-        }
-
+        
         function gameLoop() {
             if (!gameStarted) return;
             
-            // Enviar posición del jugador
-            sendData({
-                type: 'position',
-                x: players.you.x,
-                y: players.you.y
-            });
-            
-            // Verificar colisión
-            checkBallCollision();
-            
-            // Actualizar pelota (solo host)
-            if (isHost) {
-                updateBall();
+            if (gameRef && myPlayerKey) {
+                gameRef.child(myPlayerKey).update({
+                    x: players.you.x,
+                    y: players.you.y
+                });
             }
             
-            updateParticles();
             render();
-            
-            gameLoopId = requestAnimationFrame(gameLoop);
+            requestAnimationFrame(gameLoop);
         }
-
+        
         function render() {
             ctx.clearRect(0, 0, gameWidth, gameHeight);
             
@@ -833,16 +720,6 @@
             
             ctx.fillStyle = 'rgba(0, 255, 136, 0.5)';
             ctx.fillRect(0, gameHeight - GOAL_HEIGHT, gameWidth, GOAL_HEIGHT);
-            
-            // Partículas
-            particles.forEach(p => {
-                ctx.fillStyle = p.color;
-                ctx.globalAlpha = p.life;
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                ctx.fill();
-            });
-            ctx.globalAlpha = 1;
             
             // Pelota
             const gradient = ctx.createRadialGradient(
@@ -878,79 +755,60 @@
             ctx.fill();
             ctx.shadowBlur = 0;
         }
-
+        
         function updateUI() {
             document.getElementById('yourName').textContent = players.you.name;
             document.getElementById('opponentName').textContent = players.opponent.name;
             document.getElementById('yourScore').textContent = players.you.score;
             document.getElementById('opponentScore').textContent = players.opponent.score;
         }
-
+        
         function resizeCanvas() {
             const container = document.querySelector('.game-canvas-container');
             gameWidth = container.clientWidth;
             gameHeight = container.clientHeight;
-            
             canvas.width = gameWidth;
             canvas.height = gameHeight;
-            
-            // Ajustar posiciones si es necesario
-            if (ball.x === 0 && ball.y === 0) {
-                resetBall();
-            }
         }
-
+        
         function endGame(disconnected = false) {
             gameStarted = false;
             
-            if (gameLoopId) cancelAnimationFrame(gameLoopId);
-            if (timerInterval) clearInterval(timerInterval);
-            
             if (disconnected) {
-                showResult('👋 Oponente desconectado', 'La partida ha terminado');
+                document.getElementById('resultTitle').textContent = '👋 Oponente desconectado';
+                document.getElementById('resultDetails').innerHTML = 'La partida ha terminado';
             } else {
                 const winner = players.you.score > players.opponent.score ? 
                     players.you.name : 
                     players.opponent.score > players.you.score ? 
                     players.opponent.name : 'Empate';
                 
-                const title = winner === 'Empate' ? '🤝 ¡Empate!' : 
+                document.getElementById('resultTitle').textContent = 
+                    winner === 'Empate' ? '🤝 ¡Empate!' : 
                     winner === players.you.name ? '🏆 ¡Victoria!' : '😢 ¡Derrota!';
                 
-                const details = `
-                    ${players.you.name}: ${players.you.score} goles
-                    <br>
+                document.getElementById('resultDetails').innerHTML = `
+                    ${players.you.name}: ${players.you.score} goles<br>
                     ${players.opponent.name}: ${players.opponent.score} goles
                 `;
-                
-                showResult(title, details);
+            }
+            
+            document.getElementById('resultModal').classList.add('active');
+            
+            if (gameRef && isHost) {
+                gameRef.remove();
             }
         }
-
-        function showResult(title, details) {
-            document.getElementById('resultTitle').textContent = title;
-            document.getElementById('resultDetails').innerHTML = details;
-            document.getElementById('resultModal').classList.add('active');
-        }
-
+        
         function showNotification(title, message, type = 'info') {
             const notification = document.createElement('div');
             notification.className = 'notification';
-            notification.style.borderColor = type === 'error' ? '#ff4444' : 
-                                          type === 'success' ? '#00ff88' : '#4488ff';
-            notification.innerHTML = `
-                <h3>${title}</h3>
-                <p>${message}</p>
-            `;
-            
+            notification.style.borderColor = type === 'error' ? '#ff4444' : '#00ff88';
+            notification.innerHTML = `<h3>${title}</h3><p>${message}</p>`;
             document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
+            setTimeout(() => notification.remove(), 3000);
         }
-
-        // ============ CONTROLES ============
+        
         function setupControls() {
             const canvas = document.getElementById('canvas');
             
@@ -959,36 +817,27 @@
                 players.you.x = clientX - rect.left;
                 players.you.y = clientY - rect.top;
                 
-                // Mantener dentro de los límites
                 players.you.x = Math.max(PLAYER_RADIUS, Math.min(gameWidth - PLAYER_RADIUS, players.you.x));
                 players.you.y = Math.max(PLAYER_RADIUS, Math.min(gameHeight - PLAYER_RADIUS, players.you.y));
             }
             
-            canvas.addEventListener('mousemove', (e) => {
-                updatePosition(e.clientX, e.clientY);
-            });
-            
+            canvas.addEventListener('mousemove', (e) => updatePosition(e.clientX, e.clientY));
             canvas.addEventListener('touchmove', (e) => {
                 e.preventDefault();
                 const touch = e.touches[0];
                 updatePosition(touch.clientX, touch.clientY);
             }, { passive: false });
-            
             canvas.addEventListener('touchstart', (e) => {
                 e.preventDefault();
                 const touch = e.touches[0];
                 updatePosition(touch.clientX, touch.clientY);
             }, { passive: false });
         }
-
-        // ============ INICIALIZACIÓN ============
+        
         document.addEventListener('DOMContentLoaded', () => {
             setupControls();
-            
             window.addEventListener('resize', () => {
-                if (gameStarted) {
-                    resizeCanvas();
-                }
+                if (gameStarted) resizeCanvas();
             });
         });
     </script>
