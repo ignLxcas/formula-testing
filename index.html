@@ -7,19 +7,14 @@
     <style>
         :root {
             --bg-primary: #0a0a1a;
-            --bg-secondary: #1a1a3e;
             --bg-card: #16213e;
             --accent: #ff6b35;
-            --accent2: #f7c948;
             --gold: #ffd700;
             --success: #00ff88;
             --danger: #ff4444;
-            --info: #4488ff;
-            --purple: #9944ff;
             --text-primary: #ffffff;
             --text-secondary: #b0b0c0;
             --border: #2a2a4e;
-            --glow: rgba(255, 107, 53, 0.5);
         }
 
         * { 
@@ -40,7 +35,6 @@
             -webkit-user-select: none;
         }
 
-        /* ============ CONEXIÓN ============ */
         .connection-screen {
             display: flex;
             flex-direction: column;
@@ -48,45 +42,37 @@
             justify-content: center;
             min-height: 100vh;
             padding: 20px;
-            position: relative;
         }
 
         .ball-animation {
-            font-size: 5rem;
+            font-size: 4rem;
             margin-bottom: 20px;
             animation: bounce 1.5s infinite;
-            filter: drop-shadow(0 0 30px var(--glow));
         }
 
         @keyframes bounce {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            25% { transform: translateY(-30px) rotate(90deg); }
-            50% { transform: translateY(0) rotate(180deg); }
-            75% { transform: translateY(-15px) rotate(270deg); }
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
         }
 
         .game-title {
-            font-size: 3rem;
+            font-size: 2.5rem;
             font-weight: bold;
             margin-bottom: 10px;
-            background: linear-gradient(45deg, #ff6b35, #f7c948, #ff6b35);
+            background: linear-gradient(45deg, #ff6b35, #f7c948);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-align: center;
-            text-shadow: 0 0 30px var(--glow);
         }
 
         .game-subtitle {
             color: var(--text-secondary);
-            margin-bottom: 40px;
-            text-align: center;
-            font-size: 1.1rem;
+            margin-bottom: 30px;
         }
 
         .connection-options {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 15px;
             width: 100%;
             max-width: 400px;
         }
@@ -95,19 +81,11 @@
             background: var(--bg-card);
             border: 2px solid var(--border);
             border-radius: 20px;
-            padding: 25px;
-            transition: all 0.3s;
-            backdrop-filter: blur(10px);
-        }
-
-        .option-card:hover {
-            border-color: var(--accent);
-            transform: translateY(-5px);
-            box-shadow: 0 10px 40px rgba(255, 107, 53, 0.2);
+            padding: 20px;
         }
 
         .option-title {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: bold;
             margin-bottom: 15px;
             text-align: center;
@@ -115,16 +93,14 @@
         }
 
         .btn {
-            padding: 15px 30px;
+            padding: 15px;
             border: none;
-            border-radius: 15px;
-            font-size: 1.1rem;
+            border-radius: 12px;
+            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
             width: 100%;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
+            transition: all 0.3s;
         }
 
         .btn:active {
@@ -132,9 +108,8 @@
         }
 
         .btn-primary {
-            background: linear-gradient(45deg, var(--accent), var(--accent2));
+            background: linear-gradient(45deg, #ff6b35, #f7c948);
             color: #0a0a1a;
-            box-shadow: 0 5px 30px var(--glow);
         }
 
         .btn-secondary {
@@ -143,55 +118,53 @@
             border: 2px solid var(--border);
         }
 
-        .btn-secondary:hover {
-            border-color: var(--accent);
-        }
-
         .input-group {
-            margin: 15px 0;
+            margin: 10px 0;
         }
 
         .input-group input {
             width: 100%;
-            padding: 15px;
+            padding: 12px;
             border: 2px solid var(--border);
-            border-radius: 15px;
+            border-radius: 10px;
             background: var(--bg-primary);
             color: var(--text-primary);
             font-size: 1rem;
             text-align: center;
-            transition: all 0.3s;
         }
 
         .input-group input:focus {
             outline: none;
             border-color: var(--accent);
-            box-shadow: 0 0 20px var(--glow);
         }
 
         .code-display {
             background: var(--bg-primary);
             border: 2px dashed var(--gold);
-            border-radius: 15px;
-            padding: 20px;
+            border-radius: 10px;
+            padding: 15px;
             text-align: center;
-            margin: 15px 0;
+            margin: 10px 0;
         }
 
         .code-text {
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: bold;
             color: var(--gold);
-            letter-spacing: 5px;
-            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            letter-spacing: 3px;
         }
 
-        /* ============ JUEGO ============ */
+        .status-text {
+            color: var(--text-secondary);
+            text-align: center;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
         .game-screen {
             display: none;
             flex-direction: column;
             height: 100vh;
-            position: relative;
         }
 
         .game-screen.active {
@@ -202,17 +175,16 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px;
+            padding: 10px 15px;
             background: var(--bg-card);
             border-bottom: 2px solid var(--border);
             z-index: 10;
-            backdrop-filter: blur(10px);
         }
 
         .player-info {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             flex: 1;
         }
 
@@ -221,35 +193,22 @@
         }
 
         .player-avatar {
-            width: 45px;
-            height: 45px;
+            width: 35px;
+            height: 35px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             background: var(--bg-primary);
-            border: 3px solid var(--border);
-            position: relative;
+            border: 2px solid var(--border);
         }
 
-        .player-avatar.you {
-            border-color: var(--success);
-            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
-        }
-
-        .player-avatar.opponent {
-            border-color: var(--danger);
-            box-shadow: 0 0 20px rgba(255, 68, 68, 0.3);
-        }
-
-        .player-details {
-            display: flex;
-            flex-direction: column;
-        }
+        .player-avatar.you { border-color: var(--success); }
+        .player-avatar.opponent { border-color: var(--danger); }
 
         .player-name {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             font-weight: bold;
         }
 
@@ -261,29 +220,19 @@
 
         .timer-display {
             text-align: center;
-            padding: 0 20px;
-            position: relative;
+            padding: 0 15px;
         }
 
         .timer-text {
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: bold;
             color: var(--gold);
-            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
-        }
-
-        .timer-label {
-            font-size: 0.7rem;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 2px;
         }
 
         .game-canvas-container {
             flex: 1;
             position: relative;
             overflow: hidden;
-            background: radial-gradient(circle at center, #1a1a3e 0%, #0a0a1a 100%);
         }
 
         .game-canvas {
@@ -294,7 +243,6 @@
             left: 0;
         }
 
-        /* Notificaciones */
         .notification {
             position: fixed;
             top: 20px;
@@ -302,13 +250,12 @@
             transform: translateX(-50%);
             background: var(--bg-card);
             border: 2px solid var(--border);
-            border-radius: 15px;
-            padding: 20px 30px;
+            border-radius: 10px;
+            padding: 15px 20px;
             z-index: 1000;
             animation: slideDown 0.3s ease;
             text-align: center;
             max-width: 90%;
-            backdrop-filter: blur(10px);
         }
 
         @keyframes slideDown {
@@ -316,21 +263,6 @@
             to { transform: translate(-50%, 0); opacity: 1; }
         }
 
-        .notification.success { border-color: var(--success); }
-        .notification.error { border-color: var(--danger); }
-        .notification.info { border-color: var(--info); }
-
-        .notification h3 {
-            font-size: 1.2rem;
-            margin-bottom: 10px;
-        }
-
-        .notification p {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-
-        /* Modal */
         .modal {
             position: fixed;
             top: 0;
@@ -352,33 +284,26 @@
             background: var(--bg-card);
             border: 2px solid var(--border);
             border-radius: 20px;
-            padding: 40px;
+            padding: 30px;
             max-width: 90%;
-            width: 400px;
+            width: 350px;
             text-align: center;
-            animation: modalIn 0.3s ease;
-        }
-
-        @keyframes modalIn {
-            from { transform: scale(0.5); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
         }
 
         @media (max-width: 480px) {
             .game-title { font-size: 2rem; }
-            .ball-animation { font-size: 4rem; }
-            .code-text { font-size: 2rem; letter-spacing: 3px; }
-            .player-avatar { width: 35px; height: 35px; font-size: 1.2rem; }
-            .timer-text { font-size: 1.8rem; }
+            .ball-animation { font-size: 3rem; }
+            .code-text { font-size: 1.5rem; }
+            .player-avatar { width: 30px; height: 30px; font-size: 1rem; }
+            .timer-text { font-size: 1.5rem; }
         }
     </style>
 </head>
 <body>
-    <!-- Conexión -->
     <div class="connection-screen" id="connectionScreen">
         <div class="ball-animation">⚽</div>
         <h1 class="game-title">Ball Rush</h1>
-        <p class="game-subtitle">¡Empuja la pelota hacia tu portería!</p>
+        <p class="game-subtitle">¡Empuja la pelota hacia la portería!</p>
         
         <div class="connection-options">
             <div class="option-card">
@@ -391,12 +316,10 @@
                 </button>
                 <div id="createdCode" style="display: none;">
                     <div class="code-display">
-                        <p style="color: var(--text-secondary); margin-bottom: 10px;">Comparte este código:</p>
+                        <p style="color: var(--text-secondary); font-size: 0.8rem;">Código:</p>
                         <div class="code-text" id="gameCodeText"></div>
                     </div>
-                    <p style="color: var(--text-secondary); text-align: center;">
-                        Esperando oponente...
-                    </p>
+                    <p class="status-text" id="waitingText">Esperando oponente...</p>
                 </div>
             </div>
             
@@ -406,7 +329,7 @@
                     <input type="text" id="playerNameJoin" placeholder="Tu nombre" maxlength="15">
                 </div>
                 <div class="input-group">
-                    <input type="text" id="gameCode" placeholder="Código de 6 dígitos" maxlength="6" 
+                    <input type="text" id="gameCode" placeholder="Código" maxlength="6" 
                            oninput="this.value = this.value.toUpperCase()">
                 </div>
                 <button class="btn btn-secondary" onclick="joinGame()">
@@ -416,12 +339,11 @@
         </div>
     </div>
 
-    <!-- Juego -->
     <div class="game-screen" id="gameScreen">
         <div class="game-header">
             <div class="player-info">
                 <div class="player-avatar you">😊</div>
-                <div class="player-details">
+                <div>
                     <div class="player-name" id="yourName">Tú</div>
                     <div class="player-score" id="yourScore">0</div>
                 </div>
@@ -429,11 +351,10 @@
             
             <div class="timer-display">
                 <div class="timer-text" id="timerText">60</div>
-                <div class="timer-label">Segundos</div>
             </div>
             
             <div class="player-info opponent">
-                <div class="player-details">
+                <div style="text-align: right;">
                     <div class="player-name" id="opponentName">Oponente</div>
                     <div class="player-score" id="opponentScore">0</div>
                 </div>
@@ -446,29 +367,29 @@
         </div>
     </div>
 
-    <!-- Modal Resultado -->
     <div class="modal" id="resultModal">
         <div class="modal-content">
-            <h2 id="resultTitle" style="font-size: 2rem; margin-bottom: 20px;"></h2>
-            <div id="resultDetails" style="margin-bottom: 30px;"></div>
+            <h2 id="resultTitle" style="font-size: 1.8rem; margin-bottom: 15px;"></h2>
+            <div id="resultDetails" style="margin-bottom: 20px;"></div>
             <button class="btn btn-primary" onclick="location.reload()">
                 Jugar de Nuevo
             </button>
         </div>
     </div>
 
-    <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
+    <!-- Usamos un servidor PeerJS público confiable -->
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     
     <script>
         // ============ CONFIGURACIÓN ============
         const GAME_DURATION = 60;
-        const BALL_RADIUS = 20;
-        const PLAYER_SIZE = 40;
-        const GOAL_WIDTH = 150;
-        const GOAL_HEIGHT = 30;
-        const BALL_SPEED = 0.9;
+        const BALL_RADIUS = 15;
+        const PLAYER_RADIUS = 25;
+        const GOAL_HEIGHT = 40;
+        const BALL_SPEED = 5;
+        const MAX_SPEED = 15;
         const FRICTION = 0.98;
-        const PUSH_FORCE = 0.3;
+        const PUSH_FORCE = 8;
 
         let peer = null;
         let connection = null;
@@ -478,50 +399,57 @@
         let timerInterval = null;
         let canvas, ctx;
         let gameWidth, gameHeight;
+        let myId = null;
+        let opponentId = null;
+        let connected = false;
 
         const players = {
-            you: { x: 0, y: 0, score: 0, name: 'Tú', color: '#00ff88' },
-            opponent: { x: 0, y: 0, score: 0, name: 'Oponente', color: '#ff4444' }
+            you: { x: 0, y: 0, score: 0, name: 'Tú' },
+            opponent: { x: 0, y: 0, score: 0, name: 'Oponente' }
         };
 
         const ball = {
             x: 0,
             y: 0,
             vx: 0,
-            vy: 0,
-            radius: BALL_RADIUS
+            vy: 0
         };
 
         let timeLeft = GAME_DURATION;
         let particles = [];
 
-        // ============ CONEXIÓN ============
+        // ============ CONEXIÓN MEJORADA ============
         function createGame() {
             const name = document.getElementById('playerName').value || 'Jugador 1';
             players.you.name = name;
             isHost = true;
             
             const gameCode = generateCode();
-            
             document.getElementById('createdCode').style.display = 'block';
             document.getElementById('gameCodeText').textContent = gameCode;
             
-            initializePeer(gameCode);
+            // Usar un ID simple y único
+            myId = `ballrush-${gameCode}-host-${Date.now()}`;
+            
+            initializePeer(myId);
         }
 
         function joinGame() {
             const name = document.getElementById('playerNameJoin').value || 'Jugador 2';
-            const gameCode = document.getElementById('gameCode').value.trim();
+            const gameCode = document.getElementById('gameCode').value.trim().toUpperCase();
             
             if (!gameCode || gameCode.length !== 6) {
-                showNotification('Código inválido', 'Ingresa un código de 6 dígitos', 'error');
+                showNotification('Error', 'Ingresa un código válido', 'error');
                 return;
             }
             
             players.you.name = name;
             isHost = false;
             
-            initializePeer(gameCode);
+            // Conectar al host
+            myId = `ballrush-${gameCode}-player-${Date.now()}`;
+            
+            initializePeer(myId, gameCode);
         }
 
         function generateCode() {
@@ -533,59 +461,128 @@
             return code;
         }
 
-        function initializePeer(gameCode) {
-            const peerId = `ball-${gameCode}-${isHost ? 'host' : 'player'}`;
+        function initializePeer(id, gameCode = null) {
+            // Configurar PeerJS con servidor público
+            peer = new Peer(id, {
+                config: {
+                    'iceServers': [
+                        { urls: 'stun:stun.l.google.com:19302' },
+                        { urls: 'stun:stun1.l.google.com:19302' }
+                    ]
+                }
+            });
             
-            peer = new Peer(peerId);
-            
-            peer.on('open', () => {
-                if (!isHost) {
+            peer.on('open', (peerId) => {
+                console.log('Peer conectado:', peerId);
+                
+                if (!isHost && gameCode) {
+                    // Buscar al host
                     connectToHost(gameCode);
+                } else if (isHost) {
+                    document.getElementById('waitingText').textContent = 
+                        'Esperando oponente... Comparte el código';
                 }
             });
             
             peer.on('connection', (conn) => {
+                console.log('Conexión entrante de:', conn.peer);
                 connection = conn;
                 setupConnection();
-                showNotification('¡Oponente conectado!', '¡Que comience el juego!', 'success');
-                startGame();
-            });
-            
-            peer.on('error', (error) => {
-                console.error('Error:', error);
-                showNotification('Error de conexión', error.type, 'error');
-            });
-        }
-
-        function connectToHost(gameCode) {
-            const hostId = `ball-${gameCode}-host`;
-            connection = peer.connect(hostId, { reliable: true });
-            setupConnection();
-        }
-
-        function setupConnection() {
-            connection.on('open', () => {
-                if (!isHost) {
+                
+                if (isHost) {
+                    opponentId = conn.peer;
+                    showNotification('¡Conectado!', 'Oponente encontrado', 'success');
                     startGame();
                 }
             });
             
-            connection.on('data', handleData);
+            peer.on('error', (error) => {
+                console.error('Error PeerJS:', error);
+                
+                if (error.type === 'peer-unavailable') {
+                    showNotification('Error', 'No se encontró la partida', 'error');
+                } else if (error.type === 'network') {
+                    showNotification('Error', 'Problema de red', 'error');
+                } else {
+                    showNotification('Error', error.type, 'error');
+                }
+            });
+        }
+
+        function connectToHost(gameCode) {
+            // Intentar diferentes IDs de host
+            const attempts = [
+                `ballrush-${gameCode}-host`,
+                `ballrush-${gameCode}-host-${Date.now()}`,
+                `ballrush-${gameCode}`
+            ];
+            
+            let attemptIndex = 0;
+            
+            function tryConnect() {
+                if (attemptIndex >= attempts.length) {
+                    showNotification('Error', 'No se pudo conectar', 'error');
+                    return;
+                }
+                
+                const hostId = attempts[attemptIndex];
+                console.log('Intentando conectar a:', hostId);
+                
+                const conn = peer.connect(hostId, { 
+                    reliable: true,
+                    metadata: { name: players.you.name }
+                });
+                
+                conn.on('open', () => {
+                    console.log('Conectado al host:', hostId);
+                    connection = conn;
+                    setupConnection();
+                    opponentId = hostId;
+                    showNotification('¡Conectado!', 'Unido a la partida', 'success');
+                    startGame();
+                });
+                
+                conn.on('error', (error) => {
+                    console.log('Error conectando a', hostId, error);
+                    attemptIndex++;
+                    setTimeout(tryConnect, 2000);
+                });
+            }
+            
+            tryConnect();
+        }
+
+        function setupConnection() {
+            connection.on('open', () => {
+                connected = true;
+                console.log('Canal de datos abierto');
+            });
+            
+            connection.on('data', (data) => {
+                handleData(data);
+            });
             
             connection.on('close', () => {
-                showNotification('Oponente desconectado', 'Fin de la partida', 'error');
+                connected = false;
+                showNotification('Desconectado', 'Oponente se fue', 'error');
                 endGame(true);
+            });
+            
+            connection.on('error', (error) => {
+                console.error('Error en conexión:', error);
             });
         }
 
         function handleData(data) {
+            if (!data || !data.type) return;
+            
             switch(data.type) {
                 case 'position':
                     players.opponent.x = data.x;
                     players.opponent.y = data.y;
                     break;
                     
-                case 'ball':
+                case 'ballUpdate':
                     ball.x = data.x;
                     ball.y = data.y;
                     ball.vx = data.vx;
@@ -597,27 +594,27 @@
                     updateUI();
                     break;
                     
-                case 'particles':
-                    spawnParticles(data.x, data.y, data.color);
+                case 'goal':
+                    showNotification('¡GOL!', data.scorer + ' anotó', 'info');
                     break;
                     
                 case 'gameStart':
                     gameStarted = true;
                     break;
-                    
-                case 'gameEnd':
-                    endGame(false, data.winner);
-                    break;
             }
         }
 
         function sendData(data) {
-            if (connection && connection.open) {
-                connection.send(data);
+            if (connection && connection.open && connected) {
+                try {
+                    connection.send(data);
+                } catch (error) {
+                    console.error('Error enviando datos:', error);
+                }
             }
         }
 
-        // ============ JUEGO ============
+        // ============ FÍSICA DE LA PELOTA MEJORADA ============
         function startGame() {
             document.getElementById('connectionScreen').style.display = 'none';
             document.getElementById('gameScreen').classList.add('active');
@@ -629,17 +626,15 @@
             
             // Posiciones iniciales
             players.you.x = gameWidth / 2;
-            players.you.y = gameHeight - 50;
+            players.you.y = gameHeight - 80;
             players.opponent.x = gameWidth / 2;
-            players.opponent.y = 50;
+            players.opponent.y = 80;
             
-            ball.x = gameWidth / 2;
-            ball.y = gameHeight / 2;
-            ball.vx = 0;
-            ball.vy = 0;
+            resetBall();
             
             gameStarted = true;
             timeLeft = GAME_DURATION;
+            updateUI();
             
             if (isHost) {
                 timerInterval = setInterval(() => {
@@ -656,50 +651,68 @@
             gameLoop();
         }
 
+        function resetBall() {
+            ball.x = gameWidth / 2;
+            ball.y = gameHeight / 2;
+            ball.vx = (Math.random() - 0.5) * 4;
+            ball.vy = (Math.random() - 0.5) * 4;
+        }
+
         function updateBall() {
             // Aplicar fricción
             ball.vx *= FRICTION;
             ball.vy *= FRICTION;
             
+            // Limitar velocidad máxima
+            const speed = Math.sqrt(ball.vx * ball.vx + ball.vy * ball.vy);
+            if (speed > MAX_SPEED) {
+                ball.vx = (ball.vx / speed) * MAX_SPEED;
+                ball.vy = (ball.vy / speed) * MAX_SPEED;
+            }
+            
             // Actualizar posición
             ball.x += ball.vx;
             ball.y += ball.vy;
             
-            // Rebote en paredes
-            if (ball.x - ball.radius < 0) {
-                ball.x = ball.radius;
+            // Rebote en paredes laterales
+            if (ball.x < BALL_RADIUS) {
+                ball.x = BALL_RADIUS;
                 ball.vx = Math.abs(ball.vx) * 0.8;
-                spawnParticles(ball.x, ball.y, '#ffd700');
             }
-            if (ball.x + ball.radius > gameWidth) {
-                ball.x = gameWidth - ball.radius;
+            if (ball.x > gameWidth - BALL_RADIUS) {
+                ball.x = gameWidth - BALL_RADIUS;
                 ball.vx = -Math.abs(ball.vx) * 0.8;
-                spawnParticles(ball.x, ball.y, '#ffd700');
             }
             
-            // Verificar goles
-            if (ball.y + ball.radius > gameHeight) {
-                // Gol para el jugador de abajo
-                players.you.score++;
-                updateUI();
-                sendData({ type: 'score', score: players.you.score });
+            // Goles
+            if (ball.y - BALL_RADIUS < 0) {
+                // Gol para el jugador local (abajo)
+                if (isHost) {
+                    players.you.score++;
+                    updateUI();
+                    sendData({ type: 'score', score: players.you.score });
+                    sendData({ type: 'goal', scorer: players.you.name });
+                }
+                spawnParticles(ball.x, 30, '#00ff88');
                 resetBall();
-                spawnParticles(gameWidth / 2, gameHeight / 2, '#00ff88');
             }
             
-            if (ball.y - ball.radius < 0) {
-                // Gol para el jugador de arriba
-                players.opponent.score++;
-                updateUI();
-                sendData({ type: 'score', score: players.opponent.score });
+            if (ball.y + BALL_RADIUS > gameHeight) {
+                // Gol para el oponente (arriba)
+                if (isHost) {
+                    players.opponent.score++;
+                    updateUI();
+                    sendData({ type: 'score', score: players.opponent.score });
+                    sendData({ type: 'goal', scorer: players.opponent.name });
+                }
+                spawnParticles(ball.x, gameHeight - 30, '#ff4444');
                 resetBall();
-                spawnParticles(gameWidth / 2, gameHeight / 2, '#ff4444');
             }
             
             // Enviar posición de la pelota
             if (isHost) {
                 sendData({
-                    type: 'ball',
+                    type: 'ballUpdate',
                     x: ball.x,
                     y: ball.y,
                     vx: ball.vx,
@@ -708,71 +721,79 @@
             }
         }
 
-        function resetBall() {
-            ball.x = gameWidth / 2;
-            ball.y = gameHeight / 2;
-            ball.vx = 0;
-            ball.vy = 0;
-        }
-
         function checkBallCollision() {
-            // Colisión con jugador local
+            // Distancia entre jugador y pelota
             const dx = players.you.x - ball.x;
             const dy = players.you.y - ball.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
             
-            if (distance < PLAYER_SIZE / 2 + BALL_RADIUS) {
-                // Empujar la pelota
+            if (distance < PLAYER_RADIUS + BALL_RADIUS) {
+                // Calcular dirección del empuje
                 const angle = Math.atan2(dy, dx);
+                
+                // Empujar la pelota
                 ball.vx += Math.cos(angle) * PUSH_FORCE;
                 ball.vy += Math.sin(angle) * PUSH_FORCE;
                 
                 // Separar la pelota del jugador
-                const overlap = PLAYER_SIZE / 2 + BALL_RADIUS - distance;
+                const overlap = PLAYER_RADIUS + BALL_RADIUS - distance;
                 ball.x += Math.cos(angle) * overlap;
                 ball.y += Math.sin(angle) * overlap;
                 
-                spawnParticles(ball.x, ball.y, '#00ff88');
+                // Partículas
+                spawnParticles(ball.x, ball.y, '#ffd700');
+                
+                // Si no soy host, enviar actualización de pelota
+                if (!isHost) {
+                    sendData({
+                        type: 'ballUpdate',
+                        x: ball.x,
+                        y: ball.y,
+                        vx: ball.vx,
+                        vy: ball.vy
+                    });
+                }
             }
         }
 
         function spawnParticles(x, y, color) {
-            for (let i = 0; i < 15; i++) {
+            for (let i = 0; i < 20; i++) {
                 particles.push({
                     x: x,
                     y: y,
-                    vx: (Math.random() - 0.5) * 8,
-                    vy: (Math.random() - 0.5) * 8,
+                    vx: (Math.random() - 0.5) * 10,
+                    vy: (Math.random() - 0.5) * 10,
                     life: 1,
                     color: color,
-                    size: Math.random() * 5 + 2
+                    size: Math.random() * 4 + 2
                 });
             }
         }
 
         function updateParticles() {
-            particles.forEach(particle => {
-                particle.x += particle.vx;
-                particle.y += particle.vy;
-                particle.life -= 0.03;
-                particle.vy += 0.2; // Gravedad
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= 0.03;
+                p.vy += 0.2;
             });
-            
             particles = particles.filter(p => p.life > 0);
         }
 
         function gameLoop() {
             if (!gameStarted) return;
             
-            // Enviar posición
+            // Enviar posición del jugador
             sendData({
                 type: 'position',
                 x: players.you.x,
                 y: players.you.y
             });
             
+            // Verificar colisión
             checkBallCollision();
             
+            // Actualizar pelota (solo host)
             if (isHost) {
                 updateBall();
             }
@@ -787,13 +808,7 @@
             ctx.clearRect(0, 0, gameWidth, gameHeight);
             
             // Fondo
-            const gradient = ctx.createRadialGradient(
-                gameWidth / 2, gameHeight / 2, 0,
-                gameWidth / 2, gameHeight / 2, gameWidth / 2
-            );
-            gradient.addColorStop(0, '#1a1a3e');
-            gradient.addColorStop(1, '#0a0a1a');
-            ctx.fillStyle = gradient;
+            ctx.fillStyle = '#1a1a3e';
             ctx.fillRect(0, 0, gameWidth, gameHeight);
             
             // Línea central
@@ -806,53 +821,60 @@
             ctx.stroke();
             ctx.setLineDash([]);
             
-            // Porterías
-            ctx.fillStyle = 'rgba(255, 68, 68, 0.3)';
-            ctx.fillRect(gameWidth / 2 - GOAL_WIDTH / 2, 0, GOAL_WIDTH, GOAL_HEIGHT);
+            // Círculo central
+            ctx.strokeStyle = '#2a2a4e';
+            ctx.beginPath();
+            ctx.arc(gameWidth / 2, gameHeight / 2, 60, 0, Math.PI * 2);
+            ctx.stroke();
             
-            ctx.fillStyle = 'rgba(0, 255, 136, 0.3)';
-            ctx.fillRect(gameWidth / 2 - GOAL_WIDTH / 2, gameHeight - GOAL_HEIGHT, GOAL_WIDTH, GOAL_HEIGHT);
+            // Porterías
+            ctx.fillStyle = 'rgba(255, 68, 68, 0.5)';
+            ctx.fillRect(0, 0, gameWidth, GOAL_HEIGHT);
+            
+            ctx.fillStyle = 'rgba(0, 255, 136, 0.5)';
+            ctx.fillRect(0, gameHeight - GOAL_HEIGHT, gameWidth, GOAL_HEIGHT);
             
             // Partículas
-            particles.forEach(particle => {
-                ctx.fillStyle = particle.color;
-                ctx.globalAlpha = particle.life;
-                ctx.fillRect(particle.x, particle.y, particle.size, particle.size);
+            particles.forEach(p => {
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = p.life;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
             });
             ctx.globalAlpha = 1;
             
             // Pelota
-            const ballGradient = ctx.createRadialGradient(
+            const gradient = ctx.createRadialGradient(
                 ball.x - 5, ball.y - 5, 0,
                 ball.x, ball.y, BALL_RADIUS
             );
-            ballGradient.addColorStop(0, '#ffffff');
-            ballGradient.addColorStop(0.5, '#ffd700');
-            ballGradient.addColorStop(1, '#ff6b35');
+            gradient.addColorStop(0, '#ffffff');
+            gradient.addColorStop(1, '#ffd700');
             
-            ctx.fillStyle = ballGradient;
+            ctx.fillStyle = gradient;
             ctx.shadowColor = '#ffd700';
-            ctx.shadowBlur = 20;
+            ctx.shadowBlur = 15;
             ctx.beginPath();
             ctx.arc(ball.x, ball.y, BALL_RADIUS, 0, Math.PI * 2);
             ctx.fill();
             ctx.shadowBlur = 0;
             
             // Jugador local
-            ctx.fillStyle = players.you.color;
-            ctx.shadowColor = players.you.color;
-            ctx.shadowBlur = 20;
+            ctx.fillStyle = '#00ff88';
+            ctx.shadowColor = '#00ff88';
+            ctx.shadowBlur = 15;
             ctx.beginPath();
-            ctx.arc(players.you.x, players.you.y, PLAYER_SIZE / 2, 0, Math.PI * 2);
+            ctx.arc(players.you.x, players.you.y, PLAYER_RADIUS, 0, Math.PI * 2);
             ctx.fill();
             ctx.shadowBlur = 0;
             
             // Oponente
-            ctx.fillStyle = players.opponent.color;
-            ctx.shadowColor = players.opponent.color;
-            ctx.shadowBlur = 20;
+            ctx.fillStyle = '#ff4444';
+            ctx.shadowColor = '#ff4444';
+            ctx.shadowBlur = 15;
             ctx.beginPath();
-            ctx.arc(players.opponent.x, players.opponent.y, PLAYER_SIZE / 2, 0, Math.PI * 2);
+            ctx.arc(players.opponent.x, players.opponent.y, PLAYER_RADIUS, 0, Math.PI * 2);
             ctx.fill();
             ctx.shadowBlur = 0;
         }
@@ -871,9 +893,14 @@
             
             canvas.width = gameWidth;
             canvas.height = gameHeight;
+            
+            // Ajustar posiciones si es necesario
+            if (ball.x === 0 && ball.y === 0) {
+                resetBall();
+            }
         }
 
-        function endGame(disconnected = false, winner = null) {
+        function endGame(disconnected = false) {
             gameStarted = false;
             
             if (gameLoopId) cancelAnimationFrame(gameLoopId);
@@ -882,20 +909,21 @@
             if (disconnected) {
                 showResult('👋 Oponente desconectado', 'La partida ha terminado');
             } else {
-                const winnerName = winner || 
-                    (players.you.score > players.opponent.score ? players.you.name : 
-                     players.opponent.score > players.you.score ? players.opponent.name : 'Empate');
+                const winner = players.you.score > players.opponent.score ? 
+                    players.you.name : 
+                    players.opponent.score > players.you.score ? 
+                    players.opponent.name : 'Empate';
                 
-                const resultTitle = winnerName === 'Empate' ? '🤝 ¡Empate!' : 
-                    winnerName === players.you.name ? '🏆 ¡Victoria!' : '😢 ¡Derrota!';
+                const title = winner === 'Empate' ? '🤝 ¡Empate!' : 
+                    winner === players.you.name ? '🏆 ¡Victoria!' : '😢 ¡Derrota!';
                 
-                const resultDetails = `
+                const details = `
                     ${players.you.name}: ${players.you.score} goles
                     <br>
                     ${players.opponent.name}: ${players.opponent.score} goles
                 `;
                 
-                showResult(resultTitle, resultDetails);
+                showResult(title, details);
             }
         }
 
@@ -907,7 +935,9 @@
 
         function showNotification(title, message, type = 'info') {
             const notification = document.createElement('div');
-            notification.className = `notification ${type}`;
+            notification.className = 'notification';
+            notification.style.borderColor = type === 'error' ? '#ff4444' : 
+                                          type === 'success' ? '#00ff88' : '#4488ff';
             notification.innerHTML = `
                 <h3>${title}</h3>
                 <p>${message}</p>
@@ -924,27 +954,31 @@
         function setupControls() {
             const canvas = document.getElementById('canvas');
             
-            canvas.addEventListener('mousemove', (e) => {
+            function updatePosition(clientX, clientY) {
                 const rect = canvas.getBoundingClientRect();
-                players.you.x = e.clientX - rect.left;
-                players.you.y = e.clientY - rect.top;
+                players.you.x = clientX - rect.left;
+                players.you.y = clientY - rect.top;
+                
+                // Mantener dentro de los límites
+                players.you.x = Math.max(PLAYER_RADIUS, Math.min(gameWidth - PLAYER_RADIUS, players.you.x));
+                players.you.y = Math.max(PLAYER_RADIUS, Math.min(gameHeight - PLAYER_RADIUS, players.you.y));
+            }
+            
+            canvas.addEventListener('mousemove', (e) => {
+                updatePosition(e.clientX, e.clientY);
             });
             
             canvas.addEventListener('touchmove', (e) => {
                 e.preventDefault();
-                const rect = canvas.getBoundingClientRect();
                 const touch = e.touches[0];
-                players.you.x = touch.clientX - rect.left;
-                players.you.y = touch.clientY - rect.top;
-            });
+                updatePosition(touch.clientX, touch.clientY);
+            }, { passive: false });
             
             canvas.addEventListener('touchstart', (e) => {
                 e.preventDefault();
-                const rect = canvas.getBoundingClientRect();
                 const touch = e.touches[0];
-                players.you.x = touch.clientX - rect.left;
-                players.you.y = touch.clientY - rect.top;
-            });
+                updatePosition(touch.clientX, touch.clientY);
+            }, { passive: false });
         }
 
         // ============ INICIALIZACIÓN ============
