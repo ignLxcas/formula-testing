@@ -1,8 +1,0 @@
-{
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/deepseek_html_20260814_77c3c7.html"
-    }
-  ]
-}
