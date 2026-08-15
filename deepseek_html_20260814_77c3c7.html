@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>F1 2023 — Beta Test Final</title>
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #1a1a2e;
+            --bg-card-hover: #22223a;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0c0;
+            --text-muted: #707080;
+            --accent: #e10600;
+            --accent-hover: #ff1a1a;
+            --gold: #ffd700;
+            --silver: #c0c0c0;
+            --border: #2a2a3e;
+            --success: #00ff88;
+            --warning: #ffaa00;
+            --danger: #ff4444;
+            --info: #4488ff;
+            --purple: #9944ff;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.5;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+        .screen { display: none; min-height: 100vh; }
+        .screen.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .container { max-width: 900px; margin: 0 auto; padding: 0.75rem 0.5rem; }
+
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 2px solid var(--accent);
+            padding: 0.5rem 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-wrap: wrap;
+            gap: 0.3rem;
+        }
+        .header-logo { font-size: 1rem; font-weight: bold; color: var(--accent); letter-spacing: 1px; }
+        .header-nav { display: flex; gap: 0.2rem; flex-wrap: wrap; }
+        .header-nav a {
+            color: var(--text-secondary); text-decoration: none; padding: 0.3rem 0.5rem;
+            border-radius: 5px; cursor: pointer; font-size: 0.7rem; transition: all 0.2s;
+        }
+        .header-nav a:hover, .header-nav a.active { background: var(--bg-card); color: var(--text-primary); }
+        .header-nav.locked a { pointer-events: none; opacity: 0.3; }
+
+        .card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 10px; padding: 1rem; margin-bottom: 0.75rem;
+        }
+        .card-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 0.6rem; flex-wrap: wrap; gap: 0.3rem;
+        }
+        .card-title { font-size: 0.9rem; font-weight: bold; color: var(--accent); }
+        .card-subtitle { color: var(--text-muted); font-size: 0.7rem; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.4rem; }
+
+        .btn {
+            padding: 0.55rem 0.9rem; border: none; border-radius: 7px; font-size: 0.8rem;
+            font-weight: 600; cursor: pointer; transition: all 0.2s; text-transform: uppercase;
+            letter-spacing: 0.3px; min-height: 38px; touch-action: manipulation;
+        }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-primary:active { transform: scale(0.95); }
+        .btn-success { background: var(--success); color: #000; font-weight: bold; }
+        .btn-gold { background: var(--gold); color: #000; font-weight: bold; }
+        .btn-secondary { background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border); }
+        .btn-block { width: 100%; display: block; }
+        .btn-sm { padding: 0.35rem 0.6rem; font-size: 0.65rem; min-height: 30px; }
+
+        .grl-display {
+            text-align: center; padding: 0.6rem;
+            background: linear-gradient(135deg, #1a1a2e, #2a2a3e);
+            border-radius: 8px; border: 2px solid var(--gold);
+        }
+        .grl-number { font-size: 2rem; font-weight: bold; color: var(--gold); }
+        .grl-label { font-size: 0.6rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; }
+
+        .stat-item { text-align: center; padding: 0.45rem; background: var(--bg-secondary); border-radius: 6px; }
+        .stat-value { font-size: 1rem; font-weight: bold; color: var(--gold); }
+        .stat-label { font-size: 0.55rem; color: var(--text-muted); }
+
+        .skill-bar { margin: 0.35rem 0; }
+        .skill-bar .skill-label { display: flex; justify-content: space-between; font-size: 0.65rem; color: var(--text-secondary); }
+        .skill-bar .skill-track { background: var(--bg-secondary); height: 5px; border-radius: 3px; overflow: hidden; margin-top: 0.1rem; }
+        .skill-bar .skill-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--accent), var(--purple)); transition: width 0.4s; }
+
+        .alert { padding: 0.55rem; border-radius: 6px; margin: 0.4rem 0; font-size: 0.75rem; font-weight: 500; }
+        .alert-success { background: rgba(0,255,136,0.1); border: 1px solid var(--success); color: var(--success); }
+        .alert-warning { background: rgba(255,170,0,0.1); border: 1px solid var(--warning); color: var(--warning); }
+        .alert-danger { background: rgba(255,68,68,0.1); border: 1px solid var(--danger); color: var(--danger); }
+        .alert-info { background: rgba(68,136,255,0.1); border: 1px solid var(--info); color: var(--info); }
+
+        .table-container { overflow-x: auto; }
+        .table { width: 100%; border-collapse: collapse; min-width: 400px; }
+        .table th, .table td { padding: 0.4rem; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.7rem; }
+        .table th { background: var(--bg-secondary); font-weight: 600; color: var(--text-secondary); }
+        .position-1 { color: var(--gold); font-weight: bold; }
+        .position-2 { color: var(--silver); font-weight: bold; }
+        .position-3 { color: #cd7f32; font-weight: bold; }
+
+        .contract-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; margin-bottom: 0.5rem; }
+        .contract-card.featured { border-color: var(--gold); }
+
+        .traffic-light { display: flex; gap: 0.3rem; justify-content: center; padding: 0.5rem; background: #000; border-radius: 8px; width: 100px; margin: 0.5rem auto; cursor: pointer; }
+        .light { width: 15px; height: 15px; border-radius: 50%; background: #333; transition: all 0.08s; }
+        .light.active { background: #ff0000; box-shadow: 0 0 10px #ff0000; }
+        .light.go { background: #00ff00; box-shadow: 0 0 12px #00ff00; }
+
+        .braking-container { position: relative; width: 100%; height: 40px; background: var(--bg-secondary); border-radius: 8px; margin: 0.5rem 0; overflow: hidden; }
+        .braking-zone { position: absolute; height: 100%; background: rgba(0,255,136,0.3); border: 2px solid var(--success); border-radius: 4px; }
+        .braking-indicator { position: absolute; width: 8px; height: 100%; background: var(--gold); border-radius: 3px; }
+
+        .drs-container { position: relative; width: 100%; height: 40px; background: var(--bg-secondary); border-radius: 8px; margin: 0.5rem 0; overflow: hidden; }
+        .drs-fill { height: 100%; background: linear-gradient(90deg, #333, var(--success)); border-radius: 8px; }
+        .drs-marker { position: absolute; top: 0; height: 100%; width: 3px; background: var(--gold); box-shadow: 0 0 8px var(--gold); }
+
+        @media (max-width: 768px) {
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+            .header { flex-direction: column; padding: 0.3rem; }
+            .header-nav { justify-content: center; }
+            .header-nav a { padding: 0.2rem 0.35rem; font-size: 0.6rem; }
+            .container { padding: 0.4rem; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-logo">🏎️ F1 2023 BETA</div>
+        <nav class="header-nav" id="mainNav">
+            <a href="#" class="active" data-screen="dashboard">Inicio</a>
+            <a href="#" data-screen="race">Carrera</a>
+            <a href="#" data-screen="standings">Clasificación</a>
+            <a href="#" data-screen="economy">Economía</a>
+            <a href="#" data-screen="trophies">Trofeos</a>
+            <a href="#" data-screen="pilot">Piloto</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <!-- DASHBOARD -->
+        <div id="dashboardScreen" class="screen active">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">👤 Mi Piloto</div>
+                    <div class="card-subtitle" id="dashTeam"></div>
+                </div>
+                <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.6rem;">
+                    <span style="font-size:1.8rem;">👤</span>
+                    <div>
+                        <strong id="dashName"></strong>
+                        <p style="color:var(--text-secondary); font-size:0.75rem;" id="dashNat"></p>
+                    </div>
+                </div>
+                <div class="grl-display">
+                    <div class="grl-number" id="dashGRL">0</div>
+                    <div class="grl-label">Global Rating</div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><div class="card-title">📊 Resumen</div></div>
+                <div class="grid-4">
+                    <div class="stat-item"><div class="stat-value" id="dashPoints">0</div><div class="stat-label">Puntos</div></div>
+                    <div class="stat-item"><div class="stat-value" id="dashWins">0</div><div class="stat-label">Victorias</div></div>
+                    <div class="stat-item"><div class="stat-value" id="dashMoney">$0M</div><div class="stat-label">Dinero</div></div>
+                    <div class="stat-item"><div class="stat-value" id="dashRep">0</div><div class="stat-label">Rep</div></div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">🏁 Próximo GP</div>
+                    <div class="card-subtitle" id="dashRound"></div>
+                </div>
+                <h3 id="dashRaceName" style="font-size:0.9rem;"></h3>
+                <p style="color:var(--text-secondary); font-size:0.75rem;" id="dashCircuit"></p>
+                <button class="btn btn-primary btn-block" style="margin-top:0.5rem;" onclick="showScreen('race')">🏎️ Ir a Carrera</button>
+            </div>
+            <div class="card">
+                <div class="card-header"><div class="card-title">📊 Habilidades</div></div>
+                <div id="dashSkills"></div>
+            </div>
+        </div>
+
+        <!-- RACE -->
+        <div id="raceScreen" class="screen">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">🏁 <span id="raceTitle"></span></div>
+                    <div class="card-subtitle" id="raceCircuitLabel"></div>
+                </div>
+                <div id="raceContent"></div>
+            </div>
+        </div>
+
+        <!-- STANDINGS -->
+        <div id="standingsScreen" class="screen">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">📊 Clasificación</div>
+                    <div class="card-subtitle" id="standingsRound"></div>
+                </div>
+                <div class="table-container">
+                    <table class="table">
+                        <thead><tr><th>Pos</th><th>Piloto</th><th>Equipo</th><th>Puntos</th><th>Vic</th><th>Pod</th></tr></thead>
+                        <tbody id="standingsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ECONOMY -->
+        <div id="economyScreen" class="screen">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">💰 Economía</div>
+                    <div class="card-subtitle" id="econSeason"></div>
+                </div>
+                <div class="grid-2">
+                    <div class="stat-item"><div class="stat-value" id="econBalance">$0M</div><div class="stat-label">Balance</div></div>
+                    <div class="stat-item"><div class="stat-value" id="econMaint">$0M</div><div class="stat-label">Mantenimiento</div></div>
+                </div>
+                <div id="econActions" style="margin-top:0.6rem;"></div>
+            </div>
+        </div>
+
+        <!-- TROPHIES -->
+        <div id="trophiesScreen" class="screen">
+            <div class="card">
+                <div class="card-header"><div class="card-title">🏆 Trofeos</div></div>
+                <div id="trophiesGrid" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(70px,1fr)); gap:0.4rem;"></div>
+            </div>
+        </div>
+
+        <!-- PILOT -->
+        <div id="pilotScreen" class="screen">
+            <div class="card">
+                <div class="card-header"><div class="card-title">👤 Mi Piloto</div></div>
+                <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.6rem;">
+                    <span style="font-size:2rem;">👤</span>
+                    <div>
+                        <h2 id="pilotNameDisplay" style="font-size:1.1rem;"></h2>
+                        <p style="color:var(--text-secondary); font-size:0.8rem;" id="pilotNat"></p>
+                    </div>
+                </div>
+                <div class="grl-display" style="margin-bottom:0.6rem;">
+                    <div class="grl-number" id="pilotGRL">0</div>
+                </div>
+                <div id="pilotSkillsFull"></div>
+                <div class="grid-3" style="margin-top:0.6rem;">
+                    <div class="stat-item"><div class="stat-value" id="pRaces">0</div><div class="stat-label">Carreras</div></div>
+                    <div class="stat-item"><div class="stat-value" id="pWins">0</div><div class="stat-label">Victorias</div></div>
+                    <div class="stat-item"><div class="stat-value" id="pPodiums">0</div><div class="stat-label">Podios</div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTRACTS -->
+        <div id="contractsScreen" class="screen">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">📝 Fin de Temporada — Contratos</div>
+                </div>
+                <div id="contractsContent"></div>
+            </div>
+        </div>
+
+        <!-- END SCREEN -->
+        <div id="endScreen" class="screen">
+            <div class="card" style="text-align:center; max-width:450px; margin:2rem auto;">
+                <div style="font-size:3rem; margin-bottom:0.5rem;">🏁</div>
+                <h2 style="color:var(--gold); margin-bottom:0.5rem;">¡Temporada Completada!</h2>
+                <p style="color:var(--text-secondary); margin-bottom:0.75rem;">Has terminado la beta test</p>
+                <div id="endSummary" style="margin-bottom:0.75rem;"></div>
+                <button class="btn btn-primary btn-block" onclick="location.reload()">🔄 Reiniciar Beta</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const teams = {
+            williams: { name: 'Williams', engine: 'Mercedes', perf: 62, maint: 2, emoji: '🔵' },
+            alphatauri: { name: 'AlphaTauri', engine: 'Honda RBPT', perf: 58, maint: 2.5, emoji: '⚪' },
+            alfaromeo: { name: 'Alfa Romeo', engine: 'Ferrari', perf: 54, maint: 2.5, emoji: '🔴' },
+            haas: { name: 'Haas', engine: 'Ferrari', perf: 50, maint: 2, emoji: '⚫' },
+            alpine: { name: 'Alpine', engine: 'Renault', perf: 80, maint: 3.5, emoji: '🔵' },
+            astonmartin: { name: 'Aston Martin', engine: 'Mercedes', perf: 82, maint: 3.5, emoji: '🟢' },
+            mclaren: { name: 'McLaren', engine: 'Mercedes', perf: 85, maint: 4.5, emoji: '🟠' },
+            mercedes: { name: 'Mercedes', engine: 'Mercedes', perf: 90, maint: 6, emoji: '⚪' },
+            ferrari: { name: 'Ferrari', engine: 'Ferrari', perf: 88, maint: 6, emoji: '🔴' },
+            redbull: { name: 'Red Bull', engine: 'Honda RBPT', perf: 95, maint: 7, emoji: '🔵🔴' }
+        };
+
+        const circuits = [
+            { name: 'GP de Baréin', circuit: 'Sakhir', flag: '🇧🇭' },
+            { name: 'GP de Australia', circuit: 'Albert Park', flag: '🇦🇺' },
+            { name: 'GP de Miami', circuit: 'Miami', flag: '🇺🇸' },
+            { name: 'GP de Mónaco', circuit: 'Mónaco', flag: '🇲🇨' },
+            { name: 'GP de España', circuit: 'Barcelona', flag: '🇪🇸' },
+            { name: 'GP de Italia', circuit: 'Monza', flag: '🇮🇹' },
+            { name: 'GP de Gran Bretaña', circuit: 'Silverstone', flag: '🇬🇧' },
+            { name: 'GP de Bélgica', circuit: 'Spa', flag: '🇧🇪' },
+            { name: 'GP de Japón', circuit: 'Suzuka', flag: '🇯🇵' },
+            { name: 'GP de Brasil', circuit: 'Interlagos', flag: '🇧🇷' }
+        ];
+
+        const TOTAL_RACES = 10;
+
+        const realDrivers = [
+            { name: 'Max Verstappen', team: 'Red Bull', grl: 95 },
+            { name: 'Lewis Hamilton', team: 'Mercedes', grl: 92 },
+            { name: 'Fernando Alonso', team: 'Aston Martin', grl: 90 },
+            { name: 'Charles Leclerc', team: 'Ferrari', grl: 90 },
+            { name: 'Lando Norris', team: 'McLaren', grl: 88 },
+            { name: 'George Russell', team: 'Mercedes', grl: 88 },
+            { name: 'Sergio Pérez', team: 'Red Bull', grl: 87 },
+            { name: 'Carlos Sainz', team: 'Ferrari', grl: 87 },
+            { name: 'Oscar Piastri', team: 'McLaren', grl: 82 },
+            { name: 'Alexander Albon', team: 'Williams', grl: 82 },
+            { name: 'Esteban Ocon', team: 'Alpine', grl: 82 },
+            { name: 'Pierre Gasly', team: 'Alpine', grl: 82 },
+            { name: 'Valtteri Bottas', team: 'Alfa Romeo', grl: 80 },
+            { name: 'Daniel Ricciardo', team: 'AlphaTauri', grl: 79 },
+            { name: 'Lance Stroll', team: 'Aston Martin', grl: 78 },
+            { name: 'Nico Hülkenberg', team: 'Haas', grl: 78 },
+            { name: 'Yuki Tsunoda', team: 'AlphaTauri', grl: 77 },
+            { name: 'Kevin Magnussen', team: 'Haas', grl: 76 },
+            { name: 'Guanyu Zhou', team: 'Alfa Romeo', grl: 75 },
+            { name: 'Logan Sargeant', team: 'Williams', grl: 72 }
+        ];
+
+        const nationalities = {
+            'argentina': '🇦🇷 Argentina', 'espana': '🇪🇸 España', 'mexico': '🇲🇽 México',
+            'colombia': '🇨🇴 Colombia', 'chile': '🇨🇱 Chile', 'usa': '🇺🇸 Estados Unidos',
+            'uk': '🇬🇧 Reino Unido', 'italia': '🇮🇹 Italia', 'francia': '🇫🇷 Francia',
+            'alemania': '🇩🇪 Alemania', 'japon': '🇯🇵 Japón', 'brasil': '🇧🇷 Brasil'
+        };
+
+        let gameState = {
+            pilotName: 'Carlos Mendoza',
+            nationality: 'argentina',
+            team: 'mclaren',
+            round: 9,
+            season: 2023,
+            points: 87,
+            wins: 2,
+            podiums: 5,
+            poles: 1,
+            fastLaps: 3,
+            races: 9,
+            reputation: 72,
+            money: 8.5,
+            skills: {
+                speed: 88, consistency: 84, overtaking: 82, defense: 80,
+                qualifying: 85, tires: 82, rain: 78
+            },
+            trophies: ['🏆 Victoria', '🥉 Podio', '⚡ Vuelta Rápida'],
+            trainingCount: {},
+            carUpgrades: 2,
+            rivalsData: {}
+        };
+
+        function initRivalData() {
+            gameState.rivalsData = {
+                'Max Verstappen': { points: 168, wins: 3, podiums: 7 },
+                'Sergio Pérez': { points: 115, wins: 2, podiums: 5 },
+                'Lewis Hamilton': { points: 102, wins: 1, podiums: 4 },
+                'Charles Leclerc': { points: 98, wins: 1, podiums: 4 },
+                'Lando Norris': { points: 82, wins: 0, podiums: 3 },
+                'Carlos Sainz': { points: 75, wins: 0, podiums: 2 },
+                'George Russell': { points: 70, wins: 0, podiums: 2 },
+                'Fernando Alonso': { points: 62, wins: 0, podiums: 1 },
+                'Oscar Piastri': { points: 48, wins: 0, podiums: 1 },
+                'Alexander Albon': { points: 28, wins: 0, podiums: 0 },
+                'Esteban Ocon': { points: 20, wins: 0, podiums: 0 },
+                'Pierre Gasly': { points: 18, wins: 0, podiums: 0 },
+                'Valtteri Bottas': { points: 12, wins: 0, podiums: 0 },
+                'Daniel Ricciardo': { points: 8, wins: 0, podiums: 0 },
+                'Lance Stroll': { points: 6, wins: 0, podiums: 0 },
+                'Nico Hülkenberg': { points: 4, wins: 0, podiums: 0 },
+                'Yuki Tsunoda': { points: 2, wins: 0, podiums: 0 },
+                'Kevin Magnussen': { points: 0, wins: 0, podiums: 0 },
+                'Guanyu Zhou': { points: 0, wins: 0, podiums: 0 },
+                'Logan Sargeant': { points: 0, wins: 0, podiums: 0 }
+            };
+        }
+        initRivalData();
+
+        function calcGRL(skills) {
+            return Math.round(
+                skills.speed * 0.25 + skills.consistency * 0.20 + skills.overtaking * 0.15 +
+                skills.defense * 0.10 + skills.qualifying * 0.10 + skills.tires * 0.10 + skills.rain * 0.10
+            );
+        }
+
+        function formatMoney(amount) {
+            return Math.round(amount * 10) / 10;
+        }
+
+        let navLocked = false;
+
+        function lockNavigation() {
+            navLocked = true;
+            document.getElementById('mainNav').classList.add('locked');
+        }
+
+        function showScreen(name) {
+            if (navLocked && name !== 'end') return;
+            
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            const map = {
+                dashboard: 'dashboardScreen', race: 'raceScreen', standings: 'standingsScreen',
+                contracts: 'contractsScreen', economy: 'economyScreen',
+                trophies: 'trophiesScreen', pilot: 'pilotScreen', end: 'endScreen'
+            };
+            if (map[name]) document.getElementById(map[name]).classList.add('active');
+            
+            document.querySelectorAll('.header-nav a').forEach(l => l.classList.remove('active'));
+            const navMap = { dashboard: 0, race: 1, standings: 2, economy: 3, trophies: 4, pilot: 5 };
+            if (navMap[name] !== undefined) {
+                const links = document.querySelectorAll('.header-nav a');
+                if (links[navMap[name]]) links[navMap[name]].classList.add('active');
+            }
+            
+            if (name === 'dashboard') updateDashboard();
+            if (name === 'standings') updateStandings();
+            if (name === 'economy') updateEconomy();
+            if (name === 'trophies') updateTrophies();
+            if (name === 'pilot') updatePilot();
+            if (name === 'race') updateRaceScreen();
+            if (name === 'contracts') updateContracts();
+        }
+
+        function saveGame() {
+            localStorage.setItem('f1_2023_beta_final_v3', JSON.stringify(gameState));
+        }
+
+        function updateDashboard() {
+            const team = teams[gameState.team];
+            const grl = calcGRL(gameState.skills);
+            document.getElementById('dashName').textContent = gameState.pilotName;
+            document.getElementById('dashNat').textContent = nationalities[gameState.nationality] || '';
+            document.getElementById('dashTeam').textContent = team.name;
+            document.getElementById('dashGRL').textContent = grl;
+            document.getElementById('dashPoints').textContent = gameState.points;
+            document.getElementById('dashWins').textContent = gameState.wins;
+            document.getElementById('dashMoney').textContent = '$' + formatMoney(gameState.money) + 'M';
+            document.getElementById('dashRep').textContent = gameState.reputation;
+            
+            const skillNames = { speed: 'Velocidad', consistency: 'Consistencia', overtaking: 'Adelantamiento', defense: 'Defensa', qualifying: 'Clasificación', tires: 'Neumáticos', rain: 'Lluvia' };
+            document.getElementById('dashSkills').innerHTML = Object.entries(gameState.skills).map(([k, v]) => `
+                <div class="skill-bar">
+                    <div class="skill-label"><span>${skillNames[k]}</span><span>${v}</span></div>
+                    <div class="skill-track"><div class="skill-fill" style="width:${v}%;"></div></div>
+                </div>
+            `).join('');
+            
+            const race = circuits[gameState.round % circuits.length];
+            document.getElementById('dashRound').textContent = `Ronda ${gameState.round + 1} de ${TOTAL_RACES}`;
+            document.getElementById('dashRaceName').textContent = `${race.flag} ${race.name}`;
+            document.getElementById('dashCircuit').textContent = race.circuit + ' — ÚLTIMA CARRERA';
+        }
+
+        let raceState = {};
+        let miniBonusTotal = 0;
+
+        function updateRaceScreen() {
+            const race = circuits[gameState.round % circuits.length];
+            document.getElementById('raceTitle').textContent = race.name;
+            document.getElementById('raceCircuitLabel').textContent = race.circuit + ' — ÚLTIMA CARRERA';
+            
+            raceState = {
+                gridPos: Math.max(3, Math.min(20, 20 - Math.floor((calcGRL(gameState.skills) + teams[gameState.team].perf) / 13) + Math.floor(Math.random() * 3))),
+            };
+            miniBonusTotal = 0;
+            
+            document.getElementById('raceContent').innerHTML = `
+                <p style="text-align:center; color:var(--text-secondary); margin-bottom:0.5rem;">
+                    Parrilla: <strong>P${raceState.gridPos}</strong>
+                </p>
+                <p style="text-align:center; color:var(--warning); margin-bottom:0.75rem;">
+                    ⚠️ 3 minijuegos obligatorios
+                </p>
+                <button class="btn btn-primary btn-block" onclick="startMinigame1()">
+                    🏁 Comenzar (1/3)
+                </button>
+            `;
+        }
+
+        function startMinigame1() {
+            document.getElementById('raceContent').innerHTML = `
+                <h3 style="text-align:center;">🏁 Salida (1/3)</h3>
+                <p style="text-align:center; color:var(--text-secondary); font-size:0.75rem;">Toca cuando las luces se pongan VERDES</p>
+                <div class="traffic-light" id="tl">
+                    <div class="light" id="l1"></div>
+                    <div class="light" id="l2"></div>
+                    <div class="light" id="l3"></div>
+                    <div class="light" id="l4"></div>
+                    <div class="light" id="l5"></div>
+                </div>
+                <div class="alert alert-info" id="miniResult"></div>
+            `;
+            
+            let idx = 0;
+            let waitingGreen = false;
+            const lights = [1,2,3,4,5];
+            lights.forEach(i => document.getElementById(`l${i}`).className = 'light');
+            
+            const interval = setInterval(() => {
+                if (idx > 0) document.getElementById(`l${idx}`).className = 'light';
+                idx++;
+                if (idx <= 5) {
+                    document.getElementById(`l${idx}`).className = 'light active';
+                    document.getElementById('tl').onclick = () => {
+                        if (!waitingGreen) {
+                            clearInterval(interval);
+                            document.getElementById('miniResult').textContent = '❌ ¡FALSO! -1';
+                            document.getElementById('miniResult').className = 'alert alert-danger';
+                            miniBonusTotal -= 1;
+                            setTimeout(startMinigame2, 1200);
+                        }
+                    };
+                } else {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        lights.forEach(i => document.getElementById(`l${i}`).className = 'light go');
+                        waitingGreen = true;
+                        const start = Date.now();
+                        document.getElementById('tl').onclick = () => {
+                            const time = Date.now() - start;
+                            if (time < 400) { miniBonusTotal += 2; document.getElementById('miniResult').textContent = '⚡ +2'; }
+                            else if (time < 700) { miniBonusTotal += 1; document.getElementById('miniResult').textContent = '✅ +1'; }
+                            else if (time < 1200) { document.getElementById('miniResult').textContent = '➖ 0'; }
+                            else { miniBonusTotal -= 1; document.getElementById('miniResult').textContent = '❌ -1'; }
+                            document.getElementById('miniResult').className = 'alert alert-success';
+                            setTimeout(startMinigame2, 1200);
+                        };
+                    }, 800 + Math.random() * 1200);
+                }
+            }, 500);
+        }
+
+        function startMinigame2() {
+            document.getElementById('raceContent').innerHTML = `
+                <h3 style="text-align:center;">⚡ DRS (2/3)</h3>
+                <p style="text-align:center; color:var(--text-secondary); font-size:0.75rem;">Pulsa en la línea dorada</p>
+                <div class="drs-container">
+                    <div class="drs-fill" id="drsFill" style="width:0%;"></div>
+                    <div class="drs-marker" id="drsMarker" style="left:65%;"></div>
+                </div>
+                <div class="alert alert-info" id="miniResult2"></div>
+                <button class="btn btn-gold btn-block" onclick="activateDRSMini()">¡ACTIVAR!</button>
+            `;
+            
+            let fill = 0;
+            const speed = 1.5;
+            let direction = 1;
+            const markerPos = 65;
+            document.getElementById('drsMarker').style.left = markerPos + '%';
+            window.drsFillValue = 0;
+            window.drsTarget = markerPos;
+            
+            let lastTime = Date.now();
+            
+            function animateDRS() {
+                const now = Date.now();
+                const delta = (now - lastTime) / 16;
+                lastTime = now;
+                
+                fill += direction * speed * delta;
+                if (fill >= 100) { fill = 100; direction = -1; }
+                if (fill <= 0) { fill = 0; direction = 1; }
+                
+                document.getElementById('drsFill').style.width = fill + '%';
+                window.drsFillValue = fill;
+                window.drsAnimationId = requestAnimationFrame(animateDRS);
+            }
+            
+            window.drsAnimationId = requestAnimationFrame(animateDRS);
+        }
+
+        function activateDRSMini() {
+            if (window.drsAnimationId) cancelAnimationFrame(window.drsAnimationId);
+            const dist = Math.abs(window.drsFillValue - window.drsTarget);
+            const r = document.getElementById('miniResult2');
+            if (dist < 6) { miniBonusTotal += 2; r.textContent = '⚡ ¡PERFECTO! +2'; }
+            else if (dist < 14) { miniBonusTotal += 1; r.textContent = '✅ Bueno +1'; }
+            else if (dist < 22) { r.textContent = '➖ Regular 0'; }
+            else { miniBonusTotal -= 1; r.textContent = '❌ Malo -1'; }
+            r.className = 'alert alert-success';
+            setTimeout(startMinigame3, 1200);
+        }
+
+        function startMinigame3() {
+            document.getElementById('raceContent').innerHTML = `
+                <h3 style="text-align:center;">🛑 Frenada (3/3)</h3>
+                <p style="text-align:center; color:var(--text-secondary); font-size:0.75rem;">Toca en la zona verde</p>
+                <div class="braking-container">
+                    <div class="braking-zone" id="bz" style="left:35%; width:25%;"></div>
+                    <div class="braking-indicator" id="bi" style="left:0%;"></div>
+                </div>
+                <div class="alert alert-info" id="miniResult3"></div>
+                <button class="btn btn-success btn-block" onclick="tapBrakeMini()">¡TOCAR!</button>
+            `;
+            
+            let pos = 0;
+            const brakeSpeed = 1.5;
+            let brakeDirection = 1;
+            const zoneLeft = 35;
+            document.getElementById('bz').style.left = zoneLeft + '%';
+            document.getElementById('bz').style.width = '25%';
+            window.brakePosValue = 0;
+            window.brakeZoneLeft = zoneLeft;
+            
+            let lastTime = Date.now();
+            
+            function animateBraking() {
+                const now = Date.now();
+                const delta = (now - lastTime) / 16;
+                lastTime = now;
+                
+                pos += brakeDirection * brakeSpeed * delta;
+                if (pos >= 100) { pos = 100; brakeDirection = -1; }
+                if (pos <= 0) { pos = 0; brakeDirection = 1; }
+                
+                document.getElementById('bi').style.left = pos + '%';
+                window.brakePosValue = pos;
+                window.brakeAnimationId = requestAnimationFrame(animateBraking);
+            }
+            
+            window.brakeAnimationId = requestAnimationFrame(animateBraking);
+        }
+
+        function tapBrakeMini() {
+            if (window.brakeAnimationId) cancelAnimationFrame(window.brakeAnimationId);
+            const zoneCenter = window.brakeZoneLeft + 12.5;
+            const dist = Math.abs(window.brakePosValue - zoneCenter);
+            const r = document.getElementById('miniResult3');
+            if (dist < 10) { miniBonusTotal += 2; r.textContent = '🎯 ¡PERFECTO! +2'; }
+            else if (dist < 18) { miniBonusTotal += 1; r.textContent = '✅ Bueno +1'; }
+            else if (dist < 28) { r.textContent = '➖ Regular 0'; }
+            else { miniBonusTotal -= 1; r.textContent = '❌ Malo -1'; }
+            r.className = 'alert alert-success';
+            setTimeout(finishRace, 1200);
+        }
+
+        function finishRace() {
+            const cappedBonus = Math.max(-2, Math.min(3, miniBonusTotal));
+            let finalPos = raceState.gridPos - cappedBonus;
+            finalPos = Math.max(1, Math.min(20, finalPos + Math.floor(Math.random() * 3) - 1));
+            
+            const pointsSystem = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1];
+            let pointsEarned = finalPos <= 10 ? pointsSystem[finalPos - 1] : 0;
+            if (finalPos <= 10 && Math.random() < 0.2) { pointsEarned += 1; gameState.fastLaps++; }
+            
+            gameState.points += pointsEarned;
+            gameState.races++;
+            if (finalPos === 1) gameState.wins++;
+            if (finalPos <= 3) gameState.podiums++;
+            
+            const bonusMoney = pointsEarned > 0 ? formatMoney(pointsEarned * 0.05) : 0;
+            gameState.money = formatMoney(gameState.money + bonusMoney);
+            
+            let repGain = finalPos <= 10 ? 10 - finalPos : -3;
+            if (finalPos === 1) repGain += 10;
+            gameState.reputation = Math.max(0, Math.min(100, gameState.reputation + repGain));
+            
+            gameState.skills.speed = Math.min(95, gameState.skills.speed + (finalPos <= 8 ? 1 : 0));
+            gameState.skills.consistency = Math.min(95, gameState.skills.consistency + 1);
+            
+            realDrivers.forEach(driver => {
+                const data = gameState.rivalsData[driver.name] || { points: 0, wins: 0, podiums: 0 };
+                const rivalPos = Math.max(1, Math.min(20, Math.floor(Math.random() * 10) + (driver.grl > 90 ? 0 : 3)));
+                const rivalPts = rivalPos <= 10 ? pointsSystem[rivalPos - 1] : 0;
+                data.points += rivalPts;
+                if (rivalPos === 1) data.wins += 1;
+                if (rivalPos <= 3) data.podiums += 1;
+                gameState.rivalsData[driver.name] = data;
+            });
+            
+            gameState.round++;
+            saveGame();
+            
+            document.getElementById('raceContent').innerHTML = `
+                <h3 style="text-align:center; color:var(--gold);">🏁 Resultado</h3>
+                <p style="text-align:center; font-size:1.4rem; font-weight:bold;">P${finalPos}</p>
+                <p style="text-align:center; color:var(--text-secondary); font-size:0.75rem;">Minijuegos: ${cappedBonus > 0 ? '+' : ''}${cappedBonus}</p>
+                <div class="alert ${pointsEarned > 0 ? 'alert-success' : 'alert-warning'}">📊 Puntos: ${pointsEarned}</div>
+                <div class="alert alert-info">💰 Bonus: $${bonusMoney}M | ⭐ Rep: ${repGain > 0 ? '+' : ''}${repGain}</div>
+                ${finalPos === 1 ? '<div class="alert alert-success">🏆 ¡VICTORIA!</div>' : ''}
+                ${finalPos <= 3 && finalPos > 1 ? '<div class="alert alert-success">🥉 ¡PODIO!</div>' : ''}
+                ${gameState.round >= TOTAL_RACES 
+                    ? '<button class="btn btn-gold btn-block" onclick="showScreen(\'contracts\')">📝 Ver Contratos</button>'
+                    : '<button class="btn btn-primary btn-block" onclick="showScreen(\'dashboard\')">Volver</button>'}
+            `;
+        }
+
+        function updateStandings() {
+            document.getElementById('standingsRound').textContent = `Ronda ${gameState.round} de ${TOTAL_RACES}`;
+            let standings = [];
+            standings.push({ name: gameState.pilotName, team: teams[gameState.team].name, points: gameState.points, wins: gameState.wins, podiums: gameState.podiums, isPlayer: true });
+            realDrivers.forEach(driver => {
+                const data = gameState.rivalsData[driver.name] || { points: 0, wins: 0, podiums: 0 };
+                standings.push({ name: driver.name, team: driver.team, points: data.points, wins: data.wins, podiums: data.podiums, isPlayer: false });
+            });
+            standings.sort((a, b) => b.points - a.points);
+            
+            document.getElementById('standingsTable').innerHTML = standings.map((s, i) => {
+                const pos = i + 1;
+                const posClass = pos <= 3 ? `position-${pos}` : '';
+                return `<tr style="${s.isPlayer ? 'background: rgba(225,6,0,0.12);' : ''}">
+                    <td class="${posClass}">${pos}</td>
+                    <td>${s.isPlayer ? '⭐ ' : ''}${s.name}</td>
+                    <td>${s.team}</td>
+                    <td>${s.points}</td>
+                    <td>${s.wins}</td>
+                    <td>${s.podiums}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        function updateContracts() {
+            const grl = calcGRL(gameState.skills);
+            const offers = [];
+            if (gameState.points >= 30) offers.push({ team: 'alpine', salary: formatMoney(5 + grl * 0.03), duration: 2 });
+            if (gameState.reputation >= 55) offers.push({ team: 'astonmartin', salary: formatMoney(7 + grl * 0.035), duration: 3, featured: true });
+            if (gameState.wins >= 1) offers.push({ team: 'mclaren', salary: formatMoney(9 + grl * 0.04), duration: 2 });
+            if (gameState.points >= 80) offers.push({ team: 'mercedes', salary: formatMoney(12 + grl * 0.045), duration: 2, featured: true });
+            if (gameState.wins >= 2) offers.push({ team: 'ferrari', salary: formatMoney(13 + grl * 0.045), duration: 3 });
+            offers.push({ team: gameState.team, salary: formatMoney(3 + grl * 0.02), duration: 1, renewal: true });
+            
+            document.getElementById('contractsContent').innerHTML = `
+                <p style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:0.5rem;">
+                    Temporada completada. Elige tu equipo para la próxima temporada.
+                </p>
+                ${offers.map(offer => {
+                    const team = teams[offer.team];
+                    return `<div class="contract-card ${offer.featured ? 'featured' : ''}">
+                        <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.5rem;">
+                            <span style="font-size:1.5rem;">${team.emoji}</span>
+                            <div>
+                                <strong style="color:var(--gold);">${team.name}</strong>
+                                ${offer.featured ? ' ⭐' : ''}${offer.renewal ? ' 🔄' : ''}
+                            </div>
+                        </div>
+                        <div class="grid-3">
+                            <div class="stat-item"><div class="stat-value">$${offer.salary}M</div><div class="stat-label">Salario</div></div>
+                            <div class="stat-item"><div class="stat-value">${offer.duration} año${offer.duration > 1 ? 's' : ''}</div><div class="stat-label">Duración</div></div>
+                            <div class="stat-item"><div class="stat-value">${team.perf}/100</div><div class="stat-label">Auto</div></div>
+                        </div>
+                        <button class="btn btn-success btn-block btn-sm" style="margin-top:0.5rem;" onclick="acceptContractAndEnd('${offer.team}', ${offer.salary})">Firmar y Terminar Beta</button>
+                    </div>`;
+                }).join('')}
+            `;
+        }
+
+        function acceptContractAndEnd(teamId, salary) {
+            gameState.team = teamId;
+            saveGame();
+            lockNavigation();
+            
+            document.getElementById('endSummary').innerHTML = `
+                <p>👤 ${gameState.pilotName}</p>
+                <p>🏎️ ${teams[gameState.team].name} — ${gameState.season + 1}</p>
+                <p>💰 Salario: $${salary}M</p>
+                <p>📊 Puntos finales: ${gameState.points}</p>
+                <p>🏆 Victorias: ${gameState.wins} | 🥉 Podios: ${gameState.podiums}</p>
+                <p>⭐ Reputación: ${gameState.reputation}</p>
+            `;
+            showScreen('end');
+        }
+
+        function updateEconomy() {
+            const team = teams[gameState.team];
+            document.getElementById('econSeason').textContent = `Temporada ${gameState.season}`;
+            document.getElementById('econBalance').textContent = '$' + formatMoney(gameState.money) + 'M';
+            document.getElementById('econMaint').textContent = '$' + team.maint + 'M';
+            document.getElementById('econActions').innerHTML = `
+                <p style="font-size:0.7rem; color:var(--text-secondary);">Entrenamiento (máx 3/stat):</p>
+                ${Object.keys(gameState.skills).map(skill => {
+                    const count = gameState.trainingCount[skill] || 0;
+                    const cost = formatMoney(1.5 * Math.pow(1.25, count));
+                    const benefit = count === 0 ? '+2' : count === 1 ? '+1' : count === 2 ? '+1' : '+0';
+                    const disabled = count >= 3 || gameState.money < cost;
+                    return `<button class="btn btn-secondary btn-sm" onclick="train('${skill}')" ${disabled ? 'disabled' : ''}>${skill} (${benefit}) $${cost}M</button>`;
+                }).join('')}
+                <button class="btn btn-primary btn-sm" style="margin-top:0.4rem;" onclick="payMaintenance()">Pagar Mantenimiento ($${team.maint}M)</button>
+            `;
+        }
+
+        function train(skill) {
+            const count = gameState.trainingCount[skill] || 0;
+            if (count >= 3) return;
+            const cost = formatMoney(1.5 * Math.pow(1.25, count));
+            if (gameState.money < cost) return;
+            gameState.money = formatMoney(gameState.money - cost);
+            gameState.trainingCount[skill] = count + 1;
+            const grl = calcGRL(gameState.skills);
+            let mult = grl >= 80 && grl <= 85 ? 0.5 : grl >= 86 ? 0.25 : grl >= 90 ? 0.1 : 1;
+            const benefit = count === 0 ? 2 : 1;
+            gameState.skills[skill] = Math.min(95, gameState.skills[skill] + Math.round(benefit * mult));
+            saveGame();
+            updateEconomy();
+            updateDashboard();
+        }
+
+        function payMaintenance() {
+            const team = teams[gameState.team];
+            if (gameState.money < team.maint) return;
+            gameState.money = formatMoney(gameState.money - team.maint);
+            saveGame();
+            updateEconomy();
+        }
+
+        function updateTrophies() {
+            const grl = calcGRL(gameState.skills);
+            const trophies = [
+                { icon: '🏆', name: 'Victoria', cond: gameState.wins >= 1 },
+                { icon: '🥉', name: 'Podio', cond: gameState.podiums >= 1 },
+                { icon: '⚡', name: 'V.Rápida', cond: gameState.fastLaps >= 1 },
+                { icon: '👑', name: 'GRL 85', cond: grl >= 85 },
+                { icon: '💎', name: 'GRL 90', cond: grl >= 90 },
+                { icon: '🏎️', name: '5 Vic', cond: gameState.wins >= 5 },
+                { icon: '📊', name: '100 Pts', cond: gameState.points >= 100 },
+                { icon: '🌟', name: 'Rep 80', cond: gameState.reputation >= 80 }
+            ];
+            document.getElementById('trophiesGrid').innerHTML = trophies.map(t => `
+                <div style="text-align:center; padding:0.4rem; background:var(--bg-secondary); border-radius:6px; ${t.cond ? '' : 'opacity:0.3; filter:grayscale(1);'}">
+                    <div style="font-size:1.2rem;">${t.cond ? t.icon : '🔒'}</div>
+                    <div style="font-size:0.55rem; color:var(--text-muted);">${t.name}</div>
+                </div>
+            `).join('');
+        }
+
+        function updatePilot() {
+            const grl = calcGRL(gameState.skills);
+            document.getElementById('pilotNameDisplay').textContent = gameState.pilotName;
+            document.getElementById('pilotNat').textContent = nationalities[gameState.nationality] || '';
+            document.getElementById('pilotGRL').textContent = grl;
+            const skillNames = { speed: 'Velocidad', consistency: 'Consistencia', overtaking: 'Adelantamiento', defense: 'Defensa', qualifying: 'Clasificación', tires: 'Neumáticos', rain: 'Lluvia' };
+            document.getElementById('pilotSkillsFull').innerHTML = Object.entries(gameState.skills).map(([k, v]) => `
+                <div class="skill-bar">
+                    <div class="skill-label"><span>${skillNames[k]}</span><span>${v}</span></div>
+                    <div class="skill-track"><div class="skill-fill" style="width:${v}%;"></div></div>
+                </div>
+            `).join('');
+            document.getElementById('pRaces').textContent = gameState.races;
+            document.getElementById('pWins').textContent = gameState.wins;
+            document.getElementById('pPodiums').textContent = gameState.podiums;
+        }
+
+        document.querySelectorAll('.header-nav a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (navLocked) return;
+                showScreen(link.dataset.screen);
+            });
+        });
+
+        updateDashboard();
+        updateStandings();
+    </script>
+</body>
+</html>
