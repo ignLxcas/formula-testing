@@ -65,18 +65,13 @@
             text-align: center;
         }
 
-        .game-subtitle {
-            color: var(--text-secondary);
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
         .connection-options {
             display: flex;
             flex-direction: column;
             gap: 15px;
             width: 100%;
             max-width: 400px;
+            margin-top: 30px;
         }
 
         .option-card {
@@ -131,7 +126,6 @@
             color: var(--text-primary);
             font-size: 1rem;
             text-align: center;
-            transition: all 0.3s;
         }
 
         .input-group input:focus {
@@ -153,13 +147,6 @@
             font-weight: bold;
             color: var(--gold);
             letter-spacing: 3px;
-        }
-
-        .status-text {
-            color: var(--text-secondary);
-            text-align: center;
-            margin-top: 10px;
-            font-size: 0.9rem;
         }
 
         .game-screen {
@@ -282,7 +269,7 @@
     <div class="connection-screen" id="connectionScreen">
         <div class="ball-animation">⚽</div>
         <h1 class="game-title">Ball Rush</h1>
-        <p class="game-subtitle">¡Empuja la pelota hacia la portería!</p>
+        <p style="color: var(--text-secondary); margin-bottom: 30px;">¡Empuja la pelota hacia la portería!</p>
         
         <div class="connection-options">
             <div class="option-card">
@@ -296,7 +283,7 @@
                         <p style="color: var(--text-secondary); font-size: 0.8rem;">Código:</p>
                         <div class="code-text" id="gameCodeText"></div>
                     </div>
-                    <p class="status-text" id="waitingText">Esperando oponente...</p>
+                    <p style="color: var(--text-secondary); text-align: center;">Esperando oponente...</p>
                 </div>
             </div>
             
@@ -350,7 +337,7 @@
         </div>
     </div>
 
-    <!-- Firebase SDK (compat) -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
@@ -363,16 +350,84 @@
             projectId: "prueba-be093",
             storageBucket: "prueba-be093.firebasestorage.app",
             messagingSenderId: "292144008043",
-            appId: "1:292144008043:web:b29b23b80b115204909a2e",
-            measurementId: "G-RJDBDKWJ2G"
+            appId: "1:292144008043:web:b29b23b80b115204909a2e"
         };
         
-        // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         
-        console.log('✅ Firebase conectado correctamente');
-        console.log('📁 Base de datos:', firebaseConfig.databaseURL);
+        // ============ SISTEMA DE SONIDOS ============
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioContext = null;
+        
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new AudioContext();
+            }
+        }
+        
+        function playSound(type) {
+            try {
+                initAudio();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                switch(type) {
+                    case 'kick':
+                        oscillator.frequency.setValueAtTime(150, audioContext.currentTime);
+                        oscillator.frequency.exponentialRampToValueAtTime(50, audioContext.currentTime + 0.1);
+                        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                        oscillator.start(audioContext.currentTime);
+                        oscillator.stop(audioContext.currentTime + 0.1);
+                        break;
+                        
+                    case 'goal':
+                        oscillator.frequency.setValueAtTime(523, audioContext.currentTime);
+                        oscillator.frequency.setValueAtTime(659, audioContext.currentTime + 0.1);
+                        oscillator.frequency.setValueAtTime(784, audioContext.currentTime + 0.2);
+                        gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                        oscillator.start(audioContext.currentTime);
+                        oscillator.stop(audioContext.currentTime + 0.3);
+                        break;
+                        
+                    case 'wall':
+                        oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+                        oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.05);
+                        gainNode.gain.setValueAtTime(0.15, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.05);
+                        oscillator.start(audioContext.currentTime);
+                        oscillator.stop(audioContext.currentTime + 0.05);
+                        break;
+                        
+                    case 'win':
+                        oscillator.frequency.setValueAtTime(523, audioContext.currentTime);
+                        oscillator.frequency.setValueAtTime(659, audioContext.currentTime + 0.15);
+                        oscillator.frequency.setValueAtTime(784, audioContext.currentTime + 0.3);
+                        oscillator.frequency.setValueAtTime(1047, audioContext.currentTime + 0.45);
+                        gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.6);
+                        oscillator.start(audioContext.currentTime);
+                        oscillator.stop(audioContext.currentTime + 0.6);
+                        break;
+                        
+                    case 'lose':
+                        oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
+                        oscillator.frequency.exponentialRampToValueAtTime(200, audioContext.currentTime + 0.4);
+                        gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+                        oscillator.start(audioContext.currentTime);
+                        oscillator.stop(audioContext.currentTime + 0.4);
+                        break;
+                }
+            } catch (error) {
+                console.log('Error reproduciendo sonido:', error);
+            }
+        }
         
         // ============ CONFIGURACIÓN DEL JUEGO ============
         const GAME_DURATION = 60;
@@ -387,6 +442,7 @@
         let canvas, ctx;
         let gameWidth, gameHeight;
         let myPlayerKey = null;
+        let opponentPlayerKey = null;
         
         const players = {
             you: { x: 0, y: 0, score: 0, name: 'Tú' },
@@ -402,11 +458,11 @@
             players.you.name = name;
             isHost = true;
             myPlayerKey = 'host';
+            opponentPlayerKey = 'opponent';
             gameCode = generateCode();
             
             document.getElementById('createdCode').style.display = 'block';
             document.getElementById('gameCodeText').textContent = gameCode;
-            document.getElementById('waitingText').textContent = 'Esperando oponente...';
             
             gameRef = database.ref('games/' + gameCode);
             
@@ -428,32 +484,24 @@
                 ball: {
                     x: 400,
                     y: 300,
-                    vx: 2,
-                    vy: 1
+                    vx: 0,
+                    vy: 0,
+                    lastKicker: null
                 },
                 started: false,
                 timeLeft: GAME_DURATION,
                 createdAt: firebase.database.ServerValue.TIMESTAMP
-            }).then(() => {
-                console.log('✅ Sala creada:', gameCode);
-                showNotification('Sala creada', 'Código: ' + gameCode, 'success');
-            }).catch((error) => {
-                console.error('❌ Error creando sala:', error);
-                showNotification('Error', 'No se pudo crear la sala: ' + error.message, 'error');
             });
             
-            // Escuchar cuando el oponente se une
             gameRef.child('opponent/connected').on('value', (snapshot) => {
                 if (snapshot.val() === true && !gameStarted) {
                     gameRef.child('opponent/name').once('value', (nameSnapshot) => {
                         players.opponent.name = nameSnapshot.val() || 'Oponente';
-                        showNotification('¡Oponente conectado!', '¡Que comience el juego!', 'success');
                         startGame();
                     });
                 }
             });
             
-            // Escuchar posición del oponente
             gameRef.child('opponent').on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data && gameStarted) {
@@ -464,11 +512,13 @@
                 }
             });
             
-            // Escuchar desconexión del oponente
-            gameRef.child('opponent/connected').on('value', (snapshot) => {
-                if (snapshot.val() === false && gameStarted) {
-                    showNotification('Oponente desconectado', 'Fin de la partida', 'error');
-                    endGame(true);
+            gameRef.child('ball').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data && gameStarted) {
+                    ball.x = data.x;
+                    ball.y = data.y;
+                    ball.vx = data.vx;
+                    ball.vy = data.vy;
                 }
             });
         }
@@ -478,36 +528,29 @@
             const code = document.getElementById('gameCode').value.trim().toUpperCase();
             
             if (!code || code.length !== 6) {
-                showNotification('Error', 'Ingresa un código válido de 6 caracteres', 'error');
+                showNotification('Error', 'Ingresa un código válido', 'error');
                 return;
             }
             
             players.you.name = name;
             isHost = false;
             myPlayerKey = 'opponent';
+            opponentPlayerKey = 'host';
             gameCode = code;
             
             gameRef = database.ref('games/' + code);
             
             gameRef.once('value', (snapshot) => {
                 if (!snapshot.exists()) {
-                    showNotification('Error', 'No se encontró la partida con código: ' + code, 'error');
+                    showNotification('Error', 'No se encontró la partida', 'error');
                     return;
                 }
-                
-                console.log('✅ Unido a la sala:', code);
                 
                 gameRef.child('opponent').update({
                     name: name,
                     connected: true
-                }).then(() => {
-                    showNotification('¡Conectado!', 'Unido a la partida de ' + code, 'success');
-                }).catch((error) => {
-                    console.error('Error uniendo:', error);
-                    showNotification('Error', 'No se pudo unir: ' + error.message, 'error');
                 });
                 
-                // Escuchar al host
                 gameRef.child('host').on('value', (snapshot) => {
                     const data = snapshot.val();
                     if (data) {
@@ -519,7 +562,6 @@
                     }
                 });
                 
-                // Escuchar la pelota
                 gameRef.child('ball').on('value', (snapshot) => {
                     const data = snapshot.val();
                     if (data && gameStarted) {
@@ -530,14 +572,12 @@
                     }
                 });
                 
-                // Escuchar inicio del juego
                 gameRef.child('started').on('value', (snapshot) => {
                     if (snapshot.val() === true && !gameStarted) {
                         startGame();
                     }
                 });
                 
-                // Escuchar tiempo
                 gameRef.child('timeLeft').on('value', (snapshot) => {
                     const time = snapshot.val();
                     if (time !== null && gameStarted) {
@@ -572,8 +612,8 @@
                 players.you.y = gameHeight - GOAL_HEIGHT - PLAYER_RADIUS;
                 ball.x = gameWidth / 2;
                 ball.y = gameHeight / 2;
-                ball.vx = 3;
-                ball.vy = 2;
+                ball.vx = 0;
+                ball.vy = 0;
                 
                 gameRef.update({
                     started: true,
@@ -581,8 +621,9 @@
                     ball: {
                         x: ball.x,
                         y: ball.y,
-                        vx: ball.vx,
-                        vy: ball.vy
+                        vx: 0,
+                        vy: 0,
+                        lastKicker: null
                     }
                 });
                 
@@ -612,7 +653,8 @@
                         x: ball.x,
                         y: ball.y,
                         vx: ball.vx,
-                        vy: ball.vy
+                        vy: ball.vy,
+                        lastKicker: ball.lastKicker
                     });
                 }, 16);
             } else {
@@ -630,51 +672,90 @@
             ball.x += ball.vx;
             ball.y += ball.vy;
             
+            // Fricción
+            ball.vx *= 0.99;
+            ball.vy *= 0.99;
+            
             // Rebote en paredes laterales
-            if (ball.x < BALL_RADIUS || ball.x > gameWidth - BALL_RADIUS) {
-                ball.vx = -ball.vx;
-                ball.x = Math.max(BALL_RADIUS, Math.min(gameWidth - BALL_RADIUS, ball.x));
+            if (ball.x < BALL_RADIUS) {
+                ball.x = BALL_RADIUS;
+                ball.vx = Math.abs(ball.vx) * 0.8;
+                playSound('wall');
+            }
+            if (ball.x > gameWidth - BALL_RADIUS) {
+                ball.x = gameWidth - BALL_RADIUS;
+                ball.vx = -Math.abs(ball.vx) * 0.8;
+                playSound('wall');
             }
             
             // Gol para el host (abajo)
             if (ball.y > gameHeight - BALL_RADIUS) {
-                players.you.score++;
-                gameRef.child('host/score').set(players.you.score);
+                if (ball.lastKicker === 'opponent') {
+                    players.opponent.score++;
+                    gameRef.child('opponent/score').set(players.opponent.score);
+                    playSound('goal');
+                }
                 updateUI();
-                showNotification('¡GOL!', players.you.name + ' anotó', 'success');
                 resetBall();
             }
             
             // Gol para el oponente (arriba)
             if (ball.y < BALL_RADIUS) {
-                players.opponent.score++;
-                gameRef.child('opponent/score').set(players.opponent.score);
+                if (ball.lastKicker === 'host') {
+                    players.you.score++;
+                    gameRef.child('host/score').set(players.you.score);
+                    playSound('goal');
+                }
                 updateUI();
-                showNotification('¡GOL!', players.opponent.name + ' anotó', 'info');
                 resetBall();
             }
             
-            checkBallCollision();
+            // Colisión con jugador local
+            checkPlayerCollision();
         }
         
-        function checkBallCollision() {
+        function checkPlayerCollision() {
             const dx = players.you.x - ball.x;
             const dy = players.you.y - ball.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
             
             if (distance < PLAYER_RADIUS + BALL_RADIUS) {
                 const angle = Math.atan2(dy, dx);
-                const force = 8;
+                const force = 7;
                 ball.vx = Math.cos(angle) * force;
                 ball.vy = Math.sin(angle) * force;
+                ball.lastKicker = myPlayerKey;
+                playSound('kick');
+                
+                // Enviar actualización inmediata
+                if (gameRef) {
+                    gameRef.child('ball').set({
+                        x: ball.x,
+                        y: ball.y,
+                        vx: ball.vx,
+                        vy: ball.vy,
+                        lastKicker: ball.lastKicker
+                    });
+                }
             }
         }
         
         function resetBall() {
             ball.x = gameWidth / 2;
             ball.y = gameHeight / 2;
-            ball.vx = (Math.random() - 0.5) * 6;
-            ball.vy = (Math.random() - 0.5) * 6;
+            ball.vx = 0;
+            ball.vy = 0;
+            ball.lastKicker = null;
+            
+            if (gameRef && isHost) {
+                gameRef.child('ball').set({
+                    x: ball.x,
+                    y: ball.y,
+                    vx: 0,
+                    vy: 0,
+                    lastKicker: null
+                });
+            }
         }
         
         function gameLoop() {
@@ -721,6 +802,10 @@
             ctx.fillStyle = 'rgba(0, 255, 136, 0.5)';
             ctx.fillRect(0, gameHeight - GOAL_HEIGHT, gameWidth, GOAL_HEIGHT);
             
+            // Área restringida para jugadores (mitad de cancha)
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
+            ctx.fillRect(0, isHost ? gameHeight / 2 : 0, gameWidth, gameHeight / 2);
+            
             // Pelota
             const gradient = ctx.createRadialGradient(
                 ball.x - 5, ball.y - 5, 0,
@@ -754,6 +839,13 @@
             ctx.arc(players.opponent.x, players.opponent.y, PLAYER_RADIUS, 0, Math.PI * 2);
             ctx.fill();
             ctx.shadowBlur = 0;
+            
+            // Nombres
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(players.you.name, players.you.x, players.you.y - PLAYER_RADIUS - 10);
+            ctx.fillText(players.opponent.name, players.opponent.x, players.opponent.y - PLAYER_RADIUS - 10);
         }
         
         function updateUI() {
@@ -777,6 +869,7 @@
             if (disconnected) {
                 document.getElementById('resultTitle').textContent = '👋 Oponente desconectado';
                 document.getElementById('resultDetails').innerHTML = 'La partida ha terminado';
+                playSound('lose');
             } else {
                 const winner = players.you.score > players.opponent.score ? 
                     players.you.name : 
@@ -791,6 +884,12 @@
                     ${players.you.name}: ${players.you.score} goles<br>
                     ${players.opponent.name}: ${players.opponent.score} goles
                 `;
+                
+                if (winner === players.you.name) {
+                    playSound('win');
+                } else if (winner !== 'Empate') {
+                    playSound('lose');
+                }
             }
             
             document.getElementById('resultModal').classList.add('active');
@@ -814,11 +913,22 @@
             
             function updatePosition(clientX, clientY) {
                 const rect = canvas.getBoundingClientRect();
-                players.you.x = clientX - rect.left;
-                players.you.y = clientY - rect.top;
+                let x = clientX - rect.left;
+                let y = clientY - rect.top;
                 
-                players.you.x = Math.max(PLAYER_RADIUS, Math.min(gameWidth - PLAYER_RADIUS, players.you.x));
-                players.you.y = Math.max(PLAYER_RADIUS, Math.min(gameHeight - PLAYER_RADIUS, players.you.y));
+                // Restringir a la mitad de la cancha
+                x = Math.max(PLAYER_RADIUS, Math.min(gameWidth - PLAYER_RADIUS, x));
+                
+                if (isHost) {
+                    // Host solo en la mitad inferior
+                    y = Math.max(gameHeight / 2 + PLAYER_RADIUS, Math.min(gameHeight - PLAYER_RADIUS, y));
+                } else {
+                    // Oponente solo en la mitad superior
+                    y = Math.max(PLAYER_RADIUS, Math.min(gameHeight / 2 - PLAYER_RADIUS, y));
+                }
+                
+                players.you.x = x;
+                players.you.y = y;
             }
             
             canvas.addEventListener('mousemove', (e) => updatePosition(e.clientX, e.clientY));
