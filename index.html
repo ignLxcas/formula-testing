@@ -36,7 +36,6 @@
             -webkit-user-select: none;
         }
 
-        /* Pantallas */
         .screen {
             display: none;
             flex-direction: column;
@@ -47,7 +46,6 @@
             display: flex; 
         }
 
-        /* Menú principal */
         .menu-screen {
             align-items: center;
             justify-content: center;
@@ -87,7 +85,6 @@
             margin-bottom: 20px;
         }
 
-        /* Botones */
         .btn {
             padding: 15px;
             border: none;
@@ -114,7 +111,6 @@
             border: 2px solid var(--border);
         }
 
-        /* Inputs */
         input {
             width: 100%;
             padding: 14px;
@@ -127,7 +123,6 @@
             margin-bottom: 12px;
         }
 
-        /* Selección de países */
         .country-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
@@ -168,7 +163,6 @@
             margin-top: 5px;
         }
 
-        /* Header del juego */
         .game-header {
             display: flex;
             justify-content: space-between;
@@ -218,7 +212,6 @@
             color: var(--text-secondary);
         }
 
-        /* Canvas del juego */
         .game-canvas-container {
             flex: 1;
             position: relative;
@@ -234,11 +227,10 @@
             left: 0;
         }
 
-        /* Zona objetivo */
         .target-zone {
             position: absolute;
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             border: 3px dashed var(--gold);
             border-radius: 50%;
             pointer-events: none;
@@ -251,7 +243,6 @@
             50% { transform: scale(1.2); }
         }
 
-        /* Animaciones */
         .goal-animation {
             position: fixed;
             top: 50%;
@@ -269,7 +260,6 @@
             100% { opacity: 0; transform: translate(-50%, -50%) scale(2); }
         }
 
-        /* Modal */
         .modal {
             position: fixed;
             top: 0;
@@ -296,7 +286,6 @@
             max-width: 90%;
         }
 
-        /* Leaderboard */
         .leaderboard {
             margin: 20px 0;
             text-align: left;
@@ -325,6 +314,67 @@
             background: rgba(205, 127, 50, 0.2); 
             border: 1px solid #cd7f32; 
         }
+
+        .fixture-screen {
+            padding: 20px;
+            align-items: center;
+        }
+
+        .fixture-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+            margin-top: 20px;
+        }
+
+        .fixture-round {
+            background: linear-gradient(145deg, #16213e, #1a1a3e);
+            border: 2px solid var(--border);
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .fixture-round-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--accent2);
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .fixture-match {
+            background: var(--bg-primary);
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .fixture-match.active {
+            border: 2px solid var(--gold);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .fixture-team {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex: 1;
+        }
+
+        .fixture-team:last-child {
+            justify-content: flex-end;
+        }
+
+        .fixture-score {
+            font-weight: bold;
+            color: var(--gold);
+            margin: 0 10px;
+        }
     </style>
 </head>
 <body>
@@ -349,6 +399,13 @@
         </div>
     </div>
 
+    <!-- Pantalla de Fixture -->
+    <div class="screen fixture-screen" id="fixtureScreen">
+        <h2 style="text-align:center;color:var(--accent2);margin-bottom:20px;">📋 Fixture del Mundial</h2>
+        <button class="btn btn-secondary" onclick="showGameScreen()" style="margin-bottom:20px;">Volver al Juego</button>
+        <div class="fixture-container" id="fixtureContainer"></div>
+    </div>
+
     <!-- Pantalla de Juego -->
     <div class="screen" id="gameScreen">
         <div class="game-header">
@@ -360,6 +417,7 @@
             <div class="match-info">
                 <div class="match-phase" id="matchPhase">Fase 1</div>
                 <div class="penalty-counter" id="penaltyCounter">Penal 1 de 5</div>
+                <button class="btn btn-secondary" onclick="showFixture()" style="margin-top:10px;padding:8px;font-size:0.8rem;">Ver Fixture</button>
             </div>
             <div class="team-info">
                 <span class="team-flag" id="opponentFlag">🧤</span>
@@ -438,17 +496,22 @@
         // ==================== CONFIGURACIÓN DEL JUEGO ====================
         const gameConfig = {
             goalHeight: 200,
-            goalkeeperRadius: 30,
-            goalkeeperSpeed: 12,
+            goalkeeperRadius: 25,
+            goalkeeperSpeed: 18,
             penaltiesPerMatch: 5,
             zones: [
-                { x: 0.15, y: 0.2, name: 'Ángulo superior izquierdo' },
-                { x: 0.85, y: 0.2, name: 'Ángulo superior derecho' },
-                { x: 0.15, y: 0.8, name: 'Ángulo inferior izquierdo' },
-                { x: 0.85, y: 0.8, name: 'Ángulo inferior derecho' },
-                { x: 0.5, y: 0.5, name: 'Centro del arco' }
+                { x: 0.1, y: 0.15, name: 'Ángulo superior izquierdo' },
+                { x: 0.9, y: 0.15, name: 'Ángulo superior derecho' },
+                { x: 0.1, y: 0.85, name: 'Ángulo inferior izquierdo' },
+                { x: 0.9, y: 0.85, name: 'Ángulo inferior derecho' },
+                { x: 0.5, y: 0.5, name: 'Centro del arco' },
+                { x: 0.3, y: 0.3, name: 'Media altura izquierda' },
+                { x: 0.7, y: 0.3, name: 'Media altura derecha' }
             ],
             phases: [
+                'Fase de Grupos - Jornada 1',
+                'Fase de Grupos - Jornada 2',
+                'Fase de Grupos - Jornada 3',
                 'Dieciseisavos de Final',
                 'Octavos de Final',
                 'Cuartos de Final',
@@ -472,18 +535,21 @@
                 totalShots: 0
             },
             opponent: {
-                score: 0
+                score: 0,
+                country: null
             },
             goalkeeper: {
                 x: 0,
                 y: 0,
                 direction: 1,
-                speed: gameConfig.goalkeeperSpeed
+                speed: gameConfig.goalkeeperSpeed,
+                reactionTime: 0
             },
             phaseIndex: 0,
             penaltyNumber: 0,
             targetZone: null,
-            shotInProgress: false
+            shotInProgress: false,
+            fixture: []
         };
 
         // ==================== SISTEMA DE AUDIO ====================
@@ -560,11 +626,111 @@
         function selectCountry(country, element) {
             gameState.player.country = country;
             
-            // Actualizar selección visual
             document.querySelectorAll('.country-option').forEach(el => {
                 el.classList.remove('selected');
             });
             element.classList.add('selected');
+        }
+
+        function generateFixture() {
+            gameState.fixture = [];
+            const shuffledCountries = [...countries].sort(() => Math.random() - 0.5);
+            
+            gameConfig.phases.forEach((phase, phaseIndex) => {
+                const matches = [];
+                
+                if (phaseIndex < 3) {
+                    // Fase de grupos: 8 grupos de 4 equipos
+                    for (let group = 0; group < 8; group++) {
+                        for (let match = 0; match < 2; match++) {
+                            const team1 = shuffledCountries[group * 4 + (match * 2) % 4];
+                            const team2 = shuffledCountries[group * 4 + (match * 2 + 1) % 4];
+                            matches.push({
+                                team1,
+                                team2,
+                                score1: null,
+                                score2: null,
+                                group: String.fromCharCode(65 + group)
+                            });
+                        }
+                    }
+                } else {
+                    // Fases eliminatorias
+                    const matchesCount = phaseIndex === 3 ? 16 : 
+                                       phaseIndex === 4 ? 8 : 
+                                       phaseIndex === 5 ? 4 : 
+                                       phaseIndex === 6 ? 2 : 1;
+                    
+                    for (let i = 0; i < matchesCount; i++) {
+                        matches.push({
+                            team1: null,
+                            team2: null,
+                            score1: null,
+                            score2: null
+                        });
+                    }
+                }
+                
+                gameState.fixture.push({
+                    phase: phase,
+                    matches
+                });
+            });
+        }
+
+        function showFixture() {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('fixtureScreen').classList.add('active');
+            renderFixture();
+        }
+
+        function showGameScreen() {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('gameScreen').classList.add('active');
+        }
+
+        function renderFixture() {
+            const container = document.getElementById('fixtureContainer');
+            container.innerHTML = '';
+            
+            gameState.fixture.forEach((round, roundIndex) => {
+                const roundDiv = document.createElement('div');
+                roundDiv.className = 'fixture-round';
+                roundDiv.innerHTML = `<div class="fixture-round-title">${round.phase}</div>`;
+                
+                round.matches.forEach((match, matchIndex) => {
+                    const matchDiv = document.createElement('div');
+                    matchDiv.className = 'fixture-match';
+                    
+                    if (roundIndex === gameState.phaseIndex && matchIndex === gameState.penaltyNumber) {
+                        matchDiv.classList.add('active');
+                    }
+                    
+                    const team1Name = match.team1 ? match.team1.name : 'Por definir';
+                    const team2Name = match.team2 ? match.team2.name : 'Por definir';
+                    const team1Flag = match.team1 ? match.team1.flag : '❓';
+                    const team2Flag = match.team2 ? match.team2.flag : '❓';
+                    const group = match.group ? ` (Grupo ${match.group})` : '';
+                    
+                    matchDiv.innerHTML = `
+                        <div class="fixture-team">
+                            <span>${team1Flag}</span>
+                            <span>${team1Name}${group}</span>
+                        </div>
+                        <div class="fixture-score">
+                            ${match.score1 !== null ? `${match.score1} - ${match.score2}` : 'vs'}
+                        </div>
+                        <div class="fixture-team">
+                            <span>${team2Name}${group}</span>
+                            <span>${team2Flag}</span>
+                        </div>
+                    `;
+                    
+                    roundDiv.appendChild(matchDiv);
+                });
+                
+                container.appendChild(roundDiv);
+            });
         }
 
         function loadLeaderboard() {
@@ -659,6 +825,9 @@
             gameState.penaltyNumber = 0;
             gameState.shotInProgress = false;
             
+            // Generar fixture
+            generateFixture();
+            
             // Cambiar pantalla
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById('gameScreen').classList.add('active');
@@ -685,6 +854,7 @@
             gameState.goalkeeper.y = gameConfig.goalHeight / 2;
             gameState.goalkeeper.direction = 1;
             gameState.goalkeeper.speed = gameConfig.goalkeeperSpeed;
+            gameState.goalkeeper.reactionTime = 0;
         }
 
         function updateInterface() {
@@ -693,10 +863,11 @@
             document.getElementById('playerScore').textContent = gameState.player.score;
             document.getElementById('opponentScore').textContent = gameState.opponent.score;
             
-            // Seleccionar oponente aleatorio
+            // Seleccionar oponente
             const opponent = getRandomOpponent();
             document.getElementById('opponentFlag').textContent = opponent.flag;
             document.getElementById('opponentTeamName').textContent = opponent.name;
+            gameState.opponent.country = opponent;
         }
 
         function getRandomOpponent() {
@@ -716,16 +887,14 @@
         }
 
         function showTargetZone() {
-            // Eliminar zona anterior
             const oldZone = document.querySelector('.target-zone');
             if (oldZone) oldZone.remove();
             
-            // Crear nueva zona
             const container = document.getElementById('canvasContainer');
             const zone = document.createElement('div');
             zone.className = 'target-zone';
-            zone.style.left = gameState.targetZone.x - 30 + 'px';
-            zone.style.top = gameState.targetZone.y - 30 + 'px';
+            zone.style.left = gameState.targetZone.x - 25 + 'px';
+            zone.style.top = gameState.targetZone.y - 25 + 'px';
             container.appendChild(zone);
         }
 
@@ -735,27 +904,46 @@
             gameState.shotInProgress = true;
             gameState.player.totalShots++;
             
+            // Verificar si el tiro está dentro del arco
+            if (clickY >= gameConfig.goalHeight || clickX < gameState.width * 0.2 || clickX > gameState.width * 0.8) {
+                // Tiro fuera del arco
+                setTimeout(() => {
+                    showAnimation('❌');
+                    gameState.penaltyNumber++;
+                    
+                    if (gameState.penaltyNumber >= gameConfig.penaltiesPerMatch) {
+                        evaluateMatchResult();
+                    } else {
+                        selectRandomTargetZone();
+                    }
+                    
+                    gameState.shotInProgress = false;
+                }, 500);
+                return;
+            }
+            
             // Calcular distancias
             const distanceToTarget = getDistance(clickX, clickY, gameState.targetZone.x, gameState.targetZone.y);
             const distanceToGoalkeeper = getDistance(clickX, clickY, gameState.goalkeeper.x, gameState.goalkeeper.y);
             
+            // El arquero tiene mejor reacción en zonas cercanas
+            const goalkeeperReach = gameConfig.goalkeeperRadius + 25;
+            
             // Determinar resultado
             let result;
-            if (distanceToGoalkeeper < gameConfig.goalkeeperRadius + 15) {
+            if (distanceToGoalkeeper < goalkeeperReach) {
                 result = 'save';
-            } else if (distanceToTarget < 50) {
+            } else if (distanceToTarget < 40) {
                 result = 'goal';
             } else {
                 result = 'miss';
             }
             
-            // Procesar resultado
             setTimeout(() => {
                 processShotResult(result);
                 gameState.shotInProgress = false;
-            }, 500);
+            }, 300);
             
-            // Limpiar zona objetivo
             const oldZone = document.querySelector('.target-zone');
             if (oldZone) oldZone.remove();
         }
@@ -802,7 +990,7 @@
                     gameState.player.score = 0;
                     gameState.opponent.score = 0;
                     gameState.penaltyNumber = 0;
-                    gameState.goalkeeper.speed += 2;
+                    gameState.goalkeeper.speed += 3;
                     
                     audioSystem.playVictory();
                     showAnimation('🏆');
@@ -867,6 +1055,22 @@
         }
 
         function updateGoalkeeper() {
+            // Movimiento más inteligente del arquero
+            gameState.goalkeeper.reactionTime++;
+            
+            // El arquero se mueve más rápido y cambia de dirección más frecuentemente
+            if (gameState.goalkeeper.reactionTime > 15) {
+                gameState.goalkeeper.reactionTime = 0;
+                
+                // 50% de probabilidad de cambiar dirección
+                if (Math.random() < 0.5) {
+                    gameState.goalkeeper.direction *= -1;
+                }
+                
+                // Ajustar velocidad aleatoriamente
+                gameState.goalkeeper.speed = gameConfig.goalkeeperSpeed + (Math.random() - 0.5) * 6;
+            }
+            
             gameState.goalkeeper.x += gameState.goalkeeper.direction * gameState.goalkeeper.speed;
             
             const minX = gameState.width * 0.2 + gameConfig.goalkeeperRadius;
@@ -959,6 +1163,16 @@
             ctx.fill();
             ctx.shadowBlur = 0;
             
+            // Guantes del arquero
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowColor = '#ffffff';
+            ctx.shadowBlur = 15;
+            ctx.beginPath();
+            ctx.arc(gameState.goalkeeper.x - 12, gameState.goalkeeper.y - 8, 6, 0, Math.PI * 2);
+            ctx.arc(gameState.goalkeeper.x + 12, gameState.goalkeeper.y - 8, 6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            
             // Texto de instrucción
             ctx.fillStyle = 'rgba(255,255,255,0.9)';
             ctx.font = 'bold 16px Arial';
@@ -1001,14 +1215,7 @@
                 const x = clientX - rect.left;
                 const y = clientY - rect.top;
                 
-                // Solo permitir clicks dentro del arco
-                if (
-                    y < gameConfig.goalHeight && 
-                    x > gameState.width * 0.2 && 
-                    x < gameState.width * 0.8
-                ) {
-                    shootPenalty(x, y);
-                }
+                shootPenalty(x, y);
             }
             
             canvas.addEventListener('click', e => {
