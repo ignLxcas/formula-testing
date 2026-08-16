@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>⚽ Mundial de Penales - Leaderboard Global</title>
+    <title>⚽ Mundial de Penales - 7 Partidos</title>
     <style>
         :root {
             --bg-primary: #0a0a1a;
@@ -143,23 +143,26 @@
             font-weight: bold;
         }
 
-        .phase-indicator {
+        .match-info {
+            text-align: center;
+        }
+
+        .match-indicator {
             font-size: 1.2rem;
             color: var(--accent2);
             font-weight: bold;
-            text-align: center;
         }
 
         .penalty-counter {
             font-size: 0.9rem;
             color: var(--text-secondary);
-            text-align: center;
         }
 
         .game-canvas-container {
             flex: 1;
             position: relative;
             overflow: hidden;
+            cursor: crosshair;
         }
 
         canvas {
@@ -229,6 +232,34 @@
         .leaderboard-entry.top1 { background: rgba(255, 215, 0, 0.2); border: 1px solid var(--gold); }
         .leaderboard-entry.top2 { background: rgba(192, 192, 192, 0.2); border: 1px solid #c0c0c0; }
         .leaderboard-entry.top3 { background: rgba(205, 127, 50, 0.2); border: 1px solid #cd7f32; }
+
+        .shot-marker {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--gold);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: markerFade 1s ease-out;
+        }
+
+        @keyframes markerFade {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(2); }
+        }
+
+        .instructions {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
@@ -238,9 +269,9 @@
         
         <div class="menu-options">
             <div class="option-card">
-                <div class="option-title">🎮 Nuevo Juego</div>
+                <div class="option-title">🎮 Nuevo Mundial</div>
                 <input type="text" id="playerName" placeholder="Tu nombre" maxlength="20">
-                <button class="btn btn-primary" onclick="startNewGame()">Jugar Mundial</button>
+                <button class="btn btn-primary" onclick="startNewGame()">Comenzar Mundial</button>
             </div>
             
             <div class="option-card">
@@ -259,8 +290,8 @@
                 <div id="playerDisplayName" style="font-size:0.8rem;">Jugador</div>
                 <div class="player-score" id="playerScore">0</div>
             </div>
-            <div style="text-align:center;">
-                <div class="phase-indicator" id="phaseIndicator">FASE DE GRUPOS</div>
+            <div class="match-info">
+                <div class="match-indicator" id="matchIndicator">Partido 1 de 7</div>
                 <div class="penalty-counter" id="penaltyCounter">Penal 1 de 5</div>
             </div>
             <div class="player-info">
@@ -269,8 +300,9 @@
                 <div class="player-score" id="goalkeeperScore">0</div>
             </div>
         </div>
-        <div class="game-canvas-container">
+        <div class="game-canvas-container" id="gameCanvasContainer">
             <canvas id="canvas"></canvas>
+            <div class="instructions">👆 Haz click en el arco para patear donde creas que el arquero NO estará</div>
         </div>
     </div>
 
@@ -301,30 +333,29 @@
         const db = firebase.database();
         
         // Constantes del juego
-        const BALL_R = 15;
-        const GOAL_H = 60;
-        const KICK_SPEED = 15;
-        const PENALTIES_PER_PHASE = 5;
-        const TOTAL_PHASES = 5;
-        const GOALKEEPER_SPEED = 3;
+        const GOAL_H = 150;
+        const GOALKEEPER_RADIUS = 35;
+        const PENALTIES_PER_MATCH = 5;
+        const TOTAL_MATCHES = 7;
+        const GOALKEEPER_SPEED = 2;
         
         // Variables de estado
         let canvas, ctx, W, H;
         let gameActive = false;
-        let currentPhase = 1;
+        let currentMatch = 1;
         let penaltyNumber = 0;
         let playerName = '';
         let playerGoals = 0;
-        let playerShots = 0;
+        let goalkeeperSaves = 0;
         let totalGoals = 0;
         let totalShots = 0;
-        let phaseGoals = 0;
-        let phaseShots = 0;
+        let matchGoals = 0;
+        let matchShots = 0;
         
         // Objetos del juego
-        const ball = { x: 0, y: 0, vx: 0, vy: 0, isActive: false };
-        const goalkeeper = { x: 0, y: 0, targetX: 0, diving: false, diveDirection: 0 };
-        const shooter = { x: 0, y: 0 };
+        const goalkeeper = { x: 0, y: 0, direction: 1 };
+        let shotMarker = null;
+        let shotInProgress = false;
         
         // Sistema de audio
         const AudioSystem = {
@@ -417,7 +448,7 @@
                     });
                 });
                 
-                leaderboard.reverse(); // Ordenar de mayor a menor
+                leaderboard.reverse();
                 
                 leaderboard.forEach((entry, index) => {
                     const div = document.createElement('div');
@@ -427,9 +458,10 @@
                     if (index === 2) div.classList.add('top3');
                     
                     const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
+                    const accuracy = entry.shots > 0 ? Math.round((entry.goals / entry.shots) * 100) : 0;
                     div.innerHTML = `
                         <span>${medal} ${entry.name}</span>
-                        <span>${entry.score} pts (${entry.goals}/${entry.shots})</span>
+                        <span>${entry.score} pts (${entry.goals} goles, ${accuracy}%)</span>
                     `;
                     container.appendChild(div);
                 });
@@ -440,27 +472,27 @@
         function saveStats() {
             if (!playerName) return;
             
-            const score = (totalGoals * 10) - ((totalShots - totalGoals) * 2);
+            const score = (totalGoals * 10) + (currentMatch * 5);
             const playerRef = db.ref('leaderboard/' + playerName.replace(/[.#$\[\]]/g, '_'));
             
             playerRef.once('value', snap => {
                 if (snap.exists()) {
-                    // Actualizar estadísticas existentes
                     const data = snap.val();
                     playerRef.update({
                         score: data.score + score,
                         goals: data.goals + totalGoals,
                         shots: data.shots + totalShots,
-                        gamesPlayed: (data.gamesPlayed || 0) + 1
+                        gamesPlayed: (data.gamesPlayed || 0) + 1,
+                        bestMatch: Math.max(data.bestMatch || 0, currentMatch)
                     });
                 } else {
-                    // Crear nueva entrada
                     playerRef.set({
                         name: playerName,
                         score: score,
                         goals: totalGoals,
                         shots: totalShots,
-                        gamesPlayed: 1
+                        gamesPlayed: 1,
+                        bestMatch: currentMatch
                     });
                 }
             });
@@ -472,13 +504,14 @@
             
             // Resetear estadísticas
             playerGoals = 0;
-            playerShots = 0;
+            goalkeeperSaves = 0;
             totalGoals = 0;
             totalShots = 0;
-            phaseGoals = 0;
-            phaseShots = 0;
-            currentPhase = 1;
+            matchGoals = 0;
+            matchShots = 0;
+            currentMatch = 1;
             penaltyNumber = 0;
+            shotInProgress = false;
             
             // Cambiar pantalla
             document.getElementById('menuScreen').style.display = 'none';
@@ -489,114 +522,106 @@
             ctx = canvas.getContext('2d');
             resizeCanvas();
             
-            // Posiciones iniciales
-            shooter.x = W / 2;
-            shooter.y = H * 0.75;
+            // Posición inicial del arquero
             goalkeeper.x = W / 2;
-            goalkeeper.y = H * 0.1;
-            resetBall();
+            goalkeeper.y = GOAL_H - 20;
+            goalkeeper.direction = 1;
             
-            updatePhaseDisplay();
+            updateMatchDisplay();
             gameActive = true;
             
             AudioSystem.playWhistle();
             gameLoop();
         }
         
-        function updatePhaseDisplay() {
-            const phases = ['FASE DE GRUPOS', 'OCTAVOS DE FINAL', 'CUARTOS DE FINAL', 'SEMIFINAL', 'FINAL'];
-            document.getElementById('phaseIndicator').textContent = phases[currentPhase - 1] || 'FASE DE GRUPOS';
-            document.getElementById('penaltyCounter').textContent = `Penal ${penaltyNumber + 1} de ${PENALTIES_PER_PHASE}`;
-        }
-        
-        function resetBall() {
-            ball.x = shooter.x;
-            ball.y = shooter.y;
-            ball.vx = 0;
-            ball.vy = 0;
-            ball.isActive = false;
-            goalkeeper.diving = false;
-            goalkeeper.targetX = W / 2 + (Math.random() - 0.5) * W * 0.4;
+        function updateMatchDisplay() {
+            document.getElementById('matchIndicator').textContent = `Partido ${currentMatch} de ${TOTAL_MATCHES}`;
+            document.getElementById('penaltyCounter').textContent = `Penal ${penaltyNumber + 1} de ${PENALTIES_PER_MATCH}`;
+            document.getElementById('playerScore').textContent = matchGoals;
+            document.getElementById('goalkeeperScore').textContent = PENALTIES_PER_MATCH - penaltyNumber - matchGoals;
         }
         
         function shootPenalty(targetX, targetY) {
-            if (!ball.isActive && gameActive) {
-                ball.isActive = true;
-                playerShots++;
-                totalShots++;
-                phaseShots++;
-                
-                // Calcular dirección del disparo
-                const dx = targetX - ball.x;
-                const dy = targetY - ball.y;
-                const dist = Math.sqrt(dx*dx + dy*dy);
-                
-                ball.vx = (dx / dist) * KICK_SPEED;
-                ball.vy = (dy / dist) * KICK_SPEED;
-                
-                // El arquero intenta adivinar la dirección
-                const guess = Math.random();
-                if (guess < 0.35) {
-                    goalkeeper.targetX = W * 0.25;
-                } else if (guess < 0.7) {
-                    goalkeeper.targetX = W * 0.75;
-                } else {
-                    goalkeeper.targetX = W * 0.5;
-                }
-                
-                goalkeeper.diving = true;
-            }
-        }
-        
-        function checkGoal() {
-            if (!ball.isActive) return;
+            if (shotInProgress || !gameActive) return;
             
-            // Verificar si la pelota entró al arco
-            if (ball.y < GOAL_H && ball.vy < 0) {
-                const dx = ball.x - goalkeeper.x;
-                const dy = ball.y - goalkeeper.y;
-                const dist = Math.sqrt(dx*dx + dy*dy);
-                
-                if (dist < 45) {
-                    // ¡Atajada!
+            shotInProgress = true;
+            totalShots++;
+            matchShots++;
+            
+            // Mostrar marcador del disparo
+            showShotMarker(targetX, targetY);
+            
+            // Verificar si el arquero está cerca del punto de disparo
+            const dx = targetX - goalkeeper.x;
+            const dy = targetY - goalkeeper.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            
+            if (dist < GOALKEEPER_RADIUS + 20) {
+                // ¡Atajada!
+                setTimeout(() => {
                     AudioSystem.playSave();
                     showAnimation('🧤');
-                } else {
-                    // ¡GOL!
+                    goalkeeperSaves++;
+                    penaltyNumber++;
+                    
+                    if (penaltyNumber >= PENALTIES_PER_MATCH) {
+                        nextMatch();
+                    } else {
+                        updateMatchDisplay();
+                    }
+                    
+                    shotInProgress = false;
+                }, 500);
+            } else {
+                // ¡GOL!
+                setTimeout(() => {
                     AudioSystem.playGoal();
                     showAnimation('⚽');
-                    
                     playerGoals++;
                     totalGoals++;
-                    phaseGoals++;
-                    document.getElementById('playerScore').textContent = playerGoals;
-                }
-                
-                penaltyNumber++;
-                if (penaltyNumber >= PENALTIES_PER_PHASE) {
-                    nextPhase();
-                } else {
-                    updatePhaseDisplay();
-                }
-                
-                setTimeout(() => resetBall(), 500);
+                    matchGoals++;
+                    document.getElementById('playerScore').textContent = matchGoals;
+                    
+                    penaltyNumber++;
+                    
+                    if (penaltyNumber >= PENALTIES_PER_MATCH) {
+                        nextMatch();
+                    } else {
+                        updateMatchDisplay();
+                    }
+                    
+                    shotInProgress = false;
+                }, 500);
             }
         }
         
-        function nextPhase() {
-            currentPhase++;
+        function nextMatch() {
+            currentMatch++;
             penaltyNumber = 0;
-            phaseGoals = 0;
-            phaseShots = 0;
+            matchGoals = 0;
+            matchShots = 0;
             
-            if (currentPhase > TOTAL_PHASES) {
+            if (currentMatch > TOTAL_MATCHES) {
                 endGame();
                 return;
             }
             
             AudioSystem.playWhistle();
-            updatePhaseDisplay();
-            setTimeout(() => resetBall(), 1000);
+            updateMatchDisplay();
+            
+            // Resetear arquero
+            goalkeeper.x = W / 2;
+            goalkeeper.direction = 1;
+        }
+        
+        function showShotMarker(x, y) {
+            const container = document.getElementById('gameCanvasContainer');
+            const marker = document.createElement('div');
+            marker.className = 'shot-marker';
+            marker.style.left = x - 10 + 'px';
+            marker.style.top = y - 10 + 'px';
+            container.appendChild(marker);
+            setTimeout(() => marker.remove(), 1000);
         }
         
         function showAnimation(emoji) {
@@ -610,46 +635,17 @@
         function gameLoop() {
             if (!gameActive) return;
             
-            // Actualizar física de la pelota
-            if (ball.isActive) {
-                ball.x += ball.vx;
-                ball.y += ball.vy;
-                
-                // Rebote en paredes laterales
-                if (ball.x < BALL_R || ball.x > W - BALL_R) {
-                    ball.vx = -ball.vx;
-                }
-                
-                // Verificar gol o atajada
-                checkGoal();
-                
-                // Si la pelota se va muy lejos, resetear
-                if (ball.y < -100 || ball.y > H + 100) {
-                    resetBall();
-                }
-            }
-            
             // Mover arquero
-            if (goalkeeper.diving) {
-                const dx = goalkeeper.targetX - goalkeeper.x;
-                if (Math.abs(dx) > 2) {
-                    goalkeeper.x += dx * 0.08;
-                } else {
-                    goalkeeper.diving = false;
-                }
-            } else {
-                // Movimiento aleatorio del arquero
-                if (Math.random() < 0.02) {
-                    goalkeeper.targetX = W * (0.2 + Math.random() * 0.6);
-                }
-                const dx = goalkeeper.targetX - goalkeeper.x;
-                if (Math.abs(dx) > 1) {
-                    goalkeeper.x += dx * 0.02;
-                }
-            }
+            goalkeeper.x += goalkeeper.direction * GOALKEEPER_SPEED;
             
-            // Limitar arquero al área
-            goalkeeper.x = Math.max(W * 0.2, Math.min(W * 0.8, goalkeeper.x));
+            // Rebotar en los límites del arco
+            if (goalkeeper.x <= W * 0.2 + GOALKEEPER_RADIUS) {
+                goalkeeper.x = W * 0.2 + GOALKEEPER_RADIUS;
+                goalkeeper.direction = 1;
+            } else if (goalkeeper.x >= W * 0.8 - GOALKEEPER_RADIUS) {
+                goalkeeper.x = W * 0.8 - GOALKEEPER_RADIUS;
+                goalkeeper.direction = -1;
+            }
             
             render();
             requestAnimationFrame(gameLoop);
@@ -666,7 +662,11 @@
             ctx.fillRect(0, 0, W, H);
             
             // Campo
-            ctx.strokeStyle = '#2a2a4e';
+            ctx.fillStyle = '#0d5c2e';
+            ctx.fillRect(0, 0, W, H);
+            
+            // Líneas del campo
+            ctx.strokeStyle = '#1a7a3e';
             ctx.lineWidth = 2;
             ctx.setLineDash([10, 10]);
             ctx.beginPath();
@@ -676,45 +676,54 @@
             ctx.setLineDash([]);
             
             // Área penal
-            ctx.strokeStyle = '#4a4a6e';
-            ctx.strokeRect(W*0.1, 0, W*0.8, H*0.3);
-            ctx.strokeRect(W*0.2, 0, W*0.6, H*0.15);
+            ctx.strokeStyle = '#1a7a3e';
+            ctx.strokeRect(W*0.1, 0, W*0.8, H*0.4);
             
             // Arco
-            ctx.fillStyle = 'rgba(255,68,68,0.8)';
+            ctx.fillStyle = '#ffffff';
             ctx.fillRect(W*0.2, 0, W*0.6, GOAL_H);
             
-            // Arquero
-            ctx.fillStyle = '#ffaa00';
-            ctx.shadowColor = '#ffaa00';
-            ctx.shadowBlur = 20;
-            ctx.beginPath();
-            ctx.arc(goalkeeper.x, goalkeeper.y, 35, 0, Math.PI*2);
-            ctx.fill();
-            ctx.shadowBlur = 0;
-            
-            // Pelota
-            if (ball.isActive || !ball.isActive) {
-                const ballGrad = ctx.createRadialGradient(ball.x-3, ball.y-3, 0, ball.x, ball.y, BALL_R);
-                ballGrad.addColorStop(0, '#ffffff');
-                ballGrad.addColorStop(1, '#ffd700');
-                ctx.fillStyle = ballGrad;
-                ctx.shadowColor = '#ffd700';
-                ctx.shadowBlur = 20;
+            // Red del arco
+            ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < 6; i++) {
                 ctx.beginPath();
-                ctx.arc(ball.x, ball.y, BALL_R, 0, Math.PI*2);
-                ctx.fill();
-                ctx.shadowBlur = 0;
+                ctx.moveTo(W*0.2 + (W*0.6/5)*i, 0);
+                ctx.lineTo(W*0.2 + (W*0.6/5)*i, GOAL_H);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(W*0.2, (GOAL_H/5)*i);
+                ctx.lineTo(W*0.8, (GOAL_H/5)*i);
+                ctx.stroke();
             }
             
-            // Jugador
-            ctx.fillStyle = '#00ff88';
-            ctx.shadowColor = '#00ff88';
-            ctx.shadowBlur = 20;
+            // Arquero
+            const goalieGrad = ctx.createRadialGradient(
+                goalkeeper.x - 10, goalkeeper.y - 10, 0,
+                goalkeeper.x, goalkeeper.y, GOALKEEPER_RADIUS
+            );
+            goalieGrad.addColorStop(0, '#ffd700');
+            goalieGrad.addColorStop(1, '#ff8c00');
+            ctx.fillStyle = goalieGrad;
+            ctx.shadowColor = '#ffd700';
+            ctx.shadowBlur = 25;
             ctx.beginPath();
-            ctx.arc(shooter.x, shooter.y, 30, 0, Math.PI*2);
+            ctx.arc(goalkeeper.x, goalkeeper.y, GOALKEEPER_RADIUS, 0, Math.PI*2);
             ctx.fill();
             ctx.shadowBlur = 0;
+            
+            // Guantes del arquero
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(goalkeeper.x - 15, goalkeeper.y - 10, 8, 0, Math.PI*2);
+            ctx.arc(goalkeeper.x + 15, goalkeeper.y - 10, 8, 0, Math.PI*2);
+            ctx.fill();
+            
+            // Texto de instrucción
+            ctx.fillStyle = 'rgba(255,255,255,0.8)';
+            ctx.font = '16px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Haz click en el arco para patear', W/2, H - 50);
         }
         
         function resizeCanvas() {
@@ -724,33 +733,32 @@
             canvas.width = W;
             canvas.height = H;
             
-            if (shooter.x === 0) {
-                shooter.x = W / 2;
-                shooter.y = H * 0.75;
+            if (goalkeeper.x === 0) {
                 goalkeeper.x = W / 2;
-                goalkeeper.y = H * 0.1;
-                resetBall();
+                goalkeeper.y = GOAL_H - 20;
             }
         }
         
         function endGame() {
             gameActive = false;
             
-            if (playerGoals >= 3) {
+            if (currentMatch > TOTAL_MATCHES) {
                 AudioSystem.playVictory();
             }
             
             saveStats();
             
-            const phases = ['Fase de Grupos', 'Octavos', 'Cuartos', 'Semifinal', 'Final'];
+            const accuracy = totalShots > 0 ? Math.round((totalGoals / totalShots) * 100) : 0;
             document.getElementById('resultTitle').textContent = 
-                playerGoals >= 3 ? '🏆 ¡Campeón!' : '😢 Eliminado';
+                currentMatch > TOTAL_MATCHES ? '🏆 ¡Mundial Completado!' : '📊 Fin del Mundial';
             
             document.getElementById('resultDetails').innerHTML = 
-                `Goles: ${playerGoals} | Tiros: ${playerShots} | Efectividad: ${playerShots > 0 ? Math.round((playerGoals/playerShots)*100) : 0}%`;
+                `Partidos jugados: ${currentMatch - 1} de ${TOTAL_MATCHES}<br>` +
+                `Goles: ${totalGoals} | Tiros: ${totalShots} | Efectividad: ${accuracy}%<br>` +
+                `Atajadas del arquero: ${goalkeeperSaves}`;
             
             document.getElementById('statsDetails').textContent = 
-                `Completado hasta: ${phases[currentPhase - 2] || 'Fase de Grupos'}`;
+                `Puntuación total: ${(totalGoals * 10) + (currentMatch * 5)} puntos`;
             
             document.getElementById('resultModal').classList.add('active');
         }
@@ -758,52 +766,26 @@
         function setupControls() {
             const canvas = document.getElementById('canvas');
             
-            function move(clientX, clientY) {
+            function handleClick(clientX, clientY) {
                 const rect = canvas.getBoundingClientRect();
-                let x = clientX - rect.left;
-                let y = clientY - rect.top;
+                const x = clientX - rect.left;
+                const y = clientY - rect.top;
                 
-                x = Math.max(30, Math.min(W - 30, x));
-                y = Math.max(H*0.6, Math.min(H - 30, y));
-                
-                shooter.x = x;
-                shooter.y = y;
-                
-                if (!ball.isActive) {
-                    ball.x = x;
-                    ball.y = y;
+                // Solo permitir clicks dentro del arco
+                if (y < GOAL_H && x > W * 0.2 && x < W * 0.8) {
+                    shootPenalty(x, y);
                 }
             }
             
-            function shoot(clientX, clientY) {
-                const rect = canvas.getBoundingClientRect();
-                const targetX = clientX - rect.left;
-                const targetY = clientY - rect.top;
-                shootPenalty(targetX, targetY);
-            }
-            
             // Mouse
-            canvas.addEventListener('mousemove', e => move(e.clientX, e.clientY));
-            canvas.addEventListener('click', e => shoot(e.clientX, e.clientY));
+            canvas.addEventListener('click', e => handleClick(e.clientX, e.clientY));
             
             // Touch
-            canvas.addEventListener('touchmove', e => {
-                e.preventDefault();
-                const touch = e.touches[0];
-                move(touch.clientX, touch.clientY);
-            }, { passive: false });
-            
-            canvas.addEventListener('touchstart', e => {
-                e.preventDefault();
-                const touch = e.touches[0];
-                move(touch.clientX, touch.clientY);
-            }, { passive: false });
-            
             canvas.addEventListener('touchend', e => {
                 e.preventDefault();
                 if (e.changedTouches.length > 0) {
                     const touch = e.changedTouches[0];
-                    shoot(touch.clientX, touch.clientY);
+                    handleClick(touch.clientX, touch.clientY);
                 }
             }, { passive: false });
         }
