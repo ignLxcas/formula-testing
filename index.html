@@ -212,6 +212,12 @@
             color: var(--text-secondary);
         }
 
+        .group-points {
+            font-size: 0.8rem;
+            color: var(--success);
+            margin-top: 5px;
+        }
+
         .game-canvas-container {
             flex: 1;
             position: relative;
@@ -229,13 +235,14 @@
 
         .target-zone {
             position: absolute;
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             border: 3px dashed var(--gold);
             border-radius: 50%;
             pointer-events: none;
             animation: zonePulse 0.8s ease-in-out infinite;
             box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            background: rgba(255, 215, 0, 0.1);
         }
 
         @keyframes zonePulse {
@@ -375,6 +382,31 @@
             color: var(--gold);
             margin: 0 10px;
         }
+
+        .group-table {
+            background: var(--bg-primary);
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .group-table-title {
+            font-weight: bold;
+            color: var(--accent2);
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .group-team-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .group-team-row:last-child {
+            border-bottom: none;
+        }
     </style>
 </head>
 <body>
@@ -417,6 +449,7 @@
             <div class="match-info">
                 <div class="match-phase" id="matchPhase">Fase 1</div>
                 <div class="penalty-counter" id="penaltyCounter">Penal 1 de 5</div>
+                <div class="group-points" id="groupPoints"></div>
                 <button class="btn btn-secondary" onclick="showFixture()" style="margin-top:10px;padding:8px;font-size:0.8rem;">Ver Fixture</button>
             </div>
             <div class="team-info">
@@ -459,65 +492,58 @@
 
         // ==================== DATOS DE PAÍSES ====================
         const countries = [
-            { name: 'Argentina', flag: '🇦🇷' },
-            { name: 'Francia', flag: '🇫🇷' },
-            { name: 'Brasil', flag: '🇧🇷' },
-            { name: 'Inglaterra', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿' },
-            { name: 'España', flag: '🇪🇸' },
-            { name: 'Alemania', flag: '🇩🇪' },
-            { name: 'Portugal', flag: '🇵🇹' },
-            { name: 'Holanda', flag: '🇳🇱' },
-            { name: 'Italia', flag: '🇮🇹' },
-            { name: 'Bélgica', flag: '🇧🇪' },
-            { name: 'Uruguay', flag: '🇺🇾' },
-            { name: 'Croacia', flag: '🇭🇷' },
-            { name: 'México', flag: '🇲🇽' },
-            { name: 'Estados Unidos', flag: '🇺🇸' },
-            { name: 'Japón', flag: '🇯🇵' },
-            { name: 'Corea del Sur', flag: '🇰🇷' },
-            { name: 'Colombia', flag: '🇨🇴' },
-            { name: 'Senegal', flag: '🇸🇳' },
-            { name: 'Marruecos', flag: '🇲🇦' },
-            { name: 'Suiza', flag: '🇨🇭' },
-            { name: 'Dinamarca', flag: '🇩🇰' },
-            { name: 'Serbia', flag: '🇷🇸' },
-            { name: 'Canadá', flag: '🇨🇦' },
-            { name: 'Australia', flag: '🇦🇺' },
-            { name: 'Ecuador', flag: '🇪🇨' },
-            { name: 'Ghana', flag: '🇬🇭' },
-            { name: 'Camerún', flag: '🇨🇲' },
-            { name: 'Polonia', flag: '🇵🇱' },
-            { name: 'Austria', flag: '🇦🇹' },
-            { name: 'Nigeria', flag: '🇳🇬' },
-            { name: 'Costa Rica', flag: '🇨🇷' },
-            { name: 'Arabia Saudita', flag: '🇸🇦' }
+            { name: 'Argentina', flag: '🇦🇷', group: 'A' },
+            { name: 'Francia', flag: '🇫🇷', group: 'A' },
+            { name: 'Brasil', flag: '🇧🇷', group: 'B' },
+            { name: 'Inglaterra', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', group: 'B' },
+            { name: 'España', flag: '🇪🇸', group: 'C' },
+            { name: 'Alemania', flag: '🇩🇪', group: 'C' },
+            { name: 'Portugal', flag: '🇵🇹', group: 'D' },
+            { name: 'Holanda', flag: '🇳🇱', group: 'D' },
+            { name: 'Italia', flag: '🇮🇹', group: 'E' },
+            { name: 'Bélgica', flag: '🇧🇪', group: 'E' },
+            { name: 'Uruguay', flag: '🇺🇾', group: 'F' },
+            { name: 'Croacia', flag: '🇭🇷', group: 'F' },
+            { name: 'México', flag: '🇲🇽', group: 'G' },
+            { name: 'Estados Unidos', flag: '🇺🇸', group: 'G' },
+            { name: 'Japón', flag: '🇯🇵', group: 'H' },
+            { name: 'Corea del Sur', flag: '🇰🇷', group: 'H' },
+            { name: 'Colombia', flag: '🇨🇴', group: 'A' },
+            { name: 'Senegal', flag: '🇸🇳', group: 'B' },
+            { name: 'Marruecos', flag: '🇲🇦', group: 'C' },
+            { name: 'Suiza', flag: '🇨🇭', group: 'D' },
+            { name: 'Dinamarca', flag: '🇩🇰', group: 'E' },
+            { name: 'Serbia', flag: '🇷🇸', group: 'F' },
+            { name: 'Canadá', flag: '🇨🇦', group: 'G' },
+            { name: 'Australia', flag: '🇦🇺', group: 'H' },
+            { name: 'Ecuador', flag: '🇪🇨', group: 'A' },
+            { name: 'Ghana', flag: '🇬🇭', group: 'B' },
+            { name: 'Camerún', flag: '🇨🇲', group: 'C' },
+            { name: 'Polonia', flag: '🇵🇱', group: 'D' },
+            { name: 'Austria', flag: '🇦🇹', group: 'E' },
+            { name: 'Nigeria', flag: '🇳🇬', group: 'F' },
+            { name: 'Costa Rica', flag: '🇨🇷', group: 'G' },
+            { name: 'Arabia Saudita', flag: '🇸🇦', group: 'H' }
         ];
 
         // ==================== CONFIGURACIÓN DEL JUEGO ====================
         const gameConfig = {
-            goalHeight: 200,
-            goalkeeperRadius: 25,
-            goalkeeperSpeed: 18,
+            goalHeight: 250,
+            goalkeeperRadius: 20,
+            goalkeeperSpeed: 15,
             penaltiesPerMatch: 5,
+            targetRadius: 50,
             zones: [
-                { x: 0.1, y: 0.15, name: 'Ángulo superior izquierdo' },
-                { x: 0.9, y: 0.15, name: 'Ángulo superior derecho' },
-                { x: 0.1, y: 0.85, name: 'Ángulo inferior izquierdo' },
-                { x: 0.9, y: 0.85, name: 'Ángulo inferior derecho' },
+                { x: 0.15, y: 0.2, name: 'Ángulo superior izquierdo' },
+                { x: 0.85, y: 0.2, name: 'Ángulo superior derecho' },
+                { x: 0.15, y: 0.8, name: 'Ángulo inferior izquierdo' },
+                { x: 0.85, y: 0.8, name: 'Ángulo inferior derecho' },
                 { x: 0.5, y: 0.5, name: 'Centro del arco' },
-                { x: 0.3, y: 0.3, name: 'Media altura izquierda' },
-                { x: 0.7, y: 0.3, name: 'Media altura derecha' }
+                { x: 0.3, y: 0.35, name: 'Media altura izquierda' },
+                { x: 0.7, y: 0.35, name: 'Media altura derecha' }
             ],
-            phases: [
-                'Fase de Grupos - Jornada 1',
-                'Fase de Grupos - Jornada 2',
-                'Fase de Grupos - Jornada 3',
-                'Dieciseisavos de Final',
-                'Octavos de Final',
-                'Cuartos de Final',
-                'Semifinal',
-                'Final'
-            ]
+            groupStageMatches: 3,
+            knockoutStages: ['Dieciseisavos de Final', 'Octavos de Final', 'Cuartos de Final', 'Semifinal', 'Final']
         };
 
         // ==================== ESTADO DEL JUEGO ====================
@@ -532,7 +558,9 @@
                 country: null,
                 score: 0,
                 totalGoals: 0,
-                totalShots: 0
+                totalShots: 0,
+                groupPoints: 0,
+                groupMatchesPlayed: 0
             },
             opponent: {
                 score: 0,
@@ -549,7 +577,8 @@
             penaltyNumber: 0,
             targetZone: null,
             shotInProgress: false,
-            fixture: []
+            fixture: [],
+            groupStageComplete: false
         };
 
         // ==================== SISTEMA DE AUDIO ====================
@@ -634,46 +663,72 @@
 
         function generateFixture() {
             gameState.fixture = [];
-            const shuffledCountries = [...countries].sort(() => Math.random() - 0.5);
             
-            gameConfig.phases.forEach((phase, phaseIndex) => {
+            // Fase de grupos (3 jornadas)
+            for (let matchday = 0; matchday < gameConfig.groupStageMatches; matchday++) {
                 const matches = [];
                 
-                if (phaseIndex < 3) {
-                    // Fase de grupos: 8 grupos de 4 equipos
-                    for (let group = 0; group < 8; group++) {
-                        for (let match = 0; match < 2; match++) {
-                            const team1 = shuffledCountries[group * 4 + (match * 2) % 4];
-                            const team2 = shuffledCountries[group * 4 + (match * 2 + 1) % 4];
-                            matches.push({
-                                team1,
-                                team2,
-                                score1: null,
-                                score2: null,
-                                group: String.fromCharCode(65 + group)
-                            });
-                        }
+                // Agrupar por grupos
+                const groups = {};
+                countries.forEach(country => {
+                    if (!groups[country.group]) {
+                        groups[country.group] = [];
                     }
-                } else {
-                    // Fases eliminatorias
-                    const matchesCount = phaseIndex === 3 ? 16 : 
-                                       phaseIndex === 4 ? 8 : 
-                                       phaseIndex === 5 ? 4 : 
-                                       phaseIndex === 6 ? 2 : 1;
+                    groups[country.group].push(country);
+                });
+                
+                // Generar partidos de la jornada
+                Object.keys(groups).forEach(groupName => {
+                    const groupTeams = groups[groupName];
+                    // Rotar equipos para cada jornada
+                    const rotatedTeams = [...groupTeams];
+                    for (let i = 0; i < matchday; i++) {
+                        rotatedTeams.unshift(rotatedTeams.pop());
+                    }
                     
-                    for (let i = 0; i < matchesCount; i++) {
-                        matches.push({
-                            team1: null,
-                            team2: null,
-                            score1: null,
-                            score2: null
-                        });
-                    }
+                    matches.push({
+                        team1: rotatedTeams[0],
+                        team2: rotatedTeams[2],
+                        score1: null,
+                        score2: null,
+                        group: groupName
+                    });
+                    
+                    matches.push({
+                        team1: rotatedTeams[1],
+                        team2: rotatedTeams[3],
+                        score1: null,
+                        score2: null,
+                        group: groupName
+                    });
+                });
+                
+                gameState.fixture.push({
+                    phase: `Fase de Grupos - Jornada ${matchday + 1}`,
+                    matches,
+                    isGroupStage: true
+                });
+            }
+            
+            // Fases eliminatorias
+            const knockoutMatches = [16, 8, 4, 2, 1];
+            gameConfig.knockoutStages.forEach((stageName, index) => {
+                const matches = [];
+                const matchesCount = knockoutMatches[index];
+                
+                for (let i = 0; i < matchesCount; i++) {
+                    matches.push({
+                        team1: null,
+                        team2: null,
+                        score1: null,
+                        score2: null
+                    });
                 }
                 
                 gameState.fixture.push({
-                    phase: phase,
-                    matches
+                    phase: stageName,
+                    matches,
+                    isGroupStage: false
                 });
             });
         }
@@ -698,38 +753,84 @@
                 roundDiv.className = 'fixture-round';
                 roundDiv.innerHTML = `<div class="fixture-round-title">${round.phase}</div>`;
                 
-                round.matches.forEach((match, matchIndex) => {
-                    const matchDiv = document.createElement('div');
-                    matchDiv.className = 'fixture-match';
-                    
-                    if (roundIndex === gameState.phaseIndex && matchIndex === gameState.penaltyNumber) {
-                        matchDiv.classList.add('active');
-                    }
-                    
-                    const team1Name = match.team1 ? match.team1.name : 'Por definir';
-                    const team2Name = match.team2 ? match.team2.name : 'Por definir';
-                    const team1Flag = match.team1 ? match.team1.flag : '❓';
-                    const team2Flag = match.team2 ? match.team2.flag : '❓';
-                    const group = match.group ? ` (Grupo ${match.group})` : '';
-                    
-                    matchDiv.innerHTML = `
-                        <div class="fixture-team">
-                            <span>${team1Flag}</span>
-                            <span>${team1Name}${group}</span>
-                        </div>
-                        <div class="fixture-score">
-                            ${match.score1 !== null ? `${match.score1} - ${match.score2}` : 'vs'}
-                        </div>
-                        <div class="fixture-team">
-                            <span>${team2Name}${group}</span>
-                            <span>${team2Flag}</span>
-                        </div>
-                    `;
-                    
-                    roundDiv.appendChild(matchDiv);
-                });
+                if (round.isGroupStage) {
+                    // Mostrar tabla de grupos
+                    renderGroupTable(roundDiv, round.matches);
+                } else {
+                    // Mostrar partidos eliminatorios
+                    round.matches.forEach((match, matchIndex) => {
+                        const matchDiv = document.createElement('div');
+                        matchDiv.className = 'fixture-match';
+                        
+                        if (roundIndex === gameState.phaseIndex && matchIndex === gameState.penaltyNumber) {
+                            matchDiv.classList.add('active');
+                        }
+                        
+                        const team1Name = match.team1 ? match.team1.name : 'Por definir';
+                        const team2Name = match.team2 ? match.team2.name : 'Por definir';
+                        const team1Flag = match.team1 ? match.team1.flag : '❓';
+                        const team2Flag = match.team2 ? match.team2.flag : '❓';
+                        
+                        matchDiv.innerHTML = `
+                            <div class="fixture-team">
+                                <span>${team1Flag}</span>
+                                <span>${team1Name}</span>
+                            </div>
+                            <div class="fixture-score">
+                                ${match.score1 !== null ? `${match.score1} - ${match.score2}` : 'vs'}
+                            </div>
+                            <div class="fixture-team">
+                                <span>${team2Name}</span>
+                                <span>${team2Flag}</span>
+                            </div>
+                        `;
+                        
+                        roundDiv.appendChild(matchDiv);
+                    });
+                }
                 
                 container.appendChild(roundDiv);
+            });
+        }
+
+        function renderGroupTable(container, matches) {
+            // Agrupar partidos por grupo
+            const groups = {};
+            matches.forEach(match => {
+                if (!groups[match.group]) {
+                    groups[match.group] = [];
+                }
+                groups[match.group].push(match);
+            });
+            
+            // Renderizar tabla para cada grupo
+            Object.keys(groups).forEach(groupName => {
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'group-table';
+                groupDiv.innerHTML = `<div class="group-table-title">Grupo ${groupName}</div>`;
+                
+                const teams = new Set();
+                groups[groupName].forEach(match => {
+                    teams.add(match.team1);
+                    teams.add(match.team2);
+                });
+                
+                teams.forEach(team => {
+                    const teamRow = document.createElement('div');
+                    teamRow.className = 'group-team-row';
+                    
+                    const isPlayerTeam = team === gameState.player.country;
+                    teamRow.style.backgroundColor = isPlayerTeam ? 'rgba(255, 215, 0, 0.1)' : 'transparent';
+                    
+                    teamRow.innerHTML = `
+                        <span>${team.flag} ${team.name}</span>
+                        <span>${isPlayerTeam ? gameState.player.groupPoints : '0'} pts</span>
+                    `;
+                    
+                    groupDiv.appendChild(teamRow);
+                });
+                
+                container.appendChild(groupDiv);
             });
         }
 
@@ -820,10 +921,13 @@
             gameState.player.score = 0;
             gameState.player.totalGoals = 0;
             gameState.player.totalShots = 0;
+            gameState.player.groupPoints = 0;
+            gameState.player.groupMatchesPlayed = 0;
             gameState.opponent.score = 0;
             gameState.phaseIndex = 0;
             gameState.penaltyNumber = 0;
             gameState.shotInProgress = false;
+            gameState.groupStageComplete = false;
             
             // Generar fixture
             generateFixture();
@@ -858,10 +962,22 @@
         }
 
         function updateInterface() {
-            document.getElementById('matchPhase').textContent = gameConfig.phases[gameState.phaseIndex];
+            const currentPhase = gameState.phaseIndex < 3 ? 
+                `Fase de Grupos - Jornada ${gameState.phaseIndex + 1}` : 
+                gameConfig.knockoutStages[gameState.phaseIndex - 3];
+            
+            document.getElementById('matchPhase').textContent = currentPhase;
             document.getElementById('penaltyCounter').textContent = `Penal ${gameState.penaltyNumber + 1} de ${gameConfig.penaltiesPerMatch}`;
             document.getElementById('playerScore').textContent = gameState.player.score;
             document.getElementById('opponentScore').textContent = gameState.opponent.score;
+            
+            // Mostrar puntos del grupo si estamos en fase de grupos
+            if (gameState.phaseIndex < 3) {
+                document.getElementById('groupPoints').textContent = 
+                    `Grupo ${gameState.player.country.group} - ${gameState.player.groupPoints} pts`;
+            } else {
+                document.getElementById('groupPoints').textContent = '';
+            }
             
             // Seleccionar oponente
             const opponent = getRandomOpponent();
@@ -893,8 +1009,10 @@
             const container = document.getElementById('canvasContainer');
             const zone = document.createElement('div');
             zone.className = 'target-zone';
-            zone.style.left = gameState.targetZone.x - 25 + 'px';
-            zone.style.top = gameState.targetZone.y - 25 + 'px';
+            zone.style.left = gameState.targetZone.x - 30 + 'px';
+            zone.style.top = gameState.targetZone.y - 30 + 'px';
+            zone.style.width = '60px';
+            zone.style.height = '60px';
             container.appendChild(zone);
         }
 
@@ -904,36 +1022,18 @@
             gameState.shotInProgress = true;
             gameState.player.totalShots++;
             
-            // Verificar si el tiro está dentro del arco
-            if (clickY >= gameConfig.goalHeight || clickX < gameState.width * 0.2 || clickX > gameState.width * 0.8) {
-                // Tiro fuera del arco
-                setTimeout(() => {
-                    showAnimation('❌');
-                    gameState.penaltyNumber++;
-                    
-                    if (gameState.penaltyNumber >= gameConfig.penaltiesPerMatch) {
-                        evaluateMatchResult();
-                    } else {
-                        selectRandomTargetZone();
-                    }
-                    
-                    gameState.shotInProgress = false;
-                }, 500);
-                return;
-            }
-            
             // Calcular distancias
             const distanceToTarget = getDistance(clickX, clickY, gameState.targetZone.x, gameState.targetZone.y);
             const distanceToGoalkeeper = getDistance(clickX, clickY, gameState.goalkeeper.x, gameState.goalkeeper.y);
             
-            // El arquero tiene mejor reacción en zonas cercanas
-            const goalkeeperReach = gameConfig.goalkeeperRadius + 25;
+            // El arquero tiene un radio de alcance
+            const goalkeeperReach = gameConfig.goalkeeperRadius + 20;
             
             // Determinar resultado
             let result;
             if (distanceToGoalkeeper < goalkeeperReach) {
                 result = 'save';
-            } else if (distanceToTarget < 40) {
+            } else if (distanceToTarget < gameConfig.targetRadius) {
                 result = 'goal';
             } else {
                 result = 'miss';
@@ -944,6 +1044,7 @@
                 gameState.shotInProgress = false;
             }, 300);
             
+            // Limpiar zona objetivo
             const oldZone = document.querySelector('.target-zone');
             if (oldZone) oldZone.remove();
         }
@@ -960,20 +1061,23 @@
                 showAnimation('⚽');
                 gameState.player.score++;
                 gameState.player.totalGoals++;
+                document.getElementById('playerScore').textContent = gameState.player.score;
             } else if (result === 'save') {
                 audioSystem.playSave();
                 showAnimation('🧤');
                 gameState.opponent.score++;
+                document.getElementById('opponentScore').textContent = gameState.opponent.score;
             } else {
                 showAnimation('❌');
             }
             
-            updateInterface();
             gameState.penaltyNumber++;
             
             if (gameState.penaltyNumber >= gameConfig.penaltiesPerMatch) {
                 evaluateMatchResult();
             } else {
+                document.getElementById('penaltyCounter').textContent = 
+                    `Penal ${gameState.penaltyNumber + 1} de ${gameConfig.penaltiesPerMatch}`;
                 selectRandomTargetZone();
             }
         }
@@ -981,16 +1085,23 @@
         function evaluateMatchResult() {
             if (gameState.player.score > gameState.opponent.score) {
                 // Ganó el partido
+                if (gameState.phaseIndex < 3) {
+                    // Fase de grupos - sumar puntos
+                    gameState.player.groupPoints += 3;
+                    gameState.player.groupMatchesPlayed++;
+                }
+                
                 gameState.phaseIndex++;
                 
-                if (gameState.phaseIndex >= gameConfig.phases.length) {
+                if (gameState.phaseIndex >= 3 + gameConfig.knockoutStages.length) {
+                    // Ganó el mundial
                     endGame(true);
                 } else {
                     // Avanzar a siguiente fase
                     gameState.player.score = 0;
                     gameState.opponent.score = 0;
                     gameState.penaltyNumber = 0;
-                    gameState.goalkeeper.speed += 3;
+                    gameState.goalkeeper.speed += 2;
                     
                     audioSystem.playVictory();
                     showAnimation('🏆');
@@ -1000,9 +1111,50 @@
                         selectRandomTargetZone();
                     }, 1000);
                 }
+            } else if (gameState.player.score === gameState.opponent.score) {
+                // Empate - muerte súbita
+                showAnimation('⚡');
+                gameState.penaltyNumber = gameConfig.penaltiesPerMatch - 1;
+                document.getElementById('penaltyCounter').textContent = '¡MUERTE SÚBITA!';
+                selectRandomTargetZone();
             } else {
                 // Perdió el partido
-                endGame(false);
+                if (gameState.phaseIndex < 3) {
+                    // Fase de grupos - derrota
+                    gameState.player.groupMatchesPlayed++;
+                    
+                    if (gameState.player.groupPoints >= 4) {
+                        // Clasificó a dieciseisavos
+                        gameState.phaseIndex = 3;
+                        gameState.player.score = 0;
+                        gameState.opponent.score = 0;
+                        gameState.penaltyNumber = 0;
+                        
+                        audioSystem.playVictory();
+                        showAnimation('✅');
+                        
+                        setTimeout(() => {
+                            updateInterface();
+                            selectRandomTargetZone();
+                        }, 1000);
+                    } else if (gameState.player.groupMatchesPlayed >= gameConfig.groupStageMatches) {
+                        // Eliminado en fase de grupos
+                        endGame(false);
+                    } else {
+                        // Siguiente partido del grupo
+                        gameState.player.score = 0;
+                        gameState.opponent.score = 0;
+                        gameState.penaltyNumber = 0;
+                        
+                        setTimeout(() => {
+                            updateInterface();
+                            selectRandomTargetZone();
+                        }, 1000);
+                    }
+                } else {
+                    // Eliminado en fase eliminatoria
+                    endGame(false);
+                }
             }
         }
 
@@ -1030,8 +1182,9 @@
                 title.textContent = '🏆 ¡CAMPEÓN DEL MUNDO!';
                 details.textContent = `${gameState.player.country.flag} ${gameState.player.country.name} ha ganado el mundial!`;
             } else {
+                const eliminatedIn = gameState.phaseIndex < 3 ? 'Fase de Grupos' : gameConfig.knockoutStages[gameState.phaseIndex - 3];
                 title.textContent = '😢 ELIMINADO';
-                details.textContent = `Eliminado en ${gameConfig.phases[gameState.phaseIndex]}. Goles: ${gameState.player.totalGoals} (${accuracy}% efectividad)`;
+                details.textContent = `${gameState.player.country.flag} ${gameState.player.country.name} eliminado en ${eliminatedIn}. Goles: ${gameState.player.totalGoals} (${accuracy}% efectividad)`;
             }
             
             modal.classList.add('active');
@@ -1055,20 +1208,16 @@
         }
 
         function updateGoalkeeper() {
-            // Movimiento más inteligente del arquero
+            // Movimiento del arquero
             gameState.goalkeeper.reactionTime++;
             
-            // El arquero se mueve más rápido y cambia de dirección más frecuentemente
-            if (gameState.goalkeeper.reactionTime > 15) {
+            if (gameState.goalkeeper.reactionTime > 10) {
                 gameState.goalkeeper.reactionTime = 0;
                 
-                // 50% de probabilidad de cambiar dirección
-                if (Math.random() < 0.5) {
+                // 40% de probabilidad de cambiar dirección
+                if (Math.random() < 0.4) {
                     gameState.goalkeeper.direction *= -1;
                 }
-                
-                // Ajustar velocidad aleatoriamente
-                gameState.goalkeeper.speed = gameConfig.goalkeeperSpeed + (Math.random() - 0.5) * 6;
             }
             
             gameState.goalkeeper.x += gameState.goalkeeper.direction * gameState.goalkeeper.speed;
@@ -1119,6 +1268,11 @@
             ctx.fillStyle = goalGradient;
             ctx.fillRect(W*0.2, 0, W*0.6, gameConfig.goalHeight);
             
+            // Marco del arco
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 4;
+            ctx.strokeRect(W*0.2, 0, W*0.6, gameConfig.goalHeight);
+            
             // Red del arco
             ctx.strokeStyle = 'rgba(0,0,0,0.2)';
             ctx.lineWidth = 1;
@@ -1168,8 +1322,8 @@
             ctx.shadowColor = '#ffffff';
             ctx.shadowBlur = 15;
             ctx.beginPath();
-            ctx.arc(gameState.goalkeeper.x - 12, gameState.goalkeeper.y - 8, 6, 0, Math.PI * 2);
-            ctx.arc(gameState.goalkeeper.x + 12, gameState.goalkeeper.y - 8, 6, 0, Math.PI * 2);
+            ctx.arc(gameState.goalkeeper.x - 10, gameState.goalkeeper.y - 8, 5, 0, Math.PI * 2);
+            ctx.arc(gameState.goalkeeper.x + 10, gameState.goalkeeper.y - 8, 5, 0, Math.PI * 2);
             ctx.fill();
             ctx.shadowBlur = 0;
             
