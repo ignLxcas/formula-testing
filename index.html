@@ -10,18 +10,20 @@
             --bg-secondary: #1a1a3e;
             --bg-card: #16213e;
             --accent: #ff6b35;
-            --accent2: #f7c948;
             --gold: #ffd700;
             --success: #00ff88;
             --danger: #ff4444;
             --text-primary: #ffffff;
             --text-secondary: #b0b0c0;
             --border: #2a2a4e;
-            --pitch-green: #0d5c2e;
-            --pitch-dark: #0a4a24;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent; 
+        }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -34,14 +36,18 @@
             -webkit-user-select: none;
         }
 
+        /* Pantallas */
         .screen {
             display: none;
             flex-direction: column;
             height: 100vh;
             overflow-y: auto;
         }
-        .screen.active { display: flex; }
+        .screen.active { 
+            display: flex; 
+        }
 
+        /* Menú principal */
         .menu-screen {
             align-items: center;
             justify-content: center;
@@ -49,25 +55,13 @@
         }
 
         .game-title {
-            font-size: 3.5rem;
+            font-size: 3rem;
             font-weight: bold;
-            margin-bottom: 10px;
             background: linear-gradient(45deg, #ff6b35, #f7c948, #ff6b35);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             text-align: center;
-            text-shadow: 0 0 30px rgba(255, 107, 53, 0.5);
-        }
-
-        .world-cup-banner {
-            font-size: 3rem;
-            margin: 10px 0;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+            margin-bottom: 20px;
         }
 
         .menu-options {
@@ -76,25 +70,24 @@
             gap: 20px;
             width: 100%;
             max-width: 600px;
-            margin-top: 30px;
         }
 
-        .option-card {
+        .card {
             background: linear-gradient(145deg, #16213e, #1a1a3e);
             border: 2px solid var(--border);
             border-radius: 20px;
             padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
 
-        .option-title {
+        .card-title {
             font-size: 1.3rem;
             font-weight: bold;
-            margin-bottom: 20px;
             text-align: center;
             color: var(--accent);
+            margin-bottom: 20px;
         }
 
+        /* Botones */
         .btn {
             padding: 15px;
             border: none;
@@ -104,23 +97,25 @@
             cursor: pointer;
             width: 100%;
             transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
         }
 
-        .btn:active { transform: scale(0.95); }
+        .btn:active { 
+            transform: scale(0.95); 
+        }
+
         .btn-primary { 
             background: linear-gradient(45deg, #ff6b35, #f7c948); 
             color: #0a0a1a;
-            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
         }
+
         .btn-secondary { 
             background: var(--bg-primary); 
             color: var(--text-primary); 
             border: 2px solid var(--border);
         }
 
-        input, select {
+        /* Inputs */
+        input {
             width: 100%;
             padding: 14px;
             border: 2px solid var(--border);
@@ -132,6 +127,48 @@
             margin-bottom: 12px;
         }
 
+        /* Selección de países */
+        .country-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .country-option {
+            padding: 15px 10px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+            background: var(--bg-primary);
+        }
+
+        .country-option:hover {
+            border-color: var(--gold);
+            transform: scale(1.05);
+        }
+
+        .country-option.selected {
+            border-color: var(--gold);
+            background: rgba(255, 215, 0, 0.1);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .country-flag {
+            font-size: 2rem;
+            display: block;
+        }
+
+        .country-name {
+            font-size: 0.7rem;
+            margin-top: 5px;
+        }
+
+        /* Header del juego */
         .game-header {
             display: flex;
             justify-content: space-between;
@@ -139,9 +176,9 @@
             padding: 15px 20px;
             background: linear-gradient(145deg, #16213e, #1a1a3e);
             border-bottom: 2px solid var(--border);
-            z-index: 10;
             position: sticky;
             top: 0;
+            z-index: 10;
         }
 
         .team-info {
@@ -170,7 +207,7 @@
             text-align: center;
         }
 
-        .match-indicator {
+        .match-phase {
             font-size: 1.2rem;
             color: var(--accent2);
             font-weight: bold;
@@ -181,12 +218,12 @@
             color: var(--text-secondary);
         }
 
+        /* Canvas del juego */
         .game-canvas-container {
             flex: 1;
             position: relative;
             overflow: hidden;
             cursor: crosshair;
-            background: linear-gradient(180deg, #0a4a24 0%, #0d5c2e 100%);
         }
 
         canvas {
@@ -197,97 +234,24 @@
             left: 0;
         }
 
-        .fixture-screen {
-            padding: 20px;
-            align-items: center;
+        /* Zona objetivo */
+        .target-zone {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border: 3px dashed var(--gold);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: zonePulse 0.8s ease-in-out infinite;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
         }
 
-        .fixture-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            width: 100%;
-            max-width: 1200px;
-            margin-top: 20px;
+        @keyframes zonePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
         }
 
-        .fixture-round {
-            background: linear-gradient(145deg, #16213e, #1a1a3e);
-            border: 2px solid var(--border);
-            border-radius: 15px;
-            padding: 20px;
-        }
-
-        .fixture-round-title {
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: var(--accent2);
-            text-align: center;
-            margin-bottom: 15px;
-        }
-
-        .fixture-match {
-            background: var(--bg-primary);
-            border-radius: 10px;
-            padding: 10px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.3s;
-        }
-
-        .fixture-match.active {
-            border: 2px solid var(--gold);
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
-        }
-
-        .fixture-match.played {
-            opacity: 0.7;
-        }
-
-        .fixture-team {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            flex: 1;
-        }
-
-        .fixture-team:last-child {
-            justify-content: flex-end;
-        }
-
-        .fixture-score {
-            font-weight: bold;
-            color: var(--gold);
-            margin: 0 10px;
-        }
-
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-        }
-        .modal.active { display: flex; }
-
-        .modal-content {
-            background: linear-gradient(145deg, #16213e, #1a1a3e);
-            border: 2px solid var(--gold);
-            padding: 40px;
-            border-radius: 25px;
-            text-align: center;
-            max-width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-
+        /* Animaciones */
         .goal-animation {
             position: fixed;
             top: 50%;
@@ -305,22 +269,34 @@
             100% { opacity: 0; transform: translate(-50%, -50%) scale(2); }
         }
 
-        .target-zone {
-            position: absolute;
-            width: 60px;
-            height: 60px;
-            border: 3px dashed var(--gold);
-            border-radius: 50%;
-            pointer-events: none;
-            animation: zonePulse 0.8s ease-in-out infinite;
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
         }
 
-        @keyframes zonePulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.2); opacity: 0.7; }
+        .modal.active { 
+            display: flex; 
         }
 
+        .modal-content {
+            background: linear-gradient(145deg, #16213e, #1a1a3e);
+            border: 2px solid var(--gold);
+            padding: 40px;
+            border-radius: 25px;
+            text-align: center;
+            max-width: 90%;
+        }
+
+        /* Leaderboard */
         .leaderboard {
             margin: 20px 0;
             text-align: left;
@@ -335,55 +311,37 @@
             border-radius: 8px;
         }
 
-        .leaderboard-entry.top1 { background: rgba(255, 215, 0, 0.2); border: 1px solid var(--gold); }
-        .leaderboard-entry.top2 { background: rgba(192, 192, 192, 0.2); border: 1px solid #c0c0c0; }
-        .leaderboard-entry.top3 { background: rgba(205, 127, 50, 0.2); border: 1px solid #cd7f32; }
-
-        .country-select {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-            gap: 10px;
-            margin: 15px 0;
+        .leaderboard-entry.top1 { 
+            background: rgba(255, 215, 0, 0.2); 
+            border: 1px solid var(--gold); 
         }
 
-        .country-option {
-            padding: 10px;
-            border: 2px solid var(--border);
-            border-radius: 10px;
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.3s;
-            background: var(--bg-primary);
+        .leaderboard-entry.top2 { 
+            background: rgba(192, 192, 192, 0.2); 
+            border: 1px solid #c0c0c0; 
         }
 
-        .country-option:hover {
-            border-color: var(--gold);
-            transform: scale(1.05);
-        }
-
-        .country-option.selected {
-            border-color: var(--gold);
-            background: rgba(255, 215, 0, 0.1);
-            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+        .leaderboard-entry.top3 { 
+            background: rgba(205, 127, 50, 0.2); 
+            border: 1px solid #cd7f32; 
         }
     </style>
 </head>
 <body>
-    <!-- Pantalla de Menú -->
+    <!-- Menú Principal -->
     <div class="screen menu-screen active" id="menuScreen">
-        <h1 class="game-title">🏆 Mundial de Penales 2026</h1>
-        <div class="world-cup-banner">🌍⚽🏆</div>
+        <h1 class="game-title">🏆 Mundial de Penales</h1>
         
         <div class="menu-options">
-            <div class="option-card">
-                <div class="option-title">🎮 Selecciona tu País</div>
+            <div class="card">
+                <div class="card-title">🎮 Selecciona tu Equipo</div>
                 <input type="text" id="playerName" placeholder="Tu nombre" maxlength="20">
-                <div class="country-select" id="countrySelect"></div>
-                <button class="btn btn-primary" onclick="startNewGame()">Comenzar Mundial</button>
+                <div class="country-grid" id="countryGrid"></div>
+                <button class="btn btn-primary" onclick="startGame()">Comenzar Mundial</button>
             </div>
             
-            <div class="option-card">
-                <div class="option-title">🏆 Leaderboard Global</div>
+            <div class="card">
+                <div class="card-title">🏆 Ranking Global</div>
                 <div id="leaderboardContainer">
                     <p style="text-align:center;color:var(--text-secondary);">Cargando...</p>
                 </div>
@@ -391,32 +349,25 @@
         </div>
     </div>
 
-    <!-- Pantalla de Fixture -->
-    <div class="screen fixture-screen" id="fixtureScreen">
-        <h2 style="text-align:center;color:var(--accent2);margin-bottom:20px;">📋 Fixture del Mundial</h2>
-        <button class="btn btn-secondary" onclick="showGameScreen()" style="margin-bottom:20px;">Continuar Juego</button>
-        <div class="fixture-container" id="fixtureContainer"></div>
-    </div>
-
     <!-- Pantalla de Juego -->
     <div class="screen" id="gameScreen">
         <div class="game-header">
             <div class="team-info">
                 <span class="team-flag" id="playerFlag">😊</span>
-                <span class="team-name" id="playerDisplayName">Jugador</span>
+                <span class="team-name" id="playerTeamName">Jugador</span>
                 <span class="team-score" id="playerScore">0</span>
             </div>
             <div class="match-info">
-                <div class="match-indicator" id="matchIndicator">Octavos de Final</div>
+                <div class="match-phase" id="matchPhase">Fase 1</div>
                 <div class="penalty-counter" id="penaltyCounter">Penal 1 de 5</div>
             </div>
             <div class="team-info">
                 <span class="team-flag" id="opponentFlag">🧤</span>
-                <span class="team-name" id="opponentName">Arquero IA</span>
+                <span class="team-name" id="opponentTeamName">Arquero</span>
                 <span class="team-score" id="opponentScore">0</span>
             </div>
         </div>
-        <div class="game-canvas-container" id="gameCanvasContainer">
+        <div class="game-canvas-container" id="canvasContainer">
             <canvas id="canvas"></canvas>
         </div>
     </div>
@@ -424,11 +375,9 @@
     <!-- Modal de Resultado -->
     <div class="modal" id="resultModal">
         <div class="modal-content">
-            <h2 id="resultTitle" style="margin-bottom:15px;font-size:2rem;"></h2>
-            <div id="resultDetails" style="margin-bottom:25px;font-size:1.2rem;"></div>
-            <div id="statsDetails" style="margin-bottom:20px;font-size:1rem;color:var(--accent2);"></div>
+            <h2 id="resultTitle" style="font-size:2rem;margin-bottom:15px;"></h2>
+            <p id="resultDetails" style="font-size:1.2rem;margin-bottom:20px;"></p>
             <button class="btn btn-primary" onclick="location.reload()">Jugar de Nuevo</button>
-            <button class="btn btn-secondary" onclick="showFixture()" style="margin-top:10px;">Ver Fixture</button>
         </div>
     </div>
 
@@ -436,6 +385,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     
     <script>
+        // ==================== CONFIGURACIÓN DE FIREBASE ====================
         const firebaseConfig = {
             apiKey: "AIzaSyC2z25XXN_rRSCjeDLK8nGIkq7pm5pt0ps",
             authDomain: "prueba-be093.firebaseapp.com",
@@ -447,624 +397,504 @@
         };
         
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-        
-        // Países del mundial
-        const COUNTRIES = [
-            { name: 'Argentina', flag: '🇦🇷', group: 'A' },
-            { name: 'Francia', flag: '🇫🇷', group: 'A' },
-            { name: 'Brasil', flag: '🇧🇷', group: 'B' },
-            { name: 'Inglaterra', flag: '🏴', group: 'B' },
-            { name: 'España', flag: '🇪🇸', group: 'C' },
-            { name: 'Alemania', flag: '🇩🇪', group: 'C' },
-            { name: 'Portugal', flag: '🇵🇹', group: 'D' },
-            { name: 'Holanda', flag: '🇳🇱', group: 'D' },
-            { name: 'Italia', flag: '🇮🇹', group: 'E' },
-            { name: 'Bélgica', flag: '🇧🇪', group: 'E' },
-            { name: 'Uruguay', flag: '🇺🇾', group: 'F' },
-            { name: 'Croacia', flag: '🇭🇷', group: 'F' },
-            { name: 'México', flag: '🇲🇽', group: 'G' },
-            { name: 'Estados Unidos', flag: '🇺🇸', group: 'G' },
-            { name: 'Japón', flag: '🇯🇵', group: 'H' },
-            { name: 'Corea del Sur', flag: '🇰🇷', group: 'H' },
-            { name: 'Colombia', flag: '🇨🇴', group: 'A' },
-            { name: 'Senegal', flag: '🇸🇳', group: 'B' },
-            { name: 'Marruecos', flag: '🇲🇦', group: 'C' },
-            { name: 'Suiza', flag: '🇨🇭', group: 'D' },
-            { name: 'Dinamarca', flag: '🇩🇰', group: 'E' },
-            { name: 'Serbia', flag: '🇷🇸', group: 'F' },
-            { name: 'Canadá', flag: '🇨🇦', group: 'G' },
-            { name: 'Australia', flag: '🇦🇺', group: 'H' },
-            { name: 'Ecuador', flag: '🇪🇨', group: 'A' },
-            { name: 'Ghana', flag: '🇬🇭', group: 'B' },
-            { name: 'Camerún', flag: '🇨🇲', group: 'C' },
-            { name: 'Polonia', flag: '🇵🇱', group: 'D' },
-            { name: 'Austria', flag: '🇦🇹', group: 'E' },
-            { name: 'Nigeria', flag: '🇳🇬', group: 'F' },
-            { name: 'Costa Rica', flag: '🇨🇷', group: 'G' },
-            { name: 'Arabia Saudita', flag: '🇸🇦', group: 'H' }
+        const database = firebase.database();
+
+        // ==================== DATOS DE PAÍSES ====================
+        const countries = [
+            { name: 'Argentina', flag: '🇦🇷' },
+            { name: 'Francia', flag: '🇫🇷' },
+            { name: 'Brasil', flag: '🇧🇷' },
+            { name: 'Inglaterra', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿' },
+            { name: 'España', flag: '🇪🇸' },
+            { name: 'Alemania', flag: '🇩🇪' },
+            { name: 'Portugal', flag: '🇵🇹' },
+            { name: 'Holanda', flag: '🇳🇱' },
+            { name: 'Italia', flag: '🇮🇹' },
+            { name: 'Bélgica', flag: '🇧🇪' },
+            { name: 'Uruguay', flag: '🇺🇾' },
+            { name: 'Croacia', flag: '🇭🇷' },
+            { name: 'México', flag: '🇲🇽' },
+            { name: 'Estados Unidos', flag: '🇺🇸' },
+            { name: 'Japón', flag: '🇯🇵' },
+            { name: 'Corea del Sur', flag: '🇰🇷' },
+            { name: 'Colombia', flag: '🇨🇴' },
+            { name: 'Senegal', flag: '🇸🇳' },
+            { name: 'Marruecos', flag: '🇲🇦' },
+            { name: 'Suiza', flag: '🇨🇭' },
+            { name: 'Dinamarca', flag: '🇩🇰' },
+            { name: 'Serbia', flag: '🇷🇸' },
+            { name: 'Canadá', flag: '🇨🇦' },
+            { name: 'Australia', flag: '🇦🇺' },
+            { name: 'Ecuador', flag: '🇪🇨' },
+            { name: 'Ghana', flag: '🇬🇭' },
+            { name: 'Camerún', flag: '🇨🇲' },
+            { name: 'Polonia', flag: '🇵🇱' },
+            { name: 'Austria', flag: '🇦🇹' },
+            { name: 'Nigeria', flag: '🇳🇬' },
+            { name: 'Costa Rica', flag: '🇨🇷' },
+            { name: 'Arabia Saudita', flag: '🇸🇦' }
         ];
-        
-        // Constantes del juego
-        const GOAL_H = 200;
-        const GOALKEEPER_RADIUS = 30;
-        const GOALKEEPER_SPEED = 12;
-        const PENALTIES_PER_MATCH = 5;
-        
-        // Zonas de tiro
-        const TARGET_ZONES = [
-            { x: 0.15, y: 0.2, name: 'Ángulo superior izquierdo' },
-            { x: 0.85, y: 0.2, name: 'Ángulo superior derecho' },
-            { x: 0.15, y: 0.8, name: 'Ángulo inferior izquierdo' },
-            { x: 0.85, y: 0.8, name: 'Ángulo inferior derecho' },
-            { x: 0.5, y: 0.5, name: 'Centro del arco' }
-        ];
-        
-        // Fases del mundial
-        const WORLD_CUP_PHASES = [
-            { name: 'Dieciseisavos de Final', matches: 16 },
-            { name: 'Octavos de Final', matches: 8 },
-            { name: 'Cuartos de Final', matches: 4 },
-            { name: 'Semifinal', matches: 2 },
-            { name: 'Final', matches: 1 }
-        ];
-        
-        // Variables de estado
-        let canvas, ctx, W, H;
-        let gameActive = false;
-        let currentPhaseIndex = 0;
-        let penaltyNumber = 0;
-        let playerName = '';
-        let playerCountry = null;
-        let playerGoals = 0;
-        let opponentGoals = 0;
-        let totalGoals = 0;
-        let totalShots = 0;
-        let currentTargetZone = null;
-        let fixtureData = [];
-        
-        // Objetos del juego
-        const goalkeeper = { x: 0, y: 0, direction: 1, speed: GOALKEEPER_SPEED };
-        let shotInProgress = false;
-        
-        // Sistema de audio
-        const AudioSystem = {
+
+        // ==================== CONFIGURACIÓN DEL JUEGO ====================
+        const gameConfig = {
+            goalHeight: 200,
+            goalkeeperRadius: 30,
+            goalkeeperSpeed: 12,
+            penaltiesPerMatch: 5,
+            zones: [
+                { x: 0.15, y: 0.2, name: 'Ángulo superior izquierdo' },
+                { x: 0.85, y: 0.2, name: 'Ángulo superior derecho' },
+                { x: 0.15, y: 0.8, name: 'Ángulo inferior izquierdo' },
+                { x: 0.85, y: 0.8, name: 'Ángulo inferior derecho' },
+                { x: 0.5, y: 0.5, name: 'Centro del arco' }
+            ],
+            phases: [
+                'Dieciseisavos de Final',
+                'Octavos de Final',
+                'Cuartos de Final',
+                'Semifinal',
+                'Final'
+            ]
+        };
+
+        // ==================== ESTADO DEL JUEGO ====================
+        const gameState = {
+            canvas: null,
             context: null,
+            width: 0,
+            height: 0,
+            active: false,
+            player: {
+                name: '',
+                country: null,
+                score: 0,
+                totalGoals: 0,
+                totalShots: 0
+            },
+            opponent: {
+                score: 0
+            },
+            goalkeeper: {
+                x: 0,
+                y: 0,
+                direction: 1,
+                speed: gameConfig.goalkeeperSpeed
+            },
+            phaseIndex: 0,
+            penaltyNumber: 0,
+            targetZone: null,
+            shotInProgress: false
+        };
+
+        // ==================== SISTEMA DE AUDIO ====================
+        const audioSystem = {
+            context: null,
+            
             init() {
                 if (!this.context) {
                     this.context = new (window.AudioContext || window.webkitAudioContext)();
                 }
             },
+            
+            playTone(frequency, duration, type = 'sine', volume = 0.3) {
+                this.init();
+                const oscillator = this.context.createOscillator();
+                const gain = this.context.createGain();
+                
+                oscillator.connect(gain);
+                gain.connect(this.context.destination);
+                
+                oscillator.frequency.value = frequency;
+                oscillator.type = type;
+                
+                gain.gain.setValueAtTime(volume, this.context.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.context.currentTime + duration);
+                
+                oscillator.start();
+                oscillator.stop(this.context.currentTime + duration);
+            },
+            
             playGoal() {
-                this.init();
-                const notes = [523, 659, 784, 1047];
-                notes.forEach((freq, i) => {
-                    const osc = this.context.createOscillator();
-                    const gain = this.context.createGain();
-                    osc.connect(gain);
-                    gain.connect(this.context.destination);
-                    osc.frequency.value = freq;
-                    osc.type = 'sine';
-                    gain.gain.setValueAtTime(0.3, this.context.currentTime + i * 0.1);
-                    gain.gain.exponentialRampToValueAtTime(0.01, this.context.currentTime + i * 0.1 + 0.3);
-                    osc.start(this.context.currentTime + i * 0.1);
-                    osc.stop(this.context.currentTime + i * 0.1 + 0.3);
+                [523, 659, 784, 1047].forEach((freq, i) => {
+                    setTimeout(() => this.playTone(freq, 0.3), i * 100);
                 });
             },
+            
             playSave() {
-                this.init();
-                const osc = this.context.createOscillator();
-                const gain = this.context.createGain();
-                osc.connect(gain);
-                gain.connect(this.context.destination);
-                osc.frequency.setValueAtTime(300, this.context.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(100, this.context.currentTime + 0.3);
-                osc.type = 'square';
-                gain.gain.setValueAtTime(0.3, this.context.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.context.currentTime + 0.3);
-                osc.start();
-                osc.stop(this.context.currentTime + 0.3);
+                this.playTone(300, 0.3, 'square');
             },
+            
             playVictory() {
-                this.init();
-                const notes = [523, 523, 523, 659, 784, 1047];
-                notes.forEach((freq, i) => {
-                    const osc = this.context.createOscillator();
-                    const gain = this.context.createGain();
-                    osc.connect(gain);
-                    gain.connect(this.context.destination);
-                    osc.frequency.value = freq;
-                    osc.type = 'triangle';
-                    gain.gain.setValueAtTime(0.25, this.context.currentTime + i * 0.15);
-                    gain.gain.exponentialRampToValueAtTime(0.01, this.context.currentTime + i * 0.15 + 0.4);
-                    osc.start(this.context.currentTime + i * 0.15);
-                    osc.stop(this.context.currentTime + i * 0.15 + 0.4);
+                [523, 523, 523, 659, 784, 1047].forEach((freq, i) => {
+                    setTimeout(() => this.playTone(freq, 0.4, 'triangle', 0.25), i * 150);
                 });
             },
-            playWhistle() {
-                this.init();
-                const osc = this.context.createOscillator();
-                const gain = this.context.createGain();
-                osc.connect(gain);
-                gain.connect(this.context.destination);
-                osc.frequency.value = 2000;
-                osc.type = 'sine';
-                gain.gain.setValueAtTime(0.2, this.context.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.context.currentTime + 0.5);
-                osc.start();
-                osc.stop(this.context.currentTime + 0.5);
-            },
+            
             playElimination() {
-                this.init();
-                const notes = [400, 300, 200, 100];
-                notes.forEach((freq, i) => {
-                    const osc = this.context.createOscillator();
-                    const gain = this.context.createGain();
-                    osc.connect(gain);
-                    gain.connect(this.context.destination);
-                    osc.frequency.value = freq;
-                    osc.type = 'sawtooth';
-                    gain.gain.setValueAtTime(0.2, this.context.currentTime + i * 0.2);
-                    gain.gain.exponentialRampToValueAtTime(0.01, this.context.currentTime + i * 0.2 + 0.4);
-                    osc.start(this.context.currentTime + i * 0.2);
-                    osc.stop(this.context.currentTime + i * 0.2 + 0.4);
+                [400, 300, 200, 100].forEach((freq, i) => {
+                    setTimeout(() => this.playTone(freq, 0.4, 'sawtooth', 0.2), i * 200);
                 });
+            },
+            
+            playWhistle() {
+                this.playTone(2000, 0.5);
             }
         };
-        
-        // Inicializar selección de países
-        function initializeCountrySelect() {
-            const container = document.getElementById('countrySelect');
-            COUNTRIES.forEach(country => {
-                const div = document.createElement('div');
-                div.className = 'country-option';
-                div.innerHTML = `${country.flag}<br><small>${country.name}</small>`;
-                div.onclick = () => selectCountry(country, div);
-                container.appendChild(div);
+
+        // ==================== FUNCIONES DE INTERFAZ ====================
+        function initializeCountryGrid() {
+            const grid = document.getElementById('countryGrid');
+            
+            countries.forEach(country => {
+                const option = document.createElement('div');
+                option.className = 'country-option';
+                option.innerHTML = `
+                    <span class="country-flag">${country.flag}</span>
+                    <span class="country-name">${country.name}</span>
+                `;
+                option.onclick = () => selectCountry(country, option);
+                grid.appendChild(option);
             });
         }
-        
+
         function selectCountry(country, element) {
-            playerCountry = country;
-            document.querySelectorAll('.country-option').forEach(el => el.classList.remove('selected'));
+            gameState.player.country = country;
+            
+            // Actualizar selección visual
+            document.querySelectorAll('.country-option').forEach(el => {
+                el.classList.remove('selected');
+            });
             element.classList.add('selected');
         }
-        
-        // Generar fixture
-        function generateFixture() {
-            fixtureData = [];
-            const shuffledCountries = [...COUNTRIES].sort(() => Math.random() - 0.5);
-            
-            WORLD_CUP_PHASES.forEach((phase, phaseIndex) => {
-                const matches = [];
-                const teamsForPhase = phaseIndex === 0 ? shuffledCountries : [];
-                
-                for (let i = 0; i < phase.matches; i++) {
-                    if (phaseIndex === 0) {
-                        matches.push({
-                            team1: teamsForPhase[i * 2],
-                            team2: teamsForPhase[i * 2 + 1],
-                            score1: null,
-                            score2: null
-                        });
-                    } else {
-                        matches.push({
-                            team1: null,
-                            team2: null,
-                            score1: null,
-                            score2: null
-                        });
-                    }
-                }
-                
-                fixtureData.push({
-                    phase: phase,
-                    matches: matches
-                });
-            });
-        }
-        
-        function showFixture() {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById('fixtureScreen').classList.add('active');
-            renderFixture();
-        }
-        
-        function showGameScreen() {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById('gameScreen').classList.add('active');
-        }
-        
-        function renderFixture() {
-            const container = document.getElementById('fixtureContainer');
-            container.innerHTML = '';
-            
-            fixtureData.forEach((round, roundIndex) => {
-                const roundDiv = document.createElement('div');
-                roundDiv.className = 'fixture-round';
-                roundDiv.innerHTML = `<div class="fixture-round-title">${round.phase.name}</div>`;
-                
-                round.matches.forEach((match, matchIndex) => {
-                    const matchDiv = document.createElement('div');
-                    matchDiv.className = 'fixture-match';
-                    
-                    if (roundIndex === currentPhaseIndex && matchIndex === penaltyNumber) {
-                        matchDiv.classList.add('active');
-                    }
-                    
-                    if (match.score1 !== null) {
-                        matchDiv.classList.add('played');
-                    }
-                    
-                    const team1Name = match.team1 ? match.team1.name : 'Por definir';
-                    const team2Name = match.team2 ? match.team2.name : 'Por definir';
-                    const team1Flag = match.team1 ? match.team1.flag : '❓';
-                    const team2Flag = match.team2 ? match.team2.flag : '❓';
-                    
-                    matchDiv.innerHTML = `
-                        <div class="fixture-team">
-                            <span>${team1Flag}</span>
-                            <span>${team1Name}</span>
-                        </div>
-                        <div class="fixture-score">
-                            ${match.score1 !== null ? `${match.score1} - ${match.score2}` : 'vs'}
-                        </div>
-                        <div class="fixture-team">
-                            <span>${team2Name}</span>
-                            <span>${team2Flag}</span>
-                        </div>
-                    `;
-                    
-                    roundDiv.appendChild(matchDiv);
-                });
-                
-                container.appendChild(roundDiv);
-            });
-        }
-        
-        // Cargar leaderboard
+
         function loadLeaderboard() {
-            const leaderboardRef = db.ref('leaderboard');
-            leaderboardRef.orderByChild('score').limitToLast(10).on('value', snap => {
+            const leaderboardRef = database.ref('leaderboard');
+            
+            leaderboardRef.orderByChild('score').limitToLast(10).on('value', snapshot => {
                 const container = document.getElementById('leaderboardContainer');
                 container.innerHTML = '';
                 
-                if (!snap.exists()) {
-                    container.innerHTML = '<p style="text-align:center;color:var(--text-secondary);">No hay jugadores todavía</p>';
+                if (!snapshot.exists()) {
+                    container.innerHTML = '<p style="text-align:center;">No hay jugadores todavía</p>';
                     return;
                 }
                 
-                const leaderboard = [];
-                snap.forEach(child => {
-                    leaderboard.push({
-                        name: child.val().name,
-                        score: child.val().score,
-                        goals: child.val().goals,
-                        shots: child.val().shots,
-                        phase: child.val().phase,
-                        country: child.val().country
-                    });
+                const players = [];
+                snapshot.forEach(child => {
+                    players.push(child.val());
                 });
                 
-                leaderboard.reverse();
-                
-                leaderboard.forEach((entry, index) => {
-                    const div = document.createElement('div');
-                    div.className = 'leaderboard-entry';
-                    if (index === 0) div.classList.add('top1');
-                    if (index === 1) div.classList.add('top2');
-                    if (index === 2) div.classList.add('top3');
+                players.reverse().forEach((player, index) => {
+                    const entry = document.createElement('div');
+                    entry.className = 'leaderboard-entry';
+                    
+                    if (index === 0) entry.classList.add('top1');
+                    if (index === 1) entry.classList.add('top2');
+                    if (index === 2) entry.classList.add('top3');
                     
                     const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
-                    const flag = entry.country ? entry.country.flag : '🏳️';
-                    div.innerHTML = `
-                        <span>${medal} ${flag} ${entry.name}</span>
-                        <span>${entry.score} pts</span>
+                    const flag = player.country ? player.country.flag : '🏳️';
+                    
+                    entry.innerHTML = `
+                        <span>${medal} ${flag} ${player.name}</span>
+                        <span>${player.score} pts</span>
                     `;
-                    container.appendChild(div);
+                    
+                    container.appendChild(entry);
                 });
             });
         }
-        
-        // Guardar estadísticas
-        function saveStats() {
-            if (!playerName) return;
+
+        function savePlayerStats() {
+            if (!gameState.player.name || !gameState.player.country) return;
             
-            const score = (totalGoals * 15) + (currentPhaseIndex * 50);
-            const playerRef = db.ref('leaderboard/' + playerName.replace(/[.#$\[\]]/g, '_'));
+            const score = (gameState.player.totalGoals * 15) + (gameState.phaseIndex * 50);
+            const safeName = gameState.player.name.replace(/[.#$\[\]]/g, '_');
+            const playerRef = database.ref('leaderboard/' + safeName);
             
-            playerRef.once('value', snap => {
-                if (snap.exists()) {
-                    const data = snap.val();
+            playerRef.once('value', snapshot => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
                     playerRef.update({
                         score: data.score + score,
-                        goals: data.goals + totalGoals,
-                        shots: data.shots + totalShots,
+                        goals: data.goals + gameState.player.totalGoals,
+                        shots: data.shots + gameState.player.totalShots,
                         gamesPlayed: (data.gamesPlayed || 0) + 1,
-                        bestPhase: Math.max(data.bestPhase || 0, currentPhaseIndex),
-                        country: playerCountry
+                        country: gameState.player.country,
+                        bestPhase: Math.max(data.bestPhase || 0, gameState.phaseIndex)
                     });
                 } else {
                     playerRef.set({
-                        name: playerName,
+                        name: gameState.player.name,
                         score: score,
-                        goals: totalGoals,
-                        shots: totalShots,
+                        goals: gameState.player.totalGoals,
+                        shots: gameState.player.totalShots,
                         gamesPlayed: 1,
-                        bestPhase: currentPhaseIndex,
-                        phase: WORLD_CUP_PHASES[currentPhaseIndex]?.name || 'Eliminado',
-                        country: playerCountry
+                        country: gameState.player.country,
+                        bestPhase: gameState.phaseIndex
                     });
                 }
             });
         }
-        
-        function startNewGame() {
-            playerName = document.getElementById('playerName').value || 'Jugador Anónimo';
+
+        // ==================== FUNCIONES DEL JUEGO ====================
+        function startGame() {
+            gameState.player.name = document.getElementById('playerName').value || 'Jugador Anónimo';
             
-            if (!playerCountry) {
+            if (!gameState.player.country) {
                 alert('Por favor selecciona un país');
                 return;
             }
             
-            document.getElementById('playerDisplayName').textContent = playerCountry.name;
-            document.getElementById('playerFlag').textContent = playerCountry.flag;
+            // Configurar pantalla
+            document.getElementById('playerFlag').textContent = gameState.player.country.flag;
+            document.getElementById('playerTeamName').textContent = gameState.player.country.name;
             
-            // Resetear estadísticas
-            playerGoals = 0;
-            opponentGoals = 0;
-            totalGoals = 0;
-            totalShots = 0;
-            currentPhaseIndex = 0;
-            penaltyNumber = 0;
-            shotInProgress = false;
-            
-            // Generar fixture
-            generateFixture();
+            // Resetear estado
+            gameState.player.score = 0;
+            gameState.player.totalGoals = 0;
+            gameState.player.totalShots = 0;
+            gameState.opponent.score = 0;
+            gameState.phaseIndex = 0;
+            gameState.penaltyNumber = 0;
+            gameState.shotInProgress = false;
             
             // Cambiar pantalla
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById('gameScreen').classList.add('active');
             
             // Inicializar canvas
-            canvas = document.getElementById('canvas');
-            ctx = canvas.getContext('2d');
-            resizeCanvas();
-            
-            // Posición inicial del arquero
-            goalkeeper.x = W / 2;
-            goalkeeper.y = GOAL_H / 2;
-            goalkeeper.direction = 1;
-            goalkeeper.speed = GOALKEEPER_SPEED;
-            
-            updateMatchDisplay();
+            initializeCanvas();
+            initializeGoalkeeper();
+            updateInterface();
             selectRandomTargetZone();
-            gameActive = true;
             
-            AudioSystem.playWhistle();
+            gameState.active = true;
+            audioSystem.playWhistle();
             gameLoop();
         }
-        
-        function updateMatchDisplay() {
-            const phase = WORLD_CUP_PHASES[currentPhaseIndex];
-            document.getElementById('matchIndicator').textContent = phase.name;
-            document.getElementById('penaltyCounter').textContent = `Penal ${penaltyNumber + 1} de ${PENALTIES_PER_MATCH}`;
-            document.getElementById('playerScore').textContent = playerGoals;
-            document.getElementById('opponentScore').textContent = opponentGoals;
-            
-            // Actualizar oponente
-            if (fixtureData[currentPhaseIndex]) {
-                const currentMatch = fixtureData[currentPhaseIndex].matches[0];
-                if (currentMatch && currentMatch.team2) {
-                    document.getElementById('opponentName').textContent = currentMatch.team2.name;
-                    document.getElementById('opponentFlag').textContent = currentMatch.team2.flag;
-                } else {
-                    document.getElementById('opponentName').textContent = 'Arquero IA';
-                    document.getElementById('opponentFlag').textContent = '🧤';
-                }
-            }
+
+        function initializeCanvas() {
+            gameState.canvas = document.getElementById('canvas');
+            gameState.context = gameState.canvas.getContext('2d');
+            resizeCanvas();
         }
-        
+
+        function initializeGoalkeeper() {
+            gameState.goalkeeper.x = gameState.width / 2;
+            gameState.goalkeeper.y = gameConfig.goalHeight / 2;
+            gameState.goalkeeper.direction = 1;
+            gameState.goalkeeper.speed = gameConfig.goalkeeperSpeed;
+        }
+
+        function updateInterface() {
+            document.getElementById('matchPhase').textContent = gameConfig.phases[gameState.phaseIndex];
+            document.getElementById('penaltyCounter').textContent = `Penal ${gameState.penaltyNumber + 1} de ${gameConfig.penaltiesPerMatch}`;
+            document.getElementById('playerScore').textContent = gameState.player.score;
+            document.getElementById('opponentScore').textContent = gameState.opponent.score;
+            
+            // Seleccionar oponente aleatorio
+            const opponent = getRandomOpponent();
+            document.getElementById('opponentFlag').textContent = opponent.flag;
+            document.getElementById('opponentTeamName').textContent = opponent.name;
+        }
+
+        function getRandomOpponent() {
+            const availableCountries = countries.filter(c => c.name !== gameState.player.country.name);
+            return availableCountries[Math.floor(Math.random() * availableCountries.length)];
+        }
+
         function selectRandomTargetZone() {
-            const zone = TARGET_ZONES[Math.floor(Math.random() * TARGET_ZONES.length)];
-            currentTargetZone = {
-                x: W * zone.x,
-                y: GOAL_H * zone.y,
+            const zone = gameConfig.zones[Math.floor(Math.random() * gameConfig.zones.length)];
+            gameState.targetZone = {
+                x: gameState.width * zone.x,
+                y: gameConfig.goalHeight * zone.y,
                 name: zone.name
             };
             
             showTargetZone();
         }
-        
+
         function showTargetZone() {
+            // Eliminar zona anterior
             const oldZone = document.querySelector('.target-zone');
             if (oldZone) oldZone.remove();
             
-            const container = document.getElementById('gameCanvasContainer');
+            // Crear nueva zona
+            const container = document.getElementById('canvasContainer');
             const zone = document.createElement('div');
             zone.className = 'target-zone';
-            zone.style.left = currentTargetZone.x - 30 + 'px';
-            zone.style.top = currentTargetZone.y - 30 + 'px';
+            zone.style.left = gameState.targetZone.x - 30 + 'px';
+            zone.style.top = gameState.targetZone.y - 30 + 'px';
             container.appendChild(zone);
         }
-        
-        function shootPenalty(targetX, targetY) {
-            if (shotInProgress || !gameActive || !currentTargetZone) return;
+
+        function shootPenalty(clickX, clickY) {
+            if (gameState.shotInProgress || !gameState.active || !gameState.targetZone) return;
             
-            shotInProgress = true;
-            totalShots++;
+            gameState.shotInProgress = true;
+            gameState.player.totalShots++;
             
-            const dx = targetX - currentTargetZone.x;
-            const dy = targetY - currentTargetZone.y;
-            const distToTarget = Math.sqrt(dx*dx + dy*dy);
+            // Calcular distancias
+            const distanceToTarget = getDistance(clickX, clickY, gameState.targetZone.x, gameState.targetZone.y);
+            const distanceToGoalkeeper = getDistance(clickX, clickY, gameState.goalkeeper.x, gameState.goalkeeper.y);
             
-            const goalieDx = targetX - goalkeeper.x;
-            const goalieDy = targetY - goalkeeper.y;
-            const distToGoalie = Math.sqrt(goalieDx*goalieDx + goalieDy*goalieDy);
-            
-            if (distToGoalie < GOALKEEPER_RADIUS + 15) {
-                // ¡Atajada!
-                setTimeout(() => {
-                    AudioSystem.playSave();
-                    showAnimation('🧤');
-                    opponentGoals++;
-                    document.getElementById('opponentScore').textContent = opponentGoals;
-                    
-                    penaltyNumber++;
-                    if (penaltyNumber >= PENALTIES_PER_MATCH) {
-                        evaluateMatchResult();
-                    } else {
-                        updateMatchDisplay();
-                        selectRandomTargetZone();
-                    }
-                    
-                    shotInProgress = false;
-                }, 500);
-            } else if (distToTarget < 50) {
-                // ¡GOL perfecto!
-                setTimeout(() => {
-                    AudioSystem.playGoal();
-                    showAnimation('⚽');
-                    playerGoals++;
-                    totalGoals++;
-                    document.getElementById('playerScore').textContent = playerGoals;
-                    
-                    penaltyNumber++;
-                    if (penaltyNumber >= PENALTIES_PER_MATCH) {
-                        evaluateMatchResult();
-                    } else {
-                        updateMatchDisplay();
-                        selectRandomTargetZone();
-                    }
-                    
-                    shotInProgress = false;
-                }, 500);
+            // Determinar resultado
+            let result;
+            if (distanceToGoalkeeper < gameConfig.goalkeeperRadius + 15) {
+                result = 'save';
+            } else if (distanceToTarget < 50) {
+                result = 'goal';
             } else {
-                // Tiro desviado
-                setTimeout(() => {
-                    showAnimation('❌');
-                    
-                    penaltyNumber++;
-                    if (penaltyNumber >= PENALTIES_PER_MATCH) {
-                        evaluateMatchResult();
-                    } else {
-                        updateMatchDisplay();
-                        selectRandomTargetZone();
-                    }
-                    
-                    shotInProgress = false;
-                }, 500);
+                result = 'miss';
             }
             
+            // Procesar resultado
+            setTimeout(() => {
+                processShotResult(result);
+                gameState.shotInProgress = false;
+            }, 500);
+            
+            // Limpiar zona objetivo
             const oldZone = document.querySelector('.target-zone');
             if (oldZone) oldZone.remove();
         }
-        
+
+        function getDistance(x1, y1, x2, y2) {
+            const dx = x1 - x2;
+            const dy = y1 - y2;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        function processShotResult(result) {
+            if (result === 'goal') {
+                audioSystem.playGoal();
+                showAnimation('⚽');
+                gameState.player.score++;
+                gameState.player.totalGoals++;
+            } else if (result === 'save') {
+                audioSystem.playSave();
+                showAnimation('🧤');
+                gameState.opponent.score++;
+            } else {
+                showAnimation('❌');
+            }
+            
+            updateInterface();
+            gameState.penaltyNumber++;
+            
+            if (gameState.penaltyNumber >= gameConfig.penaltiesPerMatch) {
+                evaluateMatchResult();
+            } else {
+                selectRandomTargetZone();
+            }
+        }
+
         function evaluateMatchResult() {
-            if (playerGoals > opponentGoals) {
-                // Ganaste el partido
-                if (fixtureData[currentPhaseIndex]) {
-                    const match = fixtureData[currentPhaseIndex].matches[0];
-                    match.score1 = playerGoals;
-                    match.score2 = opponentGoals;
-                    match.team1 = playerCountry;
-                }
+            if (gameState.player.score > gameState.opponent.score) {
+                // Ganó el partido
+                gameState.phaseIndex++;
                 
-                currentPhaseIndex++;
-                
-                if (currentPhaseIndex >= WORLD_CUP_PHASES.length) {
+                if (gameState.phaseIndex >= gameConfig.phases.length) {
                     endGame(true);
                 } else {
-                    playerGoals = 0;
-                    opponentGoals = 0;
-                    penaltyNumber = 0;
+                    // Avanzar a siguiente fase
+                    gameState.player.score = 0;
+                    gameState.opponent.score = 0;
+                    gameState.penaltyNumber = 0;
+                    gameState.goalkeeper.speed += 2;
                     
-                    goalkeeper.speed += 2;
-                    
-                    AudioSystem.playVictory();
+                    audioSystem.playVictory();
                     showAnimation('🏆');
                     
                     setTimeout(() => {
-                        updateMatchDisplay();
+                        updateInterface();
                         selectRandomTargetZone();
                     }, 1000);
                 }
             } else {
+                // Perdió el partido
                 endGame(false);
             }
         }
-        
+
         function endGame(won) {
-            gameActive = false;
+            gameState.active = false;
             
             if (won) {
-                AudioSystem.playVictory();
+                audioSystem.playVictory();
                 showAnimation('🏆👑');
             } else {
-                AudioSystem.playElimination();
+                audioSystem.playElimination();
             }
             
-            saveStats();
+            savePlayerStats();
             
-            const accuracy = totalShots > 0 ? Math.round((totalGoals / totalShots) * 100) : 0;
+            const accuracy = gameState.player.totalShots > 0 
+                ? Math.round((gameState.player.totalGoals / gameState.player.totalShots) * 100) 
+                : 0;
+            
+            const modal = document.getElementById('resultModal');
+            const title = document.getElementById('resultTitle');
+            const details = document.getElementById('resultDetails');
             
             if (won) {
-                document.getElementById('resultTitle').textContent = '🏆 ¡CAMPEÓN DEL MUNDO!';
-                document.getElementById('resultDetails').innerHTML = 
-                    `${playerCountry.flag} ${playerCountry.name} ha ganado el mundial!<br>` +
-                    `Goles: ${totalGoals} | Efectividad: ${accuracy}%`;
+                title.textContent = '🏆 ¡CAMPEÓN DEL MUNDO!';
+                details.textContent = `${gameState.player.country.flag} ${gameState.player.country.name} ha ganado el mundial!`;
             } else {
-                document.getElementById('resultTitle').textContent = '😢 ELIMINADO';
-                document.getElementById('resultDetails').innerHTML = 
-                    `${playerCountry.flag} ${playerCountry.name} eliminado en ${WORLD_CUP_PHASES[currentPhaseIndex].name}<br>` +
-                    `Marcador: ${playerGoals} - ${opponentGoals}<br>` +
-                    `Goles totales: ${totalGoals} | Efectividad: ${accuracy}%`;
+                title.textContent = '😢 ELIMINADO';
+                details.textContent = `Eliminado en ${gameConfig.phases[gameState.phaseIndex]}. Goles: ${gameState.player.totalGoals} (${accuracy}% efectividad)`;
             }
             
-            document.getElementById('statsDetails').textContent = 
-                `Puntuación: ${(totalGoals * 15) + (currentPhaseIndex * 50)} puntos`;
-            
-            document.getElementById('resultModal').classList.add('active');
+            modal.classList.add('active');
         }
-        
+
         function showAnimation(emoji) {
-            const anim = document.createElement('div');
-            anim.className = 'goal-animation';
-            anim.textContent = emoji;
-            document.body.appendChild(anim);
-            setTimeout(() => anim.remove(), 1500);
+            const animation = document.createElement('div');
+            animation.className = 'goal-animation';
+            animation.textContent = emoji;
+            document.body.appendChild(animation);
+            setTimeout(() => animation.remove(), 1500);
         }
-        
+
+        // ==================== BUCLE DEL JUEGO ====================
         function gameLoop() {
-            if (!gameActive) return;
+            if (!gameState.active) return;
             
-            // Mover arquero
-            goalkeeper.x += goalkeeper.direction * goalkeeper.speed;
-            
-            // Rebotar en los límites del arco
-            if (goalkeeper.x <= W * 0.2 + GOALKEEPER_RADIUS) {
-                goalkeeper.x = W * 0.2 + GOALKEEPER_RADIUS;
-                goalkeeper.direction = 1;
-            } else if (goalkeeper.x >= W * 0.8 - GOALKEEPER_RADIUS) {
-                goalkeeper.x = W * 0.8 - GOALKEEPER_RADIUS;
-                goalkeeper.direction = -1;
-            }
-            
+            updateGoalkeeper();
             render();
             requestAnimationFrame(gameLoop);
         }
-        
+
+        function updateGoalkeeper() {
+            gameState.goalkeeper.x += gameState.goalkeeper.direction * gameState.goalkeeper.speed;
+            
+            const minX = gameState.width * 0.2 + gameConfig.goalkeeperRadius;
+            const maxX = gameState.width * 0.8 - gameConfig.goalkeeperRadius;
+            
+            if (gameState.goalkeeper.x <= minX) {
+                gameState.goalkeeper.x = minX;
+                gameState.goalkeeper.direction = 1;
+            } else if (gameState.goalkeeper.x >= maxX) {
+                gameState.goalkeeper.x = maxX;
+                gameState.goalkeeper.direction = -1;
+            }
+        }
+
         function render() {
+            const ctx = gameState.context;
+            const { width: W, height: H } = gameState;
+            
             ctx.clearRect(0, 0, W, H);
             
             // Fondo del campo
-            const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
-            bgGrad.addColorStop(0, '#0a4a24');
-            bgGrad.addColorStop(1, '#0d5c2e');
-            ctx.fillStyle = bgGrad;
+            const fieldGradient = ctx.createLinearGradient(0, 0, 0, H);
+            fieldGradient.addColorStop(0, '#0a4a24');
+            fieldGradient.addColorStop(1, '#0d5c2e');
+            ctx.fillStyle = fieldGradient;
             ctx.fillRect(0, 0, W, H);
             
-            // Líneas del campo
+            // Línea central
             ctx.strokeStyle = 'rgba(255,255,255,0.3)';
             ctx.lineWidth = 2;
             ctx.setLineDash([10, 10]);
@@ -1074,64 +904,58 @@
             ctx.stroke();
             ctx.setLineDash([]);
             
-            // Círculo central
-            ctx.beginPath();
-            ctx.arc(W/2, H/2, 50, 0, Math.PI*2);
-            ctx.stroke();
-            
             // Área penal
             ctx.strokeStyle = 'rgba(255,255,255,0.5)';
             ctx.strokeRect(W*0.1, 0, W*0.8, H*0.35);
-            ctx.strokeRect(W*0.2, 0, W*0.6, H*0.15);
             
-            // Arco con mejor diseño
-            const goalGrad = ctx.createLinearGradient(0, 0, 0, GOAL_H);
-            goalGrad.addColorStop(0, '#f0f0f0');
-            goalGrad.addColorStop(1, '#d0d0d0');
-            ctx.fillStyle = goalGrad;
-            ctx.fillRect(W*0.2, 0, W*0.6, GOAL_H);
-            
-            // Marco del arco
-            ctx.strokeStyle = '#ffffff';
-            ctx.lineWidth = 4;
-            ctx.strokeRect(W*0.2, 0, W*0.6, GOAL_H);
+            // Arco
+            const goalGradient = ctx.createLinearGradient(0, 0, 0, gameConfig.goalHeight);
+            goalGradient.addColorStop(0, '#f0f0f0');
+            goalGradient.addColorStop(1, '#d0d0d0');
+            ctx.fillStyle = goalGradient;
+            ctx.fillRect(W*0.2, 0, W*0.6, gameConfig.goalHeight);
             
             // Red del arco
             ctx.strokeStyle = 'rgba(0,0,0,0.2)';
             ctx.lineWidth = 1;
             for (let i = 0; i < 10; i++) {
+                const x = W*0.2 + (W*0.6/9)*i;
+                const y = (gameConfig.goalHeight/9)*i;
+                
                 ctx.beginPath();
-                ctx.moveTo(W*0.2 + (W*0.6/9)*i, 0);
-                ctx.lineTo(W*0.2 + (W*0.6/9)*i, GOAL_H);
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, gameConfig.goalHeight);
                 ctx.stroke();
+                
                 ctx.beginPath();
-                ctx.moveTo(W*0.2, (GOAL_H/9)*i);
-                ctx.lineTo(W*0.8, (GOAL_H/9)*i);
+                ctx.moveTo(W*0.2, y);
+                ctx.lineTo(W*0.8, y);
                 ctx.stroke();
             }
             
-            // Arquero con mejor diseño
-            const goalieGrad = ctx.createRadialGradient(
-                goalkeeper.x - 10, goalkeeper.y - 10, 0,
-                goalkeeper.x, goalkeeper.y, GOALKEEPER_RADIUS
+            // Arquero
+            const goalkeeperGradient = ctx.createRadialGradient(
+                gameState.goalkeeper.x - 10, 
+                gameState.goalkeeper.y - 10, 
+                0,
+                gameState.goalkeeper.x, 
+                gameState.goalkeeper.y, 
+                gameConfig.goalkeeperRadius
             );
-            goalieGrad.addColorStop(0, '#ffd700');
-            goalieGrad.addColorStop(1, '#ff6b00');
-            ctx.fillStyle = goalieGrad;
+            goalkeeperGradient.addColorStop(0, '#ffd700');
+            goalkeeperGradient.addColorStop(1, '#ff6b00');
+            
+            ctx.fillStyle = goalkeeperGradient;
             ctx.shadowColor = '#ffd700';
             ctx.shadowBlur = 30;
             ctx.beginPath();
-            ctx.arc(goalkeeper.x, goalkeeper.y, GOALKEEPER_RADIUS, 0, Math.PI*2);
-            ctx.fill();
-            ctx.shadowBlur = 0;
-            
-            // Guantes del arquero
-            ctx.fillStyle = '#ffffff';
-            ctx.shadowColor = '#ffffff';
-            ctx.shadowBlur = 15;
-            ctx.beginPath();
-            ctx.arc(goalkeeper.x - 15, goalkeeper.y - 10, 8, 0, Math.PI*2);
-            ctx.arc(goalkeeper.x + 15, goalkeeper.y - 10, 8, 0, Math.PI*2);
+            ctx.arc(
+                gameState.goalkeeper.x, 
+                gameState.goalkeeper.y, 
+                gameConfig.goalkeeperRadius, 
+                0, 
+                Math.PI * 2
+            );
             ctx.fill();
             ctx.shadowBlur = 0;
             
@@ -1139,27 +963,36 @@
             ctx.fillStyle = 'rgba(255,255,255,0.9)';
             ctx.font = 'bold 16px Arial';
             ctx.textAlign = 'center';
-            ctx.fillText(`🎯 Zona: ${currentTargetZone?.name || ''}`, W/2, H - 80);
-            ctx.fillText('Haz click en la zona dorada para marcar', W/2, H - 50);
+            ctx.fillText(
+                `🎯 Zona: ${gameState.targetZone?.name || ''}`, 
+                W/2, 
+                H - 80
+            );
+            ctx.fillText(
+                'Haz click en la zona dorada para marcar', 
+                W/2, 
+                H - 50
+            );
         }
-        
+
         function resizeCanvas() {
             const container = document.querySelector('.game-canvas-container');
-            W = container.clientWidth;
-            H = container.clientHeight;
-            canvas.width = W;
-            canvas.height = H;
+            gameState.width = container.clientWidth;
+            gameState.height = container.clientHeight;
+            gameState.canvas.width = gameState.width;
+            gameState.canvas.height = gameState.height;
             
-            if (goalkeeper.x === 0) {
-                goalkeeper.x = W / 2;
-                goalkeeper.y = GOAL_H / 2;
+            if (gameState.goalkeeper.x === 0) {
+                gameState.goalkeeper.x = gameState.width / 2;
+                gameState.goalkeeper.y = gameConfig.goalHeight / 2;
             }
             
-            if (currentTargetZone) {
+            if (gameState.targetZone) {
                 showTargetZone();
             }
         }
-        
+
+        // ==================== CONTROLES ====================
         function setupControls() {
             const canvas = document.getElementById('canvas');
             
@@ -1168,12 +1001,19 @@
                 const x = clientX - rect.left;
                 const y = clientY - rect.top;
                 
-                if (y < GOAL_H && x > W * 0.2 && x < W * 0.8) {
+                // Solo permitir clicks dentro del arco
+                if (
+                    y < gameConfig.goalHeight && 
+                    x > gameState.width * 0.2 && 
+                    x < gameState.width * 0.8
+                ) {
                     shootPenalty(x, y);
                 }
             }
             
-            canvas.addEventListener('click', e => handleClick(e.clientX, e.clientY));
+            canvas.addEventListener('click', e => {
+                handleClick(e.clientX, e.clientY);
+            });
             
             canvas.addEventListener('touchend', e => {
                 e.preventDefault();
@@ -1183,17 +1023,18 @@
                 }
             }, { passive: false });
         }
-        
+
+        // ==================== INICIALIZACIÓN ====================
         document.addEventListener('DOMContentLoaded', () => {
-            initializeCountrySelect();
+            initializeCountryGrid();
             setupControls();
             loadLeaderboard();
             
             window.addEventListener('resize', () => {
-                if (gameActive) resizeCanvas();
+                if (gameState.active) resizeCanvas();
             });
             
-            document.addEventListener('click', () => AudioSystem.init(), { once: true });
+            document.addEventListener('click', () => audioSystem.init(), { once: true });
         });
     </script>
 </body>
